@@ -1,0 +1,281 @@
+{%- doc -%}
+  Renders a `<landing-gift-picker>` inside a bundle offer: customers choose exactly `count` free
+  accessories (any mix, with repeats) from the given products. `assets/landing-purchase.js`
+  pre-fills a balanced selection, keeps the total at `count`, and adds the chosen variants to the
+  cart with the bundle's `_bundle_gift` properties. Items without stock are not offered.
+
+  @param {product[]} products - Accessory products to choose from (bracelets, earrings, key rings).
+  @param {number} count - How many free accessories the bundle includes.
+  @param {string} slot_id - Unique ID prefix for this picker on the page.
+
+  @example
+  {% render 'landing-gift-picker', products: block.settings.gift_products, count: 4, slot_id: block.id %}
+{%- enddoc -%}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign legend_id = slot_id | append: '-gifts-legend'
+-%}
+
+<landing-gift-picker
+  class="lp-gifts"
+  data-count="{{ count }}"
+  data-incomplete-message="{{ 'landing.gifts.incomplete' | t: count: count | escape }}"
+  data-progress-template="{{ 'landing.gifts.progress' | t: chosen: '__CHOSEN__', count: count | escape }}"
+>
+  <div
+    class="lp-gifts__group"
+    role="group"
+    aria-labelledby="{{ legend_id }}"
+  >
+    <div class="lp-gifts__head">
+      <p class="lp-gifts__legend" id="{{ legend_id }}">{{ 'landing.gifts.legend' | t: count: count }}</p>
+      <p class="lp-gifts__progress" data-gift-progress>{{ 'landing.gifts.progress' | t: chosen: 0, count: count }}</p>
+    </div>
+
+    <ul class="lp-gifts__list" role="list">
+      {%- for gift in products -%}
+        {%- liquid
+          unless gift.available
+            continue
+          endunless
+          assign gift_variant = gift.selected_or_first_available_variant
+          assign title_id = slot_id | append: '-gift-' | append: gift.id
+        -%}
+        <li class="lp-gift" data-gift-item>
+          <div class="lp-gift__media">
+            {%- if gift.featured_image -%}
+              {{
+                gift.featured_image
+                | image_url: width: 160
+                | image_tag: widths: '80, 160', sizes: '56px', loading: 'lazy', alt: ''
+              }}
+            {%- endif -%}
+          </div>
+
+          <div class="lp-gift__info">
+            <span class="lp-gift__title" id="{{ title_id }}">{{ gift.title | escape }}</span>
+            <span class="lp-gift__price">
+              {%- liquid
+                # Promotion-only gifts are priced $0 with their usual value as compare-at price.
+                assign gift_value = gift_variant.price
+                if gift_variant.compare_at_price > gift_value
+                  assign gift_value = gift_variant.compare_at_price
+                endif
+              -%}
+              {%- if gift_value > 0 -%}
+                <s>
+                  <span class="lp-visually-hidden">{{ 'landing.product.regular_price' | t }}</span>
+                  {{- gift_value | money_without_trailing_zeros -}}
+                </s>
+              {% endif -%}
+              {{ 'landing.gifts.free' | t }}
+            </span>
+            {%- if gift.has_only_default_variant -%}
+              <input type="hidden" data-gift-variant value="{{ gift_variant.id }}">
+            {%- else -%}
+              <select
+                class="lp-gift__select"
+                data-gift-variant
+                aria-label="{{ 'landing.gifts.style' | t: title: gift.title | escape }}"
+              >
+                {%- for variant in gift.variants -%}
+                  {%- if variant.available -%}
+                    <option
+                      value="{{ variant.id }}"
+                      {% if variant.id == gift_variant.id %}
+                        selected
+                      {% endif %}
+                    >
+                      {{- variant.title | escape -}}
+                    </option>
+                  {%- endif -%}
+                {%- endfor -%}
+              </select>
+            {%- endif -%}
+          </div>
+
+          <div class="lp-gift__stepper">
+            <button
+              type="button"
+              class="lp-gift__step"
+              data-gift-step="-1"
+              aria-label="{{ 'landing.gifts.remove' | t: title: gift.title | escape }}"
+            >
+              <span aria-hidden="true">&minus;</span>
+            </button>
+            <span
+              class="lp-gift__qty"
+              data-gift-qty
+              aria-labelledby="{{ title_id }}"
+            >
+              0
+            </span>
+            <button
+              type="button"
+              class="lp-gift__step"
+              data-gift-step="1"
+              aria-label="{{ 'landing.gifts.add' | t: title: gift.title | escape }}"
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</landing-gift-picker>
+
+{% stylesheet %}
+  .lp-gifts__group {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border: 1.5px dashed var(--lp-accent);
+    border-radius: var(--lp-radius-sm);
+    background-color: #fff;
+  }
+
+  .lp-gifts__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+
+  .lp-gifts__legend {
+    margin: 0;
+    color: var(--lp-accent);
+    font-size: 0.8125rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .lp-gifts__progress {
+    margin: 0;
+    color: var(--lp-muted);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  .lp-gifts__progress--complete {
+    color: var(--lp-secondary);
+  }
+
+  .lp-gifts__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lp-gift {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border: 1px solid var(--lp-border);
+    border-radius: 10px;
+    background-color: var(--lp-bg);
+  }
+
+  .lp-gift--chosen {
+    border-color: var(--lp-secondary);
+  }
+
+  .lp-gift__media {
+    inline-size: 48px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+
+  .lp-gift__media img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .lp-gift__info {
+    display: grid;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+
+  .lp-gift__title {
+    font-size: 0.8125rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .lp-gift__price {
+    color: var(--lp-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .lp-gift__price s {
+    margin-inline-end: 4px;
+    color: var(--lp-muted);
+    font-weight: 600;
+  }
+
+  .lp-gift__select {
+    max-inline-size: 100%;
+    padding: 2px 4px;
+    border: 1px solid var(--lp-border);
+    border-radius: 6px;
+    background-color: #fff;
+    color: var(--lp-text);
+    font: inherit;
+    font-size: 0.75rem;
+  }
+
+  .lp-gift__stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .lp-gift__step {
+    display: grid;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    padding: 0;
+    border: 1.5px solid var(--lp-navy);
+    border-radius: 50%;
+    background-color: #fff;
+    color: var(--lp-navy);
+    font: inherit;
+    font-size: 1.125rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .lp-gift__step:disabled {
+    border-color: var(--lp-border);
+    color: rgb(var(--lp-text-rgb) / 0.35);
+    cursor: not-allowed;
+  }
+
+  .lp-gift__step:focus-visible {
+    outline: 3px solid var(--lp-accent);
+    outline-offset: 2px;
+  }
+
+  .lp-gift__qty {
+    min-inline-size: 1.5em;
+    font-weight: 900;
+    text-align: center;
+  }
+{% endstylesheet %}

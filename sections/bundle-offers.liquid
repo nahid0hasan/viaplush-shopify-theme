@@ -1,0 +1,215 @@
+{% comment %}
+  Section contract.
+  Primary offer region for landing templates. Merchants choose the top (sweatshirt) and bottom
+  (sweatpants) products once here; each `_bundle-offer` block turns them into a priced bundle of
+  one or more matching sets, with a color and size picker for every piece.
+  The section `id` doubles as the in-page anchor used by the hero call to action.
+  @example
+  <!-- templates/page.winter-sets.json: "One Matching Set" and "Two Matching Sets" blocks -->
+{% endcomment %}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign anchor = section.settings.anchor_id | handleize
+  if anchor == blank
+    assign anchor = 'bundles-' | append: section.id
+  endif
+-%}
+
+<section
+  id="{{ anchor }}"
+  class="lp lp-bundles{% if section.settings.snow %} lp-winter{% endif %}"
+  style="{% render 'landing-section-vars', settings: section.settings %}"
+>
+  {%- if section.settings.snow -%}
+    {% render 'landing-snow-branch', position: 'top-end' %}
+  {%- endif -%}
+  <div class="lp-container">
+    <div class="lp-section-head">
+      {%- if section.settings.limited_stock != blank -%}
+        <p class="lp-badge lp-badge--small lp-brush">{{ section.settings.limited_stock | escape }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <h2 class="lp-heading">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="lp-subheading">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="lp-bundles__grid">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+<script
+  type="module"
+  src="{{ 'landing-purchase.js' | asset_url }}"
+></script>
+
+{% stylesheet %}
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.lp-bundles) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  .lp-bundles {
+    padding-block: clamp(40px, 6vw, 80px);
+    scroll-margin-block-start: 24px;
+    overflow: hidden;
+  }
+
+  /* One offer per row; each card switches to a side-by-side layout when it has room,
+     so a two-set offer never leaves a tall gap beside a one-set offer. */
+  .lp-bundles__grid {
+    display: grid;
+    gap: clamp(28px, 4vw, 44px);
+    max-inline-size: 1180px;
+    margin-inline: auto;
+    container-type: inline-size;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:landing.names.bundle_offers",
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "_bundle-offer"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "t:landing.settings.anchor_id",
+      "info": "t:landing.content.anchor_info",
+      "default": "sets"
+    },
+    {
+      "type": "text",
+      "id": "limited_stock",
+      "label": "t:landing.settings.limited_stock",
+      "default": "Limited stock"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:landing.settings.heading",
+      "default": "Choose your set"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:landing.settings.subheading",
+      "default": "Mix and match: pick the color and size for every sweatshirt and every pair of sweatpants."
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.products",
+      "info": "t:landing.settings.products_info"
+    },
+    {
+      "type": "product_list",
+      "id": "top_products",
+      "label": "t:landing.settings.top_products",
+      "limit": 6
+    },
+    {
+      "type": "text",
+      "id": "top_label",
+      "label": "t:landing.settings.top_label",
+      "default": "Sweatshirt"
+    },
+    {
+      "type": "product_list",
+      "id": "bottom_products",
+      "label": "t:landing.settings.bottom_products",
+      "limit": 6
+    },
+    {
+      "type": "text",
+      "id": "bottom_label",
+      "label": "t:landing.settings.bottom_label",
+      "default": "Sweatpants"
+    },
+    {
+      "type": "textarea",
+      "id": "swatch_colors",
+      "label": "t:landing.settings.swatch_colors",
+      "info": "t:landing.content.swatch_colors_info",
+      "default": "Brown: #F7B98F, #B5451B\nCream: #F4EAD8, #1D5BB5, #EE6A1E"
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.brand_colors"
+    },
+    {
+      "type": "checkbox",
+      "id": "snow",
+      "label": "t:landing.settings.snow",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:landing.settings.background",
+      "default": "#FCEFE2"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:landing.settings.text",
+      "default": "#1E2A3A"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:landing.settings.accent",
+      "default": "#C94A0C"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "t:landing.settings.secondary",
+      "default": "#1D4F91"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:landing.names.bundle_offers",
+      "blocks": {
+        "one_set": {
+          "type": "_bundle-offer",
+          "settings": {
+            "title": "One Matching Set",
+            "badge": "",
+            "highlight": false,
+            "sets": 1,
+            "includes": "1 sweatshirt + 1 pair of sweatpants",
+            "price": 159,
+            "gift_text": "4 free accessories"
+          }
+        },
+        "two_sets": {
+          "type": "_bundle-offer",
+          "settings": {
+            "title": "Two Matching Sets",
+            "badge": "Best value",
+            "highlight": true,
+            "sets": 2,
+            "includes": "2 sweatshirts + 2 pairs of sweatpants",
+            "price": 259,
+            "gift_text": "6 free accessories"
+          }
+        }
+      },
+      "block_order": ["one_set", "two_sets"]
+    }
+  ]
+}
+{% endschema %}

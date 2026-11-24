@@ -1,0 +1,685 @@
+{%- doc -%}
+  Renders one bundle offer card inside `sections/bundle-offers.liquid`: title, contents, set
+  price with an optional comparison value and savings, perks, a color and size picker for every
+  piece in every set, and Add to cart / Checkout buttons.
+
+  Reads the top and bottom product lists from the parent section settings. Each added garment
+  carries a visible "Bundle" property plus hidden `_bundle_id` / `_bundle_key` properties so a
+  bundle app or discount function can price the lines together. Free accessories (a chosen mix
+  from "gift_products", or the single legacy "gift_product") are added with `_bundle_gift`.
+
+  @example
+  {% content_for 'blocks' %}
+{%- enddoc -%}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign top_products = section.settings.top_products
+  assign bottom_products = section.settings.bottom_products
+  assign sets = block.settings.sets
+
+  assign has_products = false
+  if top_products != blank and bottom_products != blank
+    assign has_products = true
+  endif
+
+  assign price_cents = block.settings.price | times: 100 | round
+
+  assign compare_override = 0
+  if block.settings.compare_price != blank
+    assign compare_override = block.settings.compare_price | times: 100 | round
+  endif
+
+  assign computed_compare = 0
+  if has_products
+    # Product lists only support iteration, so take the first entries through loops.
+    for candidate in top_products limit: 1
+      assign top_variant = candidate.selected_or_first_available_variant
+    endfor
+    for candidate in bottom_products limit: 1
+      assign bottom_variant = candidate.selected_or_first_available_variant
+    endfor
+
+    assign top_value = top_variant.compare_at_price | default: 0
+    if top_value < top_variant.price
+      assign top_value = top_variant.price
+    endif
+
+    assign bottom_value = bottom_variant.compare_at_price | default: 0
+    if bottom_value < bottom_variant.price
+      assign bottom_value = bottom_variant.price
+    endif
+
+    assign computed_compare = top_value | plus: bottom_value | times: sets
+  endif
+
+  if compare_override > 0
+    assign compare_cents = compare_override
+  else
+    assign compare_cents = computed_compare
+  endif
+
+  assign savings_cents = compare_cents | minus: price_cents
+  assign show_savings = false
+  assign percent = 0
+  if block.settings.show_savings and savings_cents > 0 and compare_cents > 0
+    assign show_savings = true
+    assign percent = savings_cents | times: 100.0 | divided_by: compare_cents | round
+  endif
+
+  assign gift_variant_id = ''
+  assign gift_variant = block.settings.gift_product.selected_or_first_available_variant
+  if gift_variant.available
+    assign gift_variant_id = gift_variant.id
+  endif
+
+  assign title_id = 'BundleTitle-' | append: block.id
+  assign card_anchor = block.settings.anchor_id | handleize
+-%}
+
+<landing-purchase
+  {% if card_anchor != blank %}
+    id="{{ card_anchor }}"
+  {% endif %}
+  class="lp-bundle{% if block.settings.highlight %} lp-bundle--highlight{% endif %}"
+  role="group"
+  aria-labelledby="{{ title_id }}"
+  data-kind="bundle"
+  data-bundle-title="{{ block.settings.title | escape }}"
+  data-bundle-key="{{ block.id }}"
+  data-bundle-price="{{ price_cents }}"
+  data-compare-override="{{ compare_override }}"
+  data-show-savings="{{ block.settings.show_savings }}"
+  data-gift-variant="{{ gift_variant_id }}"
+  data-gift-quantity="{{ block.settings.gift_quantity }}"
+  data-discount-code="{{ block.settings.discount_code | strip | escape }}"
+  data-currency="{{ cart.currency.iso_code }}"
+  data-locale="{{ request.locale.iso_code }}"
+  data-save-template="{{ 'landing.bundle.save_percent' | t: percent: '__PERCENT__' | escape }}"
+  data-you-save-template="{{ 'landing.bundle.you_save' | t: amount: '__AMOUNT__' | escape }}"
+  data-label-add="{{ 'landing.actions.add_to_cart' | t | escape }}"
+  data-label-sold-out="{{ 'landing.actions.sold_out' | t | escape }}"
+  data-label-adding="{{ 'landing.actions.adding' | t | escape }}"
+  data-label-view-cart="{{ 'landing.actions.view_cart' | t | escape }}"
+  data-msg-added="{{ 'landing.status.added' | t | escape }}"
+  data-msg-error="{{ 'landing.status.error' | t | escape }}"
+  data-msg-unavailable="{{ 'landing.status.unavailable' | t | escape }}"
+  data-property-bundle="{{ 'landing.bundle.bundle_property' | t | escape }}"
+  data-property-gift="{{ 'landing.bundle.gift_property' | t | escape }}"
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.badge != blank -%}
+    <p class="lp-bundle__ribbon">{{ block.settings.badge | escape }}</p>
+  {%- endif -%}
+
+  {%- if block.settings.image -%}
+    <div class="lp-bundle__media">
+      {{
+        block.settings.image
+        | image_url: width: 1200
+        | image_tag:
+          widths: '400, 600, 800, 1000, 1200',
+          sizes: '(min-width: 990px) 600px, calc(100vw - 32px)',
+          loading: 'lazy',
+          alt: block.settings.image.alt
+      }}
+    </div>
+  {%- endif -%}
+
+  <div class="lp-bundle__head">
+    <h3 class="lp-bundle__title" id="{{ title_id }}">{{ block.settings.title | escape }}</h3>
+    {%- if block.settings.includes != blank -%}
+      <p class="lp-bundle__includes">{{ block.settings.includes | escape }}</p>
+    {%- endif -%}
+
+    <div class="lp-price lp-bundle__price">
+      <s
+        class="lp-price__compare"
+        data-lp-compare
+        {% unless show_savings %}
+          hidden
+        {% endunless %}
+      >
+        <span class="lp-visually-hidden">{{ 'landing.bundle.regular_price' | t }}</span>
+        <span data-lp-amount>{{ compare_cents | money_without_trailing_zeros }}</span>
+      </s>
+      <span class="lp-price__current lp-bundle__amount">
+        <span class="lp-visually-hidden">{{ 'landing.bundle.set_price' | t }}</span>
+        {{ price_cents | money_without_trailing_zeros }}
+      </span>
+      <span
+        class="lp-price__save"
+        data-lp-save
+        {% unless show_savings %}
+          hidden
+        {% endunless %}
+      >
+        {{- 'landing.bundle.save_percent' | t: percent: percent -}}
+      </span>
+    </div>
+
+    <p
+      class="lp-bundle__you-save"
+      data-lp-you-save
+      {% unless show_savings %}
+        hidden
+      {% endunless %}
+    >
+      {%- assign savings_money = savings_cents | money_without_trailing_zeros -%}
+      {{- 'landing.bundle.you_save' | t: amount: savings_money -}}
+    </p>
+
+    {%- if block.settings.free_shipping or block.settings.gift_text != blank -%}
+      <ul class="lp-bundle__perks" role="list">
+        {%- if block.settings.free_shipping -%}
+          <li class="lp-ribbon lp-brush">
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              viewBox="0 0 32 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 5h4M0 9h5M2 13h3"/><path d="M8 4h13v12H8zM21 8h5l4 4v4h-9z"/><circle cx="12" cy="18.5" r="2.2"/><circle cx="25" cy="18.5" r="2.2"/>
+            </svg>
+            {{ 'landing.bundle.free_shipping' | t }}
+          </li>
+        {%- endif -%}
+        {%- if block.settings.gift_text != blank -%}
+          <li class="lp-bundle__gift">
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 9h18v4H3zM5 13v8h14v-8M12 9v12M12 9c-1.5-3-5-4-5.5-2S9 9 12 9Zm0 0c1.5-3 5-4 5.5-2S15 9 12 9Z"/>
+            </svg>
+            {{ block.settings.gift_text | escape }}
+          </li>
+        {%- endif -%}
+      </ul>
+    {%- endif -%}
+  </div>
+
+  {%- if has_products -%}
+    <div class="lp-bundle__body">
+    <div class="lp-bundle__sets">
+      {%- for set in (1..sets) -%}
+        {%- liquid
+          assign set_label = 'landing.picker.set_label' | t: number: set
+          assign top_slot = block.id | append: '-' | append: set | append: '-top'
+          assign bottom_slot = block.id | append: '-' | append: set | append: '-bottom'
+        -%}
+        <div
+          class="lp-bundle__set"
+          role="group"
+          aria-label="{{ set_label | escape }}"
+        >
+          {%- if sets > 1 -%}
+            <p class="lp-bundle__set-label" aria-hidden="true">{{ set_label }}</p>
+          {%- endif -%}
+          {% render 'landing-variant-picker',
+            slot_id: top_slot,
+            products: top_products,
+            label: section.settings.top_label,
+            show_thumb: true,
+            swatch_map: section.settings.swatch_colors
+          %}
+          {% render 'landing-variant-picker',
+            slot_id: bottom_slot,
+            products: bottom_products,
+            label: section.settings.bottom_label,
+            show_thumb: true,
+            swatch_map: section.settings.swatch_colors
+          %}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if block.settings.gift_products != blank and block.settings.gift_count > 0 -%}
+      {% render 'landing-gift-picker',
+        products: block.settings.gift_products,
+        count: block.settings.gift_count,
+        slot_id: block.id
+      %}
+    {%- endif -%}
+
+    <div class="lp-actions">
+      <button
+        type="button"
+        class="lp-btn lp-btn--accent"
+        data-lp-action="add"
+      >
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 4h2.2l2.1 10.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.2L20 8H6.2"/>
+          <circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>
+        </svg>
+        <span data-lp-button-label data-lp-add-label>{{ 'landing.actions.add_to_cart' | t }}</span>
+      </button>
+      <button
+        type="button"
+        class="lp-btn lp-btn--secondary"
+        data-lp-action="checkout"
+      >
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1Zm2 0h6V7a3 3 0 0 0-6 0v3Z"/>
+        </svg>
+        <span data-lp-button-label>{{ 'landing.actions.checkout' | t }}</span>
+      </button>
+    </div>
+
+    <p class="lp-status" data-lp-status role="status"></p>
+    </div>
+  {%- elsif request.design_mode -%}
+    <p class="lp-editor-note">{{ 'landing.bundle.editor_empty' | t }}</p>
+  {%- endif -%}
+</landing-purchase>
+
+{% stylesheet %}
+  .lp-bundle {
+    position: relative;
+    display: grid;
+    gap: 18px;
+    min-inline-size: 0;
+    padding: clamp(22px, 3vw, 30px);
+    border: 1.5px solid rgb(var(--lp-text-rgb) / 0.1);
+    border-radius: var(--lp-radius);
+    background-color: rgb(255 255 255 / 0.88);
+    box-shadow: var(--lp-shadow);
+  }
+
+  .lp-bundle {
+    scroll-margin-block-start: 32px;
+  }
+
+  /* Arriving from a hero set link: briefly ring the chosen offer. */
+  .lp-bundle:target {
+    outline: 3px solid var(--lp-secondary);
+    outline-offset: 6px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-bundle:target {
+      animation: lp-bundle-arrive 1.6s var(--lp-ease) both;
+    }
+
+    @keyframes lp-bundle-arrive {
+      0% {
+        outline-color: transparent;
+        transform: scale(0.99);
+      }
+
+      25% {
+        outline-color: var(--lp-secondary);
+        transform: scale(1);
+      }
+
+      100% {
+        outline-color: transparent;
+      }
+    }
+  }
+
+  .lp-bundle--highlight {
+    border: 2.5px solid var(--lp-accent-light);
+    box-shadow: 0 28px 50px -30px var(--lp-accent);
+  }
+
+  .lp-bundle__ribbon {
+    position: absolute;
+    inset-block-start: -16px;
+    inset-inline: 0;
+    justify-self: center;
+    inline-size: max-content;
+    margin: 0 auto;
+    padding: 7px 22px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--lp-accent-light), var(--lp-accent) 45%);
+    color: var(--lp-on-accent);
+    font-size: 0.8125rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    box-shadow: 0 8px 16px -10px var(--lp-accent);
+  }
+
+  .lp-bundle__media {
+    overflow: hidden;
+    border-radius: var(--lp-radius-sm);
+    aspect-ratio: 16 / 10;
+    background-color: var(--lp-peach);
+  }
+
+  .lp-bundle__media img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .lp-bundle__head {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .lp-bundle__title {
+    margin: 0;
+    color: var(--lp-navy);
+    font-family: var(--lp-font-display);
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .lp-bundle__includes {
+    margin: 0;
+    color: var(--lp-secondary);
+    font-family: var(--lp-font-display);
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .lp-bundle__price {
+    justify-content: center;
+    margin-block-start: 4px;
+  }
+
+  .lp-bundle__price .lp-price__compare {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  }
+
+  .lp-bundle__amount {
+    font-size: clamp(2.75rem, 2.2rem + 2.2vw, 3.75rem);
+  }
+
+  .lp-bundle__you-save {
+    margin: 0;
+    color: var(--lp-accent);
+    font-size: 0.9375rem;
+    font-weight: 800;
+  }
+
+  .lp-bundle__you-save[hidden] {
+    display: none;
+  }
+
+  .lp-bundle__perks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 30px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lp-bundle__perks .lp-ribbon {
+    font-size: 1rem;
+  }
+
+  .lp-bundle__gift {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 1.5px dashed var(--lp-accent);
+    border-radius: 999px;
+    background-color: #fff;
+    color: var(--lp-accent);
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .lp-bundle__gift svg {
+    inline-size: 18px;
+    block-size: 18px;
+    flex: none;
+  }
+
+  .lp-bundle__sets {
+    display: grid;
+    gap: 14px;
+  }
+
+  .lp-bundle__set {
+    display: grid;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid rgb(var(--lp-text-rgb) / 0.08);
+    border-radius: var(--lp-radius-sm);
+    background-color: var(--lp-bg);
+  }
+
+  .lp-bundle__set > .lp-picker + .lp-picker {
+    padding-block-start: 16px;
+    border-block-start: 1px dashed rgb(var(--lp-text-rgb) / 0.18);
+  }
+
+  .lp-bundle__body {
+    display: grid;
+    gap: 16px;
+    min-inline-size: 0;
+  }
+
+  .lp-bundle__sets {
+    container-type: inline-size;
+  }
+
+  /* Wide cards: summary on the start side, pickers and buttons on the end side, both centred. */
+  @container (min-width: 880px) {
+    .lp-bundle {
+      grid-template-columns: minmax(280px, 1fr) minmax(0, 1.75fr);
+      gap: 16px clamp(24px, 3vw, 40px);
+      align-items: center;
+    }
+
+    .lp-bundle__media {
+      grid-column: 1 / -1;
+    }
+
+    .lp-bundle__head {
+      padding-block: 12px;
+    }
+
+    .lp-bundle__body .lp-actions {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @container (min-width: 560px) {
+    .lp-bundle__set {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 24px;
+    }
+
+    .lp-bundle__set-label {
+      grid-column: 1 / -1;
+    }
+
+    .lp-bundle__set > .lp-picker + .lp-picker {
+      padding-block-start: 0;
+      padding-inline-start: 24px;
+      border-block-start: 0;
+      border-inline-start: 1px dashed rgb(var(--lp-text-rgb) / 0.18);
+    }
+  }
+
+  .lp-bundle__set-label {
+    margin: 0;
+    color: var(--lp-accent);
+    font-size: 0.8125rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:landing.names.bundle_offer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:landing.settings.title",
+      "default": "One Matching Set"
+    },
+    {
+      "type": "text",
+      "id": "badge",
+      "label": "t:landing.settings.badge"
+    },
+    {
+      "type": "checkbox",
+      "id": "highlight",
+      "label": "t:landing.settings.highlight",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "t:landing.settings.anchor_id",
+      "info": "t:landing.content.anchor_info"
+    },
+    {
+      "type": "range",
+      "id": "sets",
+      "label": "t:landing.settings.sets",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "text",
+      "id": "includes",
+      "label": "t:landing.settings.includes",
+      "default": "1 sweatshirt + 1 pair of sweatpants"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:landing.settings.image"
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.pricing",
+      "info": "t:landing.content.pricing_info"
+    },
+    {
+      "type": "number",
+      "id": "price",
+      "label": "t:landing.settings.price",
+      "default": 159
+    },
+    {
+      "type": "number",
+      "id": "compare_price",
+      "label": "t:landing.settings.compare_price",
+      "info": "t:landing.content.compare_info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_savings",
+      "label": "t:landing.settings.show_savings",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.perks"
+    },
+    {
+      "type": "checkbox",
+      "id": "free_shipping",
+      "label": "t:landing.settings.free_shipping",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "gift_text",
+      "label": "t:landing.settings.gift_text",
+      "default": "4 free accessories"
+    },
+    {
+      "type": "product",
+      "id": "gift_product",
+      "label": "t:landing.settings.gift_product",
+      "info": "t:landing.content.gift_info"
+    },
+    {
+      "type": "range",
+      "id": "gift_quantity",
+      "label": "t:landing.settings.gift_quantity",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1,
+      "visible_if": "{{ block.settings.gift_product != blank }}"
+    },
+    {
+      "type": "product_list",
+      "id": "gift_products",
+      "label": "t:landing.settings.gift_products",
+      "info": "t:landing.content.gift_products_info",
+      "limit": 12
+    },
+    {
+      "type": "range",
+      "id": "gift_count",
+      "label": "t:landing.settings.gift_count",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4,
+      "visible_if": "{{ block.settings.gift_products != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.checkout"
+    },
+    {
+      "type": "text",
+      "id": "discount_code",
+      "label": "t:landing.settings.discount_code",
+      "info": "t:landing.content.discount_info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:landing.names.bundle_offer"
+    }
+  ]
+}
+{% endschema %}

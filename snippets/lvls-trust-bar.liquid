@@ -1,0 +1,77 @@
+{% comment %}
+  LVLS Agency — CRO Trust Bar Snippet
+  Include this below the header on any page.
+  Usage: {% render 'lvls-trust-bar' %}
+{% endcomment %}
+
+<div class="lvls-trust-bar" aria-label="Store trust signals">
+  <div class="lvls-trust-bar__inner">
+    <span class="lvls-trust-bar__item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+     Free shipping when you buy 2 Archive Tees
+    </span>
+    <span class="lvls-trust-bar__divider" aria-hidden="true">|</span>
+    <span class="lvls-trust-bar__item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Easy 30-day returns
+    </span>
+    <span class="lvls-trust-bar__divider" aria-hidden="true">|</span>
+    <span class="lvls-trust-bar__item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Secure checkout
+    </span>
+    <span class="lvls-trust-bar__divider" aria-hidden="true">|</span>
+    <span class="lvls-trust-bar__item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      Limited edition drops
+    </span>
+  </div>
+</div>
+
+{% stylesheet %}
+  .lvls-trust-bar {
+    background-color: #1a1a1a;
+    color: #f5f0e8;
+    padding: 9px 16px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .lvls-trust-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .lvls-trust-bar__item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .lvls-trust-bar__item svg {
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+
+  .lvls-trust-bar__divider {
+    opacity: 0.3;
+    font-size: 14px;
+  }
+
+  @media screen and (max-width: 480px) {
+    .lvls-trust-bar__divider {
+      display: none;
+    }
+    .lvls-trust-bar__inner {
+      gap: 6px 16px;
+    }
+  }
+{% endstylesheet %}

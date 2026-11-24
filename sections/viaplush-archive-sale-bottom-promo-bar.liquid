@@ -1,0 +1,978 @@
+{%- comment -%}
+  VIAPLUSH – Archive Sale Bottom Promo Bar
+  Shopify Online Store 2.0 section for Atelier theme.
+  Pill-shaped urgency promo bar — icon + accent + supporting text.
+  Scoped to #viaplush-promo-bar-{{ section.id }} — no global styles.
+  Liquid + HTML + CSS only. No JavaScript.
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign s = section.settings
+
+  assign container_type = s.container_type | default: 'theme'
+  assign bar_width = s.bar_width | default: 'auto'
+  assign content_align = s.content_alignment | default: 'center'
+  assign mobile_wrap = s.mobile_wrap_behavior | default: 'shrink'
+  assign icon_type = s.icon_type | default: 'heart'
+  assign show_icon = s.show_icon | default: true
+  assign clickable = s.make_clickable | default: false
+
+  assign accent_text = s.accent_text | default: "DON'T WAIT."
+  assign supporting_text = s.supporting_text | default: "GRAB YOUR FAVORITES BEFORE THEY'RE ARCHIVED FOREVER."
+
+  assign accent_transform = s.accent_text_transform | default: 'uppercase'
+  assign supporting_transform = s.supporting_text_transform | default: 'uppercase'
+
+  assign section_bg = s.section_background_type | default: 'transparent'
+
+  assign pill_tag = 'div'
+  if clickable and s.link_url != blank
+    assign pill_tag = 'a'
+  endif
+
+  assign accessible_label = accent_text | append: ' ' | append: supporting_text | strip_html
+
+  assign hide_theme_header = s.hide_theme_header
+  if hide_theme_header == null
+    assign hide_theme_header = false
+  endif
+
+  assign hide_theme_footer = s.hide_theme_footer
+  if hide_theme_footer == null
+    assign hide_theme_footer = true
+  endif
+-%}
+
+{%- if hide_theme_header or hide_theme_footer -%}
+  <script>
+    (function () {
+      var root = document.documentElement;
+      {%- if hide_theme_header -%}
+      root.classList.add('viaplush-landing-hide-theme-header');
+      {%- endif -%}
+      {%- if hide_theme_footer -%}
+      root.classList.add('viaplush-landing-hide-theme-footer');
+      {%- endif -%}
+    })();
+  </script>
+  <style id="viaplush-landing-chrome-hide-{{ sid }}">
+    {%- if hide_theme_header -%}
+    html.viaplush-landing-hide-theme-header #shopify-section-header,
+    html.viaplush-landing-hide-theme-header .section-header,
+    html.viaplush-landing-hide-theme-header .header-wrapper,
+    html.viaplush-landing-hide-theme-header #HeaderWrapper,
+    html.viaplush-landing-hide-theme-header sticky-header,
+    html.viaplush-landing-hide-theme-header header-component,
+    html.viaplush-landing-hide-theme-header .shopify-section-header,
+    html.viaplush-landing-hide-theme-header .shopify-section-announcement-bar,
+    html.viaplush-landing-hide-theme-header [class*="announcement-bar"],
+    html.viaplush-landing-hide-theme-header [id*="shopify-section"][id*="announcement"]:not([id*="cart"]) {
+      display: none !important;
+    }
+    html.viaplush-landing-hide-theme-header cart-drawer,
+    html.viaplush-landing-hide-theme-header cart-drawer-component,
+    html.viaplush-landing-hide-theme-header #CartDrawer,
+    html.viaplush-landing-hide-theme-header [id*="cart-drawer"]:not([id*="viaplush"]),
+    html.viaplush-landing-hide-theme-header .cart-drawer:not(.viaplush-cart-drawer),
+    html.viaplush-landing-hide-theme-header .drawer--cart,
+    html.viaplush-landing-hide-theme-header #cart-drawer {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+    }
+    {%- endif -%}
+    {%- if hide_theme_footer -%}
+    html.viaplush-landing-hide-theme-footer .shopify-section-group-footer-group,
+    html.viaplush-landing-hide-theme-footer #shopify-section-footer,
+    html.viaplush-landing-hide-theme-footer .footer,
+    html.viaplush-landing-hide-theme-footer .site-footer,
+    html.viaplush-landing-hide-theme-footer footer.footer {
+      display: none !important;
+    }
+    {%- endif -%}
+  </style>
+{%- endif -%}
+
+<section
+  id="viaplush-promo-bar-{{ sid }}"
+  class="viaplush-promo-bar viaplush-promo-bar--container-{{ container_type }} viaplush-promo-bar--section-bg-{{ section_bg }} viaplush-promo-bar--bar-{{ bar_width }} viaplush-promo-bar--align-{{ content_align }} viaplush-promo-bar--mobile-{{ mobile_wrap }}{% if clickable and s.link_url != blank %} viaplush-promo-bar--clickable{% endif %}{% if s.pill_shadow %} viaplush-promo-bar--shadow{% endif %}{% if s.pill_border %} viaplush-promo-bar--bordered{% endif %}"
+  style="
+    --vpb-sec-bg: {{ s.section_background_color | default: 'transparent' }};
+    --vpb-sec-grad-1: {{ s.section_gradient_color_1 | default: '#F9F7F2' }};
+    --vpb-sec-grad-2: {{ s.section_gradient_color_2 | default: '#EDE8DF' }};
+    --vpb-sec-grad-dir: {{ s.section_gradient_direction | default: 'to right' }};
+    --vpb-custom-max: {{ s.custom_max_width | default: 1200 }}px;
+    --vpb-pad-d: {{ s.container_padding_desktop | default: 24 }}px;
+    --vpb-pad-t: {{ s.container_padding_tablet | default: 20 }}px;
+    --vpb-pad-m: {{ s.container_padding_mobile | default: 16 }}px;
+    --vpb-sec-pt-d: {{ s.section_padding_top_desktop | default: 32 }}px;
+    --vpb-sec-pb-d: {{ s.section_padding_bottom_desktop | default: 40 }}px;
+    --vpb-sec-pt-t: {{ s.section_padding_top_tablet | default: 28 }}px;
+    --vpb-sec-pb-t: {{ s.section_padding_bottom_tablet | default: 36 }}px;
+    --vpb-sec-pt-m: {{ s.section_padding_top_mobile | default: 24 }}px;
+    --vpb-sec-pb-m: {{ s.section_padding_bottom_mobile | default: 32 }}px;
+    --vpb-pill-bg: {{ s.pill_background_color | default: '#B8C4A8' }};
+    --vpb-pill-radius: {{ s.pill_border_radius | default: 999 }}px;
+    --vpb-pill-pad-x-d: {{ s.pill_padding_horizontal_desktop | default: 36 }}px;
+    --vpb-pill-pad-x-t: {{ s.pill_padding_horizontal_tablet | default: 28 }}px;
+    --vpb-pill-pad-x-m: {{ s.pill_padding_horizontal_mobile | default: 18 }}px;
+    --vpb-pill-pad-y-d: {{ s.pill_padding_vertical_desktop | default: 14 }}px;
+    --vpb-pill-pad-y-t: {{ s.pill_padding_vertical_tablet | default: 12 }}px;
+    --vpb-pill-pad-y-m: {{ s.pill_padding_vertical_mobile | default: 10 }}px;
+    --vpb-pill-border-color: {{ s.pill_border_color | default: '#000000' }};
+    --vpb-pill-border-width: {{ s.pill_border_width | default: 1 }}px;
+    --vpb-pill-max-w: {{ s.pill_custom_max_width | default: 960 }}px;
+    --vpb-pill-max-w-m: {{ s.pill_max_width_mobile | default: 92 }}%;
+    --vpb-icon-size-d: {{ s.icon_size_desktop | default: 18 }}px;
+    --vpb-icon-size-t: {{ s.icon_size_tablet | default: 17 }}px;
+    --vpb-icon-size-m: {{ s.icon_size_mobile | default: 16 }}px;
+    --vpb-icon-color: {{ s.icon_color | default: '#000000' }};
+    --vpb-gap-icon-accent-d: {{ s.gap_icon_accent_desktop | default: 10 }}px;
+    --vpb-gap-icon-accent-t: {{ s.gap_icon_accent_tablet | default: 9 }}px;
+    --vpb-gap-icon-accent-m: {{ s.gap_icon_accent_mobile | default: 8 }}px;
+    --vpb-gap-accent-support-d: {{ s.gap_accent_supporting_desktop | default: 12 }}px;
+    --vpb-gap-accent-support-t: {{ s.gap_accent_supporting_tablet | default: 10 }}px;
+    --vpb-gap-accent-support-m: {{ s.gap_accent_supporting_mobile | default: 8 }}px;
+    --vpb-accent-size-d: {{ s.accent_font_size_desktop | default: 14 }}px;
+    --vpb-accent-size-t: {{ s.accent_font_size_tablet | default: 13 }}px;
+    --vpb-accent-size-m: {{ s.accent_font_size_mobile | default: 11 }}px;
+    --vpb-accent-weight: {{ s.accent_font_weight | default: 700 }};
+    --vpb-accent-color: {{ s.accent_text_color | default: '#8B1A1A' }};
+    --vpb-support-size-d: {{ s.supporting_font_size_desktop | default: 13 }}px;
+    --vpb-support-size-t: {{ s.supporting_font_size_tablet | default: 12 }}px;
+    --vpb-support-size-m: {{ s.supporting_font_size_mobile | default: 10 }}px;
+    --vpb-support-weight: {{ s.supporting_font_weight | default: 600 }};
+    --vpb-support-color: {{ s.supporting_text_color | default: '#000000' }};
+    --vpb-mobile-scale: {{ s.mobile_font_scale | default: 100 | divided_by: 100.0 }};
+    --vpb-focus-color: {{ s.link_focus_color | default: '#000000' }};
+    --vpb-content-justify: {% if content_align == 'left' %}flex-start{% else %}center{% endif %};
+    --vpb-accent-transform: {{ accent_transform }};
+    --vpb-support-transform: {{ supporting_transform }};
+  "
+>
+  <div class="viaplush-promo-bar__container{% if container_type == 'theme' %} page-width{% endif %}">
+    <{{ pill_tag }}
+      class="viaplush-promo-bar__pill"
+      {% if pill_tag == 'a' %}
+        href="{{ s.link_url }}"
+        {% if s.link_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}
+        aria-label="{{ accessible_label }}"
+      {% endif %}
+    >
+      <p class="viaplush-promo-bar__message">
+        <span class="viaplush-promo-bar__primary-line">
+          {%- if show_icon and icon_type != 'none' -%}
+            <span class="viaplush-promo-bar__icon" aria-hidden="true">
+              {%- case icon_type -%}
+                {%- when 'star' -%}
+                  <svg class="viaplush-promo-bar__icon-svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                {%- when 'sparkle' -%}
+                  <svg class="viaplush-promo-bar__icon-svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                {%- else -%}
+                  <svg class="viaplush-promo-bar__icon-svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M12 20.25s-6.75-4.35-6.75-9.75a4.13 4.13 0 0 1 7.31-2.56A4.13 4.13 0 0 1 18.75 10.5c0 5.4-6.75 9.75-6.75 9.75z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+              {%- endcase -%}
+            </span>
+          {%- endif -%}
+          <strong class="viaplush-promo-bar__accent-text">{{ accent_text }}</strong>
+        </span>
+        <span class="viaplush-promo-bar__supporting-text">{{ supporting_text }}</span>
+      </p>
+    </{{ pill_tag }}>
+  </div>
+</section>
+
+<style>
+  @font-face {
+    font-family: 'Coastal';
+    src: url('{{ 'Coastal.otf' | asset_url }}') format('opentype');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #viaplush-promo-bar-{{ sid }} {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--vpb-sec-bg);
+    padding-top: var(--vpb-sec-pt-d);
+    padding-bottom: var(--vpb-sec-pb-d);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--section-bg-gradient {
+    background-color: transparent;
+    background-image: linear-gradient(var(--vpb-sec-grad-dir), var(--vpb-sec-grad-1), var(--vpb-sec-grad-2));
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--section-bg-solid {
+    background-color: var(--vpb-sec-bg);
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__container {
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: var(--vpb-content-justify);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-theme .viaplush-promo-bar__container {
+    max-width: var(--page-width, 1200px);
+    padding-left: var(--vpb-pad-d);
+    padding-right: var(--vpb-pad-d);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-full .viaplush-promo-bar__container {
+    max-width: 100%;
+    padding-left: var(--vpb-pad-d);
+    padding-right: var(--vpb-pad-d);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-custom .viaplush-promo-bar__container {
+    max-width: var(--vpb-custom-max);
+    padding-left: var(--vpb-pad-d);
+    padding-right: var(--vpb-pad-d);
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    max-width: 100%;
+    background-color: var(--vpb-pill-bg);
+    border-radius: var(--vpb-pill-radius);
+    padding: var(--vpb-pill-pad-y-d) var(--vpb-pill-pad-x-d);
+    box-sizing: border-box;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--bar-full .viaplush-promo-bar__pill {
+    width: 100%;
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--bar-custom .viaplush-promo-bar__pill {
+    width: 100%;
+    max-width: var(--vpb-pill-max-w);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--bordered .viaplush-promo-bar__pill {
+    border: var(--vpb-pill-border-width) solid var(--vpb-pill-border-color);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--shadow .viaplush-promo-bar__pill {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--clickable .viaplush-promo-bar__pill:hover {
+    opacity: 0.92;
+    transform: scale(1.01);
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--clickable .viaplush-promo-bar__pill:focus {
+    outline: none;
+  }
+
+  #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--clickable .viaplush-promo-bar__pill:focus-visible {
+    outline: 2px solid var(--vpb-focus-color);
+    outline-offset: 3px;
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__message {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: var(--vpb-gap-accent-support-d);
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    font-family: var(--font-body-family, inherit);
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__primary-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    gap: var(--vpb-gap-icon-accent-d);
+    min-width: 0;
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: var(--vpb-icon-size-d);
+    height: var(--vpb-icon-size-d);
+    color: var(--vpb-icon-color);
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__icon-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__accent-text {
+    font-size: var(--vpb-accent-size-d);
+    font-weight: 700;
+    font-family: 'Coastal', serif;
+    color: var(--vpb-accent-color);
+    letter-spacing: var(--vpb-accent-spacing);
+    text-transform: var(--vpb-accent-transform);
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__supporting-text {
+    font-size: var(--vpb-support-size-d);
+    font-weight: var(--vpb-support-weight);
+    color: var(--vpb-support-color);
+    letter-spacing: var(--vpb-support-spacing);
+    text-transform: var(--vpb-support-transform);
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #viaplush-promo-bar-{{ sid }} {
+      padding-top: var(--vpb-sec-pt-t);
+      padding-bottom: var(--vpb-sec-pb-t);
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-theme .viaplush-promo-bar__container,
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-full .viaplush-promo-bar__container,
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-custom .viaplush-promo-bar__container {
+      padding-left: var(--vpb-pad-t);
+      padding-right: var(--vpb-pad-t);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__pill {
+      padding: var(--vpb-pill-pad-y-t) var(--vpb-pill-pad-x-t);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__message {
+      gap: var(--vpb-gap-accent-support-t);
+      
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__primary-line {
+      gap: var(--vpb-gap-icon-accent-t);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__icon {
+      width: var(--vpb-icon-size-t);
+      height: var(--vpb-icon-size-t);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__accent-text {
+      font-size: var(--vpb-accent-size-t);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__supporting-text {
+      font-size: var(--vpb-support-size-t);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #viaplush-promo-bar-{{ sid }} {
+      padding-top: var(--vpb-sec-pt-m);
+      padding-bottom: var(--vpb-sec-pb-m);
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-theme .viaplush-promo-bar__container,
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-full .viaplush-promo-bar__container,
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--container-custom .viaplush-promo-bar__container {
+      padding-left: var(--vpb-pad-m);
+      padding-right: var(--vpb-pad-m);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__pill {
+      padding: var(--vpb-pill-pad-y-m) var(--vpb-pill-pad-x-m);
+      max-width: var(--vpb-pill-max-w-m);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__message {
+      gap: var(--vpb-gap-accent-support-m);
+      flex-direction: column;
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__primary-line {
+      gap: var(--vpb-gap-icon-accent-m);
+    }
+
+    #viaplush-promo-bar-{{ sid }} .viaplush-promo-bar__icon {
+      width: var(--vpb-icon-size-m);
+      height: var(--vpb-icon-size-m);
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-shrink .viaplush-promo-bar__accent-text {
+      font-size: calc(var(--vpb-accent-size-m) * var(--vpb-mobile-scale));
+      white-space: nowrap;
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-shrink .viaplush-promo-bar__supporting-text {
+      font-size: calc(var(--vpb-support-size-m) * var(--vpb-mobile-scale));
+      white-space: nowrap;
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-wrap .viaplush-promo-bar__message {
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 4px;
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-wrap .viaplush-promo-bar__primary-line {
+      justify-content: center;
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-wrap .viaplush-promo-bar__accent-text {
+      font-size: var(--vpb-accent-size-m);
+      white-space: normal;
+    }
+
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-wrap .viaplush-promo-bar__supporting-text {
+      flex: 0 0 100%;
+      font-size: var(--vpb-support-size-m);
+      white-space: normal;
+      text-align: center;
+    }
+  }
+
+  @media screen and (max-width: 389px) {
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-shrink .viaplush-promo-bar__accent-text,
+    #viaplush-promo-bar-{{ sid }}.viaplush-promo-bar--mobile-shrink .viaplush-promo-bar__supporting-text {
+      font-size: calc(var(--vpb-support-size-m) * var(--vpb-mobile-scale) * 0.92);
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "VIAPLUSH Bottom Promo Bar",
+  "tag": "section",
+  "class": "viaplush-promo-bar-section",
+  "settings": [
+    { "type": "header", "content": "Landing page — theme header & footer" },
+    {
+      "type": "paragraph",
+      "content": "Enable these when using this section on a sales/landing page so the default Atelier header and footer are hidden automatically."
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_theme_header",
+      "label": "Hide default theme header",
+      "default": false,
+      "info": "Usually controlled by the VIAPLUSH Minimal Header section at the top of the page."
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_theme_footer",
+      "label": "Hide default theme footer",
+      "default": true,
+      "info": "Hides the global footer on this page."
+    },
+
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "accent_text", "label": "Accent text", "default": "DON'T WAIT." },
+    {
+      "type": "text",
+      "id": "supporting_text",
+      "label": "Supporting text",
+      "default": "GRAB YOUR FAVORITES BEFORE THEY'RE ARCHIVED FOREVER."
+    },
+
+    { "type": "header", "content": "Icon" },
+    { "type": "checkbox", "id": "show_icon", "label": "Show icon", "default": true },
+    {
+      "type": "select",
+      "id": "icon_type",
+      "label": "Icon",
+      "options": [
+        { "value": "heart", "label": "Heart" },
+        { "value": "star", "label": "Star" },
+        { "value": "sparkle", "label": "Sparkle" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "heart"
+    },
+    { "type": "color", "id": "icon_color", "label": "Icon color", "default": "#000000" },
+    {
+      "type": "range",
+      "id": "icon_size_desktop",
+      "label": "Icon size — desktop (px)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "icon_size_tablet",
+      "label": "Icon size — tablet (px)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "icon_size_mobile",
+      "label": "Icon size — mobile (px)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "gap_icon_accent_desktop",
+      "label": "Gap icon → accent — desktop (px)",
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "gap_icon_accent_tablet",
+      "label": "Gap icon → accent — tablet (px)",
+      "min": 0,
+      "max": 28,
+      "step": 1,
+      "default": 9
+    },
+    {
+      "type": "range",
+      "id": "gap_icon_accent_mobile",
+      "label": "Gap icon → accent — mobile (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+
+    { "type": "header", "content": "Accent text style" },
+    {
+      "type": "range",
+      "id": "accent_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "accent_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "accent_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 8,
+      "max": 18,
+      "step": 1,
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "accent_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 800,
+      "step": 100,
+      "default": 700
+    },
+    { "type": "color", "id": "accent_text_color", "label": "Color", "default": "#8B1A1A" },
+    {
+      "type": "select",
+      "id": "accent_text_transform",
+      "label": "Text transform",
+      "options": [
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "uppercase"
+    },
+
+    { "type": "header", "content": "Supporting text style" },
+    {
+      "type": "range",
+      "id": "supporting_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 9,
+      "max": 22,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "supporting_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 9,
+      "max": 20,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "supporting_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "supporting_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 700,
+      "step": 100,
+      "default": 600
+    },
+    { "type": "color", "id": "supporting_text_color", "label": "Color", "default": "#000000" },
+    {
+      "type": "select",
+      "id": "supporting_text_transform",
+      "label": "Text transform",
+      "options": [
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "gap_accent_supporting_desktop",
+      "label": "Gap accent → supporting — desktop (px)",
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "gap_accent_supporting_tablet",
+      "label": "Gap accent → supporting — tablet (px)",
+      "min": 0,
+      "max": 28,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "gap_accent_supporting_mobile",
+      "label": "Gap accent → supporting — mobile (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+
+    { "type": "header", "content": "Pill container" },
+    {
+      "type": "select",
+      "id": "bar_width",
+      "label": "Bar width",
+      "options": [
+        { "value": "auto", "label": "Auto (hug content)" },
+        { "value": "full", "label": "Full width" },
+        { "value": "custom", "label": "Custom max-width" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "range",
+      "id": "pill_custom_max_width",
+      "label": "Custom pill max width (px)",
+      "min": 400,
+      "max": 1400,
+      "step": 10,
+      "default": 960
+    },
+    { "type": "color", "id": "pill_background_color", "label": "Background color", "default": "#B8C4A8" },
+    {
+      "type": "range",
+      "id": "pill_border_radius",
+      "label": "Border radius (px)",
+      "min": 10,
+      "max": 990,
+      "step": 10,
+      "default": 990
+    },
+    {
+      "type": "range",
+      "id": "pill_padding_horizontal_desktop",
+      "label": "Horizontal padding — desktop (px)",
+      "min": 8,
+      "max": 80,
+      "step": 2,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "pill_padding_horizontal_tablet",
+      "label": "Horizontal padding — tablet (px)",
+      "min": 8,
+      "max": 64,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "pill_padding_horizontal_mobile",
+      "label": "Horizontal padding — mobile (px)",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "pill_padding_vertical_desktop",
+      "label": "Vertical padding — desktop (px)",
+      "min": 4,
+      "max": 40,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "pill_padding_vertical_tablet",
+      "label": "Vertical padding — tablet (px)",
+      "min": 4,
+      "max": 36,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "pill_padding_vertical_mobile",
+      "label": "Vertical padding — mobile (px)",
+      "min": 4,
+      "max": 32,
+      "step": 1,
+      "default": 10
+    },
+    { "type": "checkbox", "id": "pill_border", "label": "Show pill border", "default": false },
+    { "type": "color", "id": "pill_border_color", "label": "Border color", "default": "#000000" },
+    {
+      "type": "range",
+      "id": "pill_border_width",
+      "label": "Border width (px)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 1
+    },
+    { "type": "checkbox", "id": "pill_shadow", "label": "Drop shadow", "default": false },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment",
+      "options": [
+        { "value": "center", "label": "Center" },
+        { "value": "left", "label": "Left" }
+      ],
+      "default": "center"
+    },
+
+    { "type": "header", "content": "Section container" },
+    {
+      "type": "select",
+      "id": "container_type",
+      "label": "Container width",
+      "options": [
+        { "value": "theme", "label": "Theme / Page width" },
+        { "value": "full", "label": "Full width" },
+        { "value": "custom", "label": "Custom width" }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "range",
+      "id": "custom_max_width",
+      "label": "Custom max width (px)",
+      "min": 900,
+      "max": 1800,
+      "step": 10,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding_desktop",
+      "label": "Desktop horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "container_padding_tablet",
+      "label": "Tablet horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "container_padding_mobile",
+      "label": "Mobile horizontal padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16
+    },
+
+    { "type": "header", "content": "Section spacing & background" },
+    {
+      "type": "select",
+      "id": "section_background_type",
+      "label": "Section background",
+      "options": [
+        { "value": "transparent", "label": "Transparent" },
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" }
+      ],
+      "default": "transparent"
+    },
+    { "type": "color", "id": "section_background_color", "label": "Background color", "default": "#F9F7F2" },
+    { "type": "color", "id": "section_gradient_color_1", "label": "Gradient color 1", "default": "#F9F7F2" },
+    { "type": "color", "id": "section_gradient_color_2", "label": "Gradient color 2", "default": "#EDE8DF" },
+    {
+      "type": "select",
+      "id": "section_gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to bottom", "label": "Top to bottom" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to right"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "label": "Padding top — desktop (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "label": "Padding bottom — desktop (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_tablet",
+      "label": "Padding top — tablet (px)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_tablet",
+      "label": "Padding bottom — tablet (px)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Padding top — mobile (px)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Padding bottom — mobile (px)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 32
+    },
+
+    { "type": "header", "content": "Mobile layout" },
+    {
+      "type": "select",
+      "id": "mobile_wrap_behavior",
+      "label": "Mobile wrap behavior",
+      "options": [
+        { "value": "shrink", "label": "Keep one line, shrink font" },
+        { "value": "wrap", "label": "Wrap to two lines" }
+      ],
+      "default": "shrink"
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_scale",
+      "label": "Mobile font scale (%)",
+      "min": 70,
+      "max": 100,
+      "step": 1,
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "pill_max_width_mobile",
+      "label": "Pill max width on mobile (%)",
+      "min": 80,
+      "max": 100,
+      "step": 1,
+      "default": 92
+    },
+
+    { "type": "header", "content": "Optional link" },
+    { "type": "checkbox", "id": "make_clickable", "label": "Make bar clickable", "default": false },
+    { "type": "url", "id": "link_url", "label": "Link URL" },
+    { "type": "checkbox", "id": "link_new_tab", "label": "Open in new tab", "default": false },
+    { "type": "color", "id": "link_focus_color", "label": "Focus outline color", "default": "#000000" }
+  ],
+  "presets": [
+    {
+      "name": "VIAPLUSH Bottom Promo Bar"
+    }
+  ]
+}
+{% endschema %}

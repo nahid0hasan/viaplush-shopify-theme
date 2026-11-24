@@ -1,0 +1,246 @@
+{% comment %}
+  LVLS Agency — Sticky Add to Cart Bar
+  Include at bottom of product template.
+  Usage: {% render 'lvls-sticky-atc', product: product %}
+{% endcomment %}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+<div
+  class="lvls-sticky-atc"
+  id="lvls-sticky-atc"
+  aria-label="Quick add to cart"
+  data-product-id="{{ product.id }}"
+>
+  <div class="lvls-sticky-atc__inner">
+    <div class="lvls-sticky-atc__info">
+      {%- if product.featured_image -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 80 }}"
+          alt="{{ product.title | escape }}"
+          class="lvls-sticky-atc__img"
+          width="40"
+          height="40"
+          loading="lazy"
+        >
+      {%- endif -%}
+      <div class="lvls-sticky-atc__text">
+        <span class="lvls-sticky-atc__title">{{ product.title }}</span>
+        <span class="lvls-sticky-atc__price" id="lvls-sticky-price">
+          {{ current_variant.price | money }}
+        </span>
+      </div>
+    </div>
+
+    <div class="lvls-sticky-atc__actions">
+      <select
+        class="lvls-sticky-atc__size-select"
+        id="lvls-sticky-size"
+        aria-label="Select size"
+      >
+        {%- for variant in product.variants -%}
+          <option
+            value="{{ variant.id }}"
+            {% if variant == current_variant %}selected{% endif %}
+            {% unless variant.available %}disabled{% endunless %}
+          >
+            {{ variant.title }}{%- unless variant.available %} — Sold out{%- endunless -%}
+          </option>
+        {%- endfor -%}
+      </select>
+
+      <button
+        type="button"
+        class="lvls-sticky-atc__btn"
+        id="lvls-sticky-btn"
+        {% unless current_variant.available %}disabled{% endunless %}
+      >
+        {%- if current_variant.available -%}
+          Add to cart
+        {%- else -%}
+          Sold out
+        {%- endif -%}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var bar = document.getElementById('lvls-sticky-atc');
+  var btn = document.getElementById('lvls-sticky-btn');
+  var sizeSelect = document.getElementById('lvls-sticky-size');
+  var stickyPrice = document.getElementById('lvls-sticky-price');
+
+  if (!bar || !btn) return;
+
+  var productData = {{ product.variants | json }};
+  var variantMap = {};
+  productData.forEach(function(v) {
+    variantMap[v.id] = v;
+  });
+
+  function formatMoney(cents) {
+    return '$' + (cents / 100).toFixed(2).replace(/\.00$/, '');
+  }
+
+  if (sizeSelect) {
+    sizeSelect.addEventListener('change', function() {
+      var vid = parseInt(this.value);
+      var variant = variantMap[vid];
+      if (!variant) return;
+      if (stickyPrice) stickyPrice.textContent = formatMoney(variant.price);
+      btn.disabled = !variant.available;
+      btn.textContent = variant.available ? 'Add to cart' : 'Sold out';
+    });
+  }
+
+  btn.addEventListener('click', function() {
+    var vid = sizeSelect ? sizeSelect.value : {{ current_variant.id }};
+    btn.textContent = 'Adding...';
+    btn.disabled = true;
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: parseInt(vid), quantity: 1 })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() {
+      btn.textContent = 'Added!';
+      btn.style.background = '#2a7a2a';
+      setTimeout(function() {
+        btn.textContent = 'Add to cart';
+        btn.style.background = '';
+        btn.disabled = false;
+        document.dispatchEvent(new CustomEvent('cart:refresh'));
+      }, 1800);
+    })
+    .catch(function() {
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+    });
+  });
+
+  var sentinel = document.querySelector('.product-form-buttons, [data-type="add-to-cart-form"]');
+  if (!sentinel) { bar.classList.add('lvls-sticky-atc--visible'); return; }
+
+  var observer = new IntersectionObserver(function(entries) {
+    bar.classList.toggle('lvls-sticky-atc--visible', !entries[0].isIntersecting);
+  }, { threshold: 0 });
+  observer.observe(sentinel);
+})();
+</script>
+
+{% stylesheet %}
+  .lvls-sticky-atc {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    padding: 10px 16px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .lvls-sticky-atc--visible {
+    transform: translateY(0);
+  }
+
+  .lvls-sticky-atc__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .lvls-sticky-atc__info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .lvls-sticky-atc__img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .lvls-sticky-atc__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .lvls-sticky-atc__title {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+    color: #1a1a1a;
+  }
+
+  .lvls-sticky-atc__price {
+    font-size: 13px;
+    color: #555;
+  }
+
+  .lvls-sticky-atc__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .lvls-sticky-atc__size-select {
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 13px;
+    background: #fff;
+    cursor: pointer;
+    max-width: 120px;
+  }
+
+  .lvls-sticky-atc__btn {
+    height: 40px;
+    padding: 0 20px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, opacity 0.2s;
+  }
+
+  .lvls-sticky-atc__btn:hover:not(:disabled) {
+    background: #333;
+  }
+
+  .lvls-sticky-atc__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media screen and (max-width: 480px) {
+    .lvls-sticky-atc__title { max-width: 100px; }
+    .lvls-sticky-atc__size-select { max-width: 90px; }
+    .lvls-sticky-atc__btn { padding: 0 14px; }
+  }
+{% endstylesheet %}

@@ -1,0 +1,51 @@
+{% comment %}
+  LVLS Agency — Star rating trust block
+  Shows under the product title. Replace with Judge.me snippet once reviews are live.
+{% endcomment %}
+
+<div class="lvls-rating" aria-label="Customer rating">
+  <div class="lvls-rating__stars" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+  </div>
+  <span class="lvls-rating__text" aria-label="4.9 out of 5, 127 reviews">4.9 <span class="lvls-rating__count">(127 reviews)</span></span>
+</div>
+
+<style>
+  .lvls-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    padding-bottom: 12px;
+  }
+
+  .lvls-rating__stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: #f5a623;
+  }
+
+  .lvls-rating__stars svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .lvls-rating__text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1;
+  }
+
+  .lvls-rating__count {
+    font-weight: 400;
+    color: #666;
+    font-size: 12px;
+  }
+</style>

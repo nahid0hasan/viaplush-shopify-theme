@@ -1,0 +1,362 @@
+{%- doc -%}
+  Renders a `<landing-variant-picker>` for one purchasable slot (for example "Sweatshirt" in a
+  bundle, or one colorway card). Customers pick a colorway product (when several products are
+  supplied) and then each product option (Color, Size, ...). Values without an available variant
+  are crossed out and disabled; `assets/landing-purchase.js` keeps availability in sync with live
+  inventory and reports the selected variant to the surrounding `<landing-purchase>`.
+
+  Color swatches use the Shopify swatch when one is set, otherwise a split circle built from the
+  color names in the value ("Peach / Orange"), otherwise the variant image.
+
+  Pass either `products` (a product list) or a single `product`.
+
+  @param {string} slot_id - Unique ID for this slot on the page, used for radio group names.
+  @param {product[]} [products] - Products the customer can choose between (one per colorway).
+  @param {product} [product] - A single product, used instead of `products`.
+  @param {string} [label] - Visible slot label, for example "Sweatshirt".
+  @param {boolean} [show_thumb] - Shows a small image of the selected variant. Defaults to false.
+  @param {string} [fixed_value] - Locks the color option to this value and hides that option
+    (used by one-card-per-colorway layouts). Requires `product`.
+  @param {string} [swatch_map] - Swatch overrides, one per line: "Brown: #F7B98F, #B5451B".
+    Matching color values (case-insensitive) get a split circle in those colors.
+
+  @example
+  {% render 'landing-variant-picker', slot_id: 'bundle-1-top-1', products: section.settings.top_products, label: 'Sweatshirt', show_thumb: true %}
+{%- enddoc -%}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign style_label = 'landing.picker.style' | t
+  # Product lists only support iteration (no index or .first), so read them through loops.
+  if product != blank
+    assign total = 1
+    assign first_product = product
+    assign loop_source = '1' | split: ','
+  else
+    assign total = products.size
+    for candidate in products limit: 1
+      assign first_product = candidate
+    endfor
+    assign loop_source = products
+  endif
+
+  assign swatch_lines = swatch_map | newline_to_br | split: '<br />'
+
+  assign first_variant = first_product.selected_or_first_available_variant
+  assign thumb_image = first_variant.featured_image | default: first_product.featured_image
+-%}
+
+<landing-variant-picker
+  class="lp-picker{% unless show_thumb %} lp-picker--no-thumb{% endunless %}"
+  {% if label != blank %}
+    data-slot-label="{{ label | escape }}"
+  {% endif %}
+>
+  {%- if show_thumb -%}
+    <div class="lp-picker__thumb">
+      {%- if thumb_image -%}
+        {{
+          thumb_image
+          | image_url: width: 216
+          | image_tag:
+            widths: '144, 216',
+            sizes: '72px',
+            loading: 'lazy',
+            alt: first_product.title,
+            data-picker-image: ''
+        }}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if label != blank -%}
+    <p class="lp-picker__label">{{ label | escape }}</p>
+  {%- endif -%}
+
+  {%- if total > 1 -%}
+    <fieldset class="lp-option">
+      <legend class="lp-option__legend">
+        {{ 'landing.picker.select' | t: option: style_label }}:
+        <span class="lp-option__selected" data-product-choice-label>{{ first_product.title | escape }}</span>
+      </legend>
+      <div class="lp-option__values">
+        {%- for choice in products -%}
+          {%- liquid
+            assign choice_style = ''
+            if choice.featured_image
+              assign choice_style = choice.featured_image | image_url: width: 96 | prepend: 'url(' | append: ')'
+            endif
+          -%}
+          <label
+            class="lp-option__value{% if choice_style != blank %} lp-option__value--swatch{% endif %}"
+            title="{{ choice.title | escape }}"
+          >
+            <input
+              type="radio"
+              name="{{ slot_id }}-product"
+              value="{{ forloop.index0 }}"
+              data-product-choice
+              data-title="{{ choice.title | escape }}"
+              {% if forloop.first %}
+                checked
+              {% endif %}
+              {% unless choice.available %}
+                disabled
+              {% endunless %}
+            >
+            {%- if choice_style != blank -%}
+              <span
+                class="lp-swatch"
+                style="--lp-swatch: {{ choice_style }};"
+                aria-hidden="true"
+              ></span>
+              <span class="lp-visually-hidden">{{ choice.title | escape }}</span>
+            {%- else -%}
+              {{ choice.title | escape }}
+            {%- endif -%}
+          </label>
+        {%- endfor -%}
+      </div>
+    </fieldset>
+  {%- endif -%}
+
+  {%- for item in loop_source -%}
+    {%- liquid
+      if product != blank
+        assign p = product
+      else
+        assign p = item
+      endif
+
+      # Locate the color option once per product; used for swatches and fixed colorways.
+      assign color_index = -1
+      for option in p.options_with_values
+        assign option_name = option.name | downcase
+        if option_name contains 'color' or option_name contains 'colour'
+          assign color_index = forloop.index0
+          break
+        endif
+      endfor
+
+      assign locked = false
+      if fixed_value != blank and color_index >= 0
+        assign locked = true
+      endif
+
+      # First available variant inside the locked colorway seeds the initial selection.
+      assign seed_variant = p.selected_or_first_available_variant
+      if locked
+        assign seed_variant = null
+        for variant in p.variants
+          if variant.options[color_index] == fixed_value
+            if seed_variant == null
+              assign seed_variant = variant
+            endif
+            if variant.available
+              assign seed_variant = variant
+              break
+            endif
+          endif
+        endfor
+      endif
+    -%}
+    <div
+      class="lp-picker__product"
+      data-product-panel
+      data-handle="{{ p.handle }}"
+      data-title="{{ p.title | escape }}"
+      {% unless forloop.first %}
+        hidden
+      {% endunless %}
+    >
+      <script type="application/json" data-variants>
+        [
+          {%- for variant in p.variants -%}
+            {%- assign v_image = variant.featured_image | default: p.featured_image -%}
+            {"id":{{ variant.id }},"options":{{ variant.options | json }},"available":{{ variant.available | json }},"price":{{ variant.price | json }},"compare":{{ variant.compare_at_price | default: 0 | json }},"image":{% if v_image %}{{ v_image | image_url: width: 1200 | json }}{% else %}null{% endif %}}
+            {%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        ]
+      </script>
+
+      {%- unless p.has_only_default_variant -%}
+        {%- for option in p.options_with_values -%}
+          {%- liquid
+            assign option_index = forloop.index0
+            assign is_color = false
+            if option_index == color_index
+              assign is_color = true
+            endif
+            assign selected_value = seed_variant.options[option_index]
+          -%}
+          <fieldset
+            class="lp-option"
+            data-option-index="{{ option_index }}"
+            {% if locked and is_color %}
+              hidden
+            {% endif %}
+          >
+            <legend class="lp-option__legend">
+              {{ 'landing.picker.select' | t: option: option.name }}:
+              <span class="lp-option__selected" data-option-selected>{{ selected_value | escape }}</span>
+            </legend>
+            <div class="lp-option__values">
+              {%- for value in option.values -%}
+                {%- liquid
+                  assign value_name = value.name
+                  if locked and is_color and value_name != fixed_value
+                    continue
+                  endif
+
+                  # Availability relative to the values chosen in earlier options (Shopify's rule).
+                  assign value_available = false
+                  for variant in p.variants
+                    unless variant.available
+                      continue
+                    endunless
+                    if variant.options[option_index] != value_name
+                      continue
+                    endif
+                    assign matches_earlier = true
+                    for earlier in (0..option_index)
+                      if earlier == option_index
+                        break
+                      endif
+                      if variant.options[earlier] != seed_variant.options[earlier]
+                        assign matches_earlier = false
+                        break
+                      endif
+                    endfor
+                    if matches_earlier
+                      assign value_available = true
+                      break
+                    endif
+                  endfor
+
+                  assign swatch_style = ''
+                  if is_color
+                    # The section's swatch setting wins over Shopify swatches and name guessing,
+                    # so landing pages can show multi-tone colorways.
+                    assign color_names = value_name | split: '/'
+                    assign has_override = false
+                    assign value_key = value_name | strip | downcase
+                    for swatch_line in swatch_lines
+                      assign line_parts = swatch_line | split: ':'
+                      if line_parts.size < 2
+                        continue
+                      endif
+                      assign line_key = line_parts[0] | strip | downcase
+                      if line_key == value_key
+                        assign override_colors = line_parts[1] | strip | split: ','
+                        assign override_stops = ''
+                        for override_color in override_colors
+                          assign override_stops = override_stops | append: '|' | append: override_color | strip
+                        endfor
+                        assign color_names = override_stops | remove_first: '|' | split: '|'
+                        assign has_override = true
+                        break
+                      endif
+                    endfor
+
+                    if has_override == false and value.swatch.image
+                      assign swatch_style = value.swatch.image | image_url: width: 96 | prepend: 'url(' | append: ')'
+                    elsif has_override == false and value.swatch.color
+                      assign swatch_style = value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
+                    else
+                      assign stops = ''
+                      assign mapped = 0
+                      for color_name in color_names
+                        assign key = color_name | strip | downcase
+                        if key contains '#'
+                          assign hex = key
+                        else
+                        case key
+                          when 'peach'
+                            assign hex = '#f7b98f'
+                          when 'orange'
+                            assign hex = '#ee6a1e'
+                          when 'cream', 'ivory', 'off white', 'off-white', 'natural'
+                            assign hex = '#f4ead8'
+                          when 'blue', 'royal', 'royal blue', 'cobalt'
+                            assign hex = '#1d5bb5'
+                          when 'navy'
+                            assign hex = '#1b2a4a'
+                          when 'red'
+                            assign hex = '#c62f1f'
+                          when 'rust', 'burnt orange'
+                            assign hex = '#b5451b'
+                          when 'white'
+                            assign hex = '#ffffff'
+                          when 'black'
+                            assign hex = '#1a1a1a'
+                          when 'grey', 'gray', 'heather grey', 'heather gray'
+                            assign hex = '#9a9a9a'
+                          when 'brown', 'chocolate'
+                            assign hex = '#6b4226'
+                          when 'green', 'olive', 'sage'
+                            assign hex = '#5f7d4e'
+                          when 'yellow', 'mustard'
+                            assign hex = '#e3b23c'
+                          when 'pink'
+                            assign hex = '#eba3b8'
+                          when 'beige', 'tan', 'sand', 'khaki'
+                            assign hex = '#d4bf9a'
+                          else
+                            assign hex = ''
+                        endcase
+                        endif
+                        if hex != ''
+                          assign mapped = mapped | plus: 1
+                          assign stops = stops | append: hex | append: '|'
+                        endif
+                      endfor
+                      assign stop_list = stops | split: '|'
+                      if mapped == color_names.size and mapped == 1
+                        assign swatch_style = stop_list[0]
+                      elsif mapped == color_names.size and mapped == 2
+                        assign swatch_style = 'linear-gradient(135deg, ' | append: stop_list[0] | append: ' 50%, ' | append: stop_list[1] | append: ' 50%)'
+                      elsif mapped == color_names.size and mapped >= 3
+                        assign swatch_style = 'linear-gradient(135deg, ' | append: stop_list[0] | append: ' 50%, ' | append: stop_list[1] | append: ' 50% 78%, ' | append: stop_list[2] | append: ' 78%)'
+                      elsif value.variant.featured_image
+                        assign swatch_style = value.variant.featured_image | image_url: width: 96 | prepend: 'url(' | append: ')'
+                      endif
+                    endif
+                  endif
+                -%}
+                <label
+                  class="lp-option__value{% if swatch_style != blank %} lp-option__value--swatch{% endif %}"
+                  {% if swatch_style != blank %}
+                    title="{{ value | escape }}"
+                  {% endif %}
+                >
+                  <input
+                    type="radio"
+                    name="{{ slot_id }}-{{ p.id }}-{{ option.position }}"
+                    value="{{ value | escape }}"
+                    {% if value_name == selected_value %}
+                      checked
+                    {% endif %}
+                    {% unless value_available %}
+                      disabled
+                    {% endunless %}
+                  >
+                  {%- if swatch_style != blank -%}
+                    <span
+                      class="lp-swatch"
+                      style="--lp-swatch: {{ swatch_style }};"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="lp-visually-hidden">{{ value | escape }}</span>
+                  {%- else -%}
+                    {{ value | escape }}
+                  {%- endif -%}
+                </label>
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+      {%- endunless -%}
+    </div>
+  {%- endfor -%}
+</landing-variant-picker>

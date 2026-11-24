@@ -1,0 +1,2788 @@
+{%- comment -%}
+  VIAPLUSH – Dynamic Featured Collection Grid
+  Shopify OS 2.0 | Atelier-compatible | Scoped CSS + vanilla JS
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign s = section.settings
+  assign container_type = s.container_type | default: 'theme'
+  assign collection = s.collection
+  assign color_option_name = s.color_option_name | default: 'Color'
+  assign size_option_name = s.size_option_name | default: 'Size'
+
+  if s.show_all_products
+    assign product_limit = 50
+  else
+    assign product_limit = s.product_limit | default: 7
+  endif
+
+  assign aspect_css = 'auto'
+  case s.image_aspect_ratio
+    when 'square'
+      assign aspect_css = '1 / 1'
+    when '4_5'
+      assign aspect_css = '4 / 5'
+    when '3_4'
+      assign aspect_css = '3 / 4'
+  endcase
+
+  assign view_all_url = collection.url | default: ''
+  if s.view_all_url != blank
+    assign view_all_url = s.view_all_url
+  endif
+-%}
+
+<section
+  id="viaplush-featured-collection-{{ sid }}"
+  class="viaplush-featured-collection viaplush-featured-collection--container-{{ container_type }} viaplush-featured-collection--bg-{{ s.background_type | default: 'solid' }}{% if s.equal_card_height %} viaplush-featured-collection--equal-height{% endif %}"
+  data-viaplush-featured-collection
+  data-section-id="{{ sid }}"
+  style="
+    --vfc-bg: {{ s.background_color | default: '#F9F7F2' }};
+    --vfc-grad-1: {{ s.gradient_color_1 | default: '#F9F7F2' }};
+    --vfc-grad-2: {{ s.gradient_color_2 | default: '#EDE8DF' }};
+    --vfc-grad-dir: {{ s.gradient_direction | default: 'to right' }};
+    --vfc-custom-max: {{ s.custom_max_width | default: 1200 }}px;
+    --vfc-pad-d: {{ s.container_padding_desktop | default: 24 }}px;
+    --vfc-pad-t: {{ s.container_padding_tablet | default: 20 }}px;
+    --vfc-pad-m: {{ s.container_padding_mobile | default: 16 }}px;
+    --vfc-sec-pt-d: {{ s.section_padding_top_desktop | default: 40 }}px;
+    --vfc-sec-pb-d: {{ s.section_padding_bottom_desktop | default: 48 }}px;
+    --vfc-sec-pt-t: {{ s.section_padding_top_tablet | default: 32 }}px;
+    --vfc-sec-pb-t: {{ s.section_padding_bottom_tablet | default: 40 }}px;
+    --vfc-sec-pt-m: {{ s.section_padding_top_mobile | default: 24 }}px;
+    --vfc-sec-pb-m: {{ s.section_padding_bottom_mobile | default: 32 }}px;
+    --vfc-cols-d: {{ s.columns_desktop | default: 4 }};
+    --vfc-cols-t: {{ s.columns_tablet | default: 2 }};
+    --vfc-cols-m: {{ s.columns_mobile | default: 1 }};
+    --vfc-col-gap-d: {{ s.column_gap_desktop | default: 20 }}px;
+    --vfc-col-gap-t: {{ s.column_gap_tablet | default: 16 }}px;
+    --vfc-col-gap-m: {{ s.column_gap_mobile | default: 12 }}px;
+    --vfc-row-gap-d: {{ s.row_gap_desktop | default: 28 }}px;
+    --vfc-row-gap-t: {{ s.row_gap_tablet | default: 24 }}px;
+    --vfc-row-gap-m: {{ s.row_gap_mobile | default: 20 }}px;
+    --vfc-card-bg: {{ s.card_background_color | default: '#F9F7F2' }};
+    --vfc-card-radius: {{ s.card_border_radius | default: 0 }}px;
+    --vfc-card-border-w: {{ s.card_border_width | default: 0 }}px;
+    --vfc-card-border-color: {{ s.card_border_color | default: 'transparent' }};
+    --vfc-img-aspect: {{ aspect_css }};
+    --vfc-img-fit: {{ s.image_fit | default: 'cover' }};
+    --vfc-img-transition: {{ s.image_swap_speed | default: 300 }}ms;
+    --vfc-badge-bg: {{ s.badge_background_color | default: '#8B1A1A' }};
+    --vfc-badge-text: {{ s.badge_text_color | default: '#ffffff' }};
+    --vfc-badge-radius: {{ s.badge_border_radius | default: 2 }}px;
+    --vfc-badge-size: {{ s.badge_font_size | default: 11 }}px;
+    --vfc-badge-weight: {{ s.badge_font_weight | default: 700 }};
+    --vfc-title-size-d: {{ s.title_font_size_desktop | default: 13 }}px;
+    --vfc-title-size-t: {{ s.title_font_size_tablet | default: 12 }}px;
+    --vfc-title-size-m: {{ s.title_font_size_mobile | default: 12 }}px;
+    --vfc-title-weight: {{ s.title_font_weight | default: 700 }};
+    --vfc-title-color: {{ s.title_color | default: '#000000' }};
+    --vfc-price-size-d: {{ s.price_font_size_desktop | default: 15 }}px;
+    --vfc-price-size-t: {{ s.price_font_size_tablet | default: 14 }}px;
+    --vfc-price-size-m: {{ s.price_font_size_mobile | default: 14 }}px;
+    --vfc-price-weight: {{ s.price_font_weight | default: 700 }};
+    --vfc-price-color: {{ s.price_color | default: '#8B1A1A' }};
+    --vfc-compare-color: {{ s.compare_color | default: '#888888' }};
+    --vfc-swatch-size: {{ s.swatch_size | default: 18 }}px;
+    --vfc-swatch-gap: {{ s.swatch_spacing | default: 6 }}px;
+    --vfc-swatch-border: {{ s.swatch_border_color | default: '#cccccc' }};
+    --vfc-swatch-selected: {{ s.swatch_selected_border_color | default: '#000000' }};
+    --vfc-size-h: {{ s.size_button_height | default: 28 }}px;
+    --vfc-size-min-w: {{ s.size_button_min_width | default: 32 }}px;
+    --vfc-size-gap: {{ s.size_spacing | default: 4 }}px;
+    --vfc-size-border: {{ s.size_border_color | default: '#000000' }};
+    --vfc-size-selected-bg: {{ s.size_selected_background | default: '#000000' }};
+    --vfc-size-selected-text: {{ s.size_selected_text_color | default: '#ffffff' }};
+    --vfc-size-disabled-opacity: {{ s.size_disabled_opacity | default: 40 | divided_by: 100.0 }};
+    --vfc-atc-bg: {{ s.atc_background_color | default: '#000000' }};
+    --vfc-atc-text: {{ s.atc_text_color | default: '#ffffff' }};
+    --vfc-atc-hover-bg: {{ s.atc_hover_background_color | default: '#1a1a1a' }};
+    --vfc-atc-success-bg: {{ s.atc_success_background_color | default: '#2d6a4f' }};
+    --vfc-atc-success-text: {{ s.atc_success_text_color | default: '#ffffff' }};
+    --vfc-atc-radius: {{ s.atc_border_radius | default: 0 }}px;
+    --vfc-buynow-bg: {{ s.buynow_background_color | default: 'transparent' }};
+    --vfc-buynow-text: {{ s.buynow_text_color | default: '#000000' }};
+    --vfc-buynow-border: {{ s.buynow_border_color | default: '#000000' }};
+    --vfc-buynow-hover-bg: {{ s.buynow_hover_background_color | default: '#000000' }};
+    --vfc-buynow-hover-text: {{ s.buynow_hover_text_color | default: '#ffffff' }};
+    --vfc-buynow-radius: {{ s.buynow_border_radius | default: 0 }}px;
+    --vfc-btn-gap: {{ s.button_gap | default: 8 }}px;
+    --vfc-viewcart-bg: {{ s.viewcart_background_color | default: '#ffffff' }};
+    --vfc-viewcart-text: {{ s.viewcart_text_color | default: '#000000' }};
+    --vfc-viewcart-border: {{ s.viewcart_border_color | default: '#000000' }};
+    --vfc-viewcart-hover-bg: {{ s.viewcart_hover_background_color | default: '#000000' }};
+    --vfc-viewcart-hover-text: {{ s.viewcart_hover_text_color | default: '#ffffff' }};
+    --vfc-msg-bg: {{ s.cart_msg_background_color | default: '#2d6a4f' }};
+    --vfc-msg-text: {{ s.cart_msg_text_color | default: '#ffffff' }};
+    --vfc-heading-color: {{ s.heading_color | default: '#8B1A1A' }};
+    --vfc-subheading-color: {{ s.subheading_color | default: '#000000' }};
+    --vfc-heading-size-d: {{ s.heading_font_size_desktop | default: 18 }}px;
+    --vfc-heading-size-t: {{ s.heading_font_size_tablet | default: 16 }}px;
+    --vfc-heading-size-m: {{ s.heading_font_size_mobile | default: 14 }}px;
+    --vfc-sub-size-d: {{ s.subheading_font_size_desktop | default: 14 }}px;
+    --vfc-sub-size-t: {{ s.subheading_font_size_tablet | default: 13 }}px;
+    --vfc-sub-size-m: {{ s.subheading_font_size_mobile | default: 12 }}px;
+    --vfc-offer-gap: {{ s.offer_row_gap | default: 4 }}px;
+    --vfc-offer-label-gap: {{ s.offer_label_compare_gap | default: 8 }}px;
+  "
+>
+  <div
+    class="viaplush-featured-collection__container{% if container_type == 'theme' %} page-width{% endif %}"
+    id="product-list-cm"
+  >
+    {%- if s.show_header -%}
+      <header
+        class="viaplush-featured-collection__header viaplush-featured-collection__header--{{ s.heading_alignment | default: 'center' }}"
+        style="text-align: {{ s.heading_alignment | default: 'center' }};"
+      >
+        {%- if s.show_divider_above -%}
+          <div class="viaplush-featured-collection__header-divider" aria-hidden="true"></div>
+        {%- endif -%}
+        {%- if s.heading != blank -%}
+          <h2 class="viaplush-featured-collection__heading">
+            {%- if s.show_warning_icon -%}
+              <span class="viaplush-featured-collection__warning-icon" aria-hidden="true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                </svg>
+              </span>
+            {%- endif -%}
+            <span>{{ s.heading }}</span>
+          </h2>
+        {%- endif -%}
+        {%- if s.subheading != blank -%}
+          <p class="viaplush-featured-collection__subheading">{{ s.subheading }}</p>
+        {%- endif -%}
+        {%- if s.show_divider_below -%}
+          <div class="viaplush-featured-collection__header-divider" aria-hidden="true"></div>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if collection != blank and collection.products_count > 0 -%}
+      <div class="viaplush-featured-collection__grid" role="list">
+        {%- for product in collection.products limit: product_limit -%}
+          {%- liquid
+            assign color_index = null
+            assign size_index = null
+            for option in product.options_with_values
+              if option.name == color_option_name
+                assign color_index = forloop.index0
+              endif
+              if option.name == size_option_name
+                assign size_index = forloop.index0
+              endif
+            endfor
+
+            assign first_color = blank
+            assign first_variant = null
+            for variant in product.variants
+              if variant.available
+                assign first_variant = variant
+                if color_index != null
+                  case color_index
+                    when 0
+                      assign first_color = variant.option1
+                    when 1
+                      assign first_color = variant.option2
+                    when 2
+                      assign first_color = variant.option3
+                  endcase
+                endif
+                break
+              endif
+            endfor
+            if first_variant == null
+              assign first_variant = product.selected_or_first_available_variant
+              if color_index != null
+                case color_index
+                  when 0
+                    assign first_color = first_variant.option1
+                  when 1
+                    assign first_color = first_variant.option2
+                  when 2
+                    assign first_color = first_variant.option3
+                endcase
+              endif
+            endif
+
+            assign display_variant = first_variant
+            assign front_image = display_variant.featured_image | default: product.featured_image
+            assign back_image = null
+            if product.images.size > 1
+              for image in product.images
+                if image.id != front_image.id
+                  assign back_image = image
+                  break
+                endif
+              endfor
+            endif
+
+            assign on_sale = false
+            if display_variant.compare_at_price > display_variant.price
+              assign on_sale = true
+            endif
+            assign product_sold_out = true
+            if product.available
+              assign product_sold_out = false
+            endif
+
+            assign badge_text = blank
+            case s.badge_source
+              when 'automatic'
+                if on_sale
+                  assign badge_text = 'SALE'
+                endif
+              when 'manual'
+                assign badge_text = s.manual_badge_text
+              when 'metafield'
+                assign badge_text = product.metafields.custom.badge | default: product.metafields.theme.badge
+              when 'tag'
+                if product.tags contains s.badge_tag
+                  assign badge_text = s.badge_tag_text | default: s.badge_tag
+                endif
+            endcase
+            if product_sold_out
+              assign badge_text = 'SOLD OUT'
+            endif
+          -%}
+
+          <article
+            class="viaplush-featured-collection__card{% if product_sold_out %} viaplush-featured-collection__card--sold-out{% endif %}"
+            role="listitem"
+            data-product-card
+            data-product-id="{{ product.id }}"
+          >
+            <div class="viaplush-featured-collection__card-inner">
+              <div class="viaplush-featured-collection__media-wrap">
+                {%- if badge_text != blank -%}
+                  <span class="viaplush-featured-collection__badge viaplush-featured-collection__badge--{{ s.badge_position | default: 'top-left' }}">
+                    {{- badge_text -}}
+                  </span>
+                {%- endif -%}
+                <a
+                  href="{{ product.url }}"
+                  class="viaplush-featured-collection__media{% if s.enable_hover_swap %} viaplush-featured-collection__media--swap{% endif %}"
+                  data-media-link
+                  {% unless s.link_title_to_product %}
+                    tabindex="-1" aria-hidden="true"
+                  {% endunless %}
+                  aria-label="{{ product.title | escape }}"
+                >
+                  <span class="viaplush-featured-collection__media-inner">
+                    {%- if front_image -%}
+                      <img
+                        class="viaplush-featured-collection__img viaplush-featured-collection__img--front"
+                        src="{{ front_image | image_url: width: 600 }}"
+                        srcset="{{ front_image | image_url: width: 300 }} 300w, {{ front_image | image_url: width: 450 }} 450w, {{ front_image | image_url: width: 600 }} 600w"
+                        sizes="(min-width: 990px) calc((100vw - 80px) / {{ s.columns_desktop | default: 4 }}), (min-width: 750px) calc((100vw - 48px) / {{ s.columns_tablet | default: 2 }}), calc((100vw - 32px) / {{ s.columns_mobile | default: 1 }})"
+                        alt="{{ front_image.alt | default: product.title | escape }}"
+                        loading="{% if forloop.index > 4 %}lazy{% else %}eager{% endif %}"
+                        width="{{ front_image.width }}"
+                        height="{{ front_image.height }}"
+                        data-front-image
+                      >
+                    {%- else -%}
+                      {{ 'product-1' | placeholder_svg_tag: 'viaplush-featured-collection__placeholder' }}
+                    {%- endif -%}
+                    {%- if back_image and s.enable_hover_swap -%}
+                      <img
+                        class="viaplush-featured-collection__img viaplush-featured-collection__img--back"
+                        src="{{ back_image | image_url: width: 600 }}"
+                        alt="{{ back_image.alt | default: product.title | escape }}"
+                        loading="lazy"
+                        width="{{ back_image.width }}"
+                        height="{{ back_image.height }}"
+                        data-back-image
+                        hidden
+                      >
+                    {%- endif -%}
+                  </span>
+                </a>
+              </div>
+
+              <div class="viaplush-featured-collection__body">
+                <div class="viaplush-featured-collection__title-row">
+                  <div class="viaplush-featured-collection__title-col">
+                    {%- if s.link_title_to_product -%}
+                      <span
+                        class="viaplush-featured-collection__title{% if s.title_truncate %} viaplush-featured-collection__title--clamp{% endif %}"
+                        style="--vfc-title-clamp: {{ s.title_max_lines | default: 2 }};"
+                      >
+                        <a href="{{ product.url }}">{{ product.title }}</a>
+                      </span>
+                    {%- else -%}
+                      <span
+                        class="viaplush-featured-collection__title{% if s.title_truncate %} viaplush-featured-collection__title--clamp{% endif %}"
+                        style="--vfc-title-clamp: {{ s.title_max_lines | default: 2 }};"
+                      >
+                        {{ product.title }}
+                      </span>
+                    {%- endif -%}
+
+                    <div class="viaplush-featured-collection__offers" data-offer-prices>
+                      {%- if s.deal_single_text != blank -%}
+                        <div class="viaplush-featured-collection__offer-row">
+                          <span class="viaplush-featured-collection__offer-label">{{ s.deal_single_text }}</span>
+                          {%- if s.deal_single_compare != blank -%}
+                            <span class="viaplush-featured-collection__offer-compare"><s>{{ s.deal_single_compare }}</s></span>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                      <div class="viaplush-featured-collection__offer-row">
+                        <span class="viaplush-featured-collection__offer-label">
+                          {{- s.deal_1_text | default: '2 for $75' -}}
+                        </span>
+                        <span class="viaplush-featured-collection__offer-compare">
+                          <s>{{ s.deal_1_compare | default: '$105' }}</s>
+                        </span>
+                      </div>
+                      <div class="viaplush-featured-collection__offer-row">
+                        <span class="viaplush-featured-collection__offer-label">
+                          {{- s.deal_2_text | default: '3 for $105' -}}
+                        </span>
+                        <span class="viaplush-featured-collection__offer-compare">
+                          <s>{{ s.deal_2_compare | default: '$156.50' }}</s>
+                        </span>
+                      </div>
+                      <div class="viaplush-featured-collection__offer-row">
+                        <span class="viaplush-featured-collection__offer-label">
+                          {{- s.deal_3_text | default: '5 for $145' -}}
+                        </span>
+                        <span class="viaplush-featured-collection__offer-compare">
+                          <s>{{ s.deal_3_compare | default: '$258' }}</s>
+                        </span>
+                      </div>
+                      {%- assign deal_note = s.deal_note_text | default: 'Free shipping on every bundle' -%}
+                      {%- if deal_note != blank -%}
+                        <span class="viaplush-featured-collection__offer-note">{{ deal_note }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- if color_index != null -%}
+                    <fieldset class="viaplush-featured-collection__swatches" data-color-fieldset>
+                      <legend class="viaplush-featured-collection__visually-hidden">
+                        {{ color_option_name }} for {{ product.title }}
+                      </legend>
+                      {%- for option in product.options_with_values -%}
+                        {%- if option.name == color_option_name -%}
+                          {%- for value in option.values -%}
+                            {%- liquid
+                              assign cv = value.name
+                              if cv == blank
+                                assign cv = value
+                              endif
+                              assign color_available = false
+                              for v in product.variants
+                                case color_index
+                                  when 0
+                                    if v.option1 == cv and v.available
+                                      assign color_available = true
+                                    endif
+                                  when 1
+                                    if v.option2 == cv and v.available
+                                      assign color_available = true
+                                    endif
+                                  when 2
+                                    if v.option3 == cv and v.available
+                                      assign color_available = true
+                                    endif
+                                endcase
+                              endfor
+                              assign swatch_color = value.swatch.color
+                              assign swatch_image = value.swatch.image
+                            -%}
+                            {%- if color_available or s.show_disabled_colors -%}
+                              <input
+                                type="radio"
+                                class="viaplush-featured-collection__swatch-input"
+                                name="color-{{ product.id }}-{{ sid }}"
+                                id="swatch-{{ product.id }}-{{ cv | handle }}-{{ sid }}"
+                                value="{{ cv | escape }}"
+                                data-color-value="{{ cv | escape }}"
+                                {% if cv == first_color %}
+                                  checked
+                                {% endif %}
+                                {% unless color_available %}
+                                  disabled
+                                {% endunless %}
+                              >
+                              <label
+                                class="viaplush-featured-collection__swatch viaplush-featured-collection__swatch--{{ s.swatch_shape | default: 'circle' }}{% unless color_available %} viaplush-featured-collection__swatch--disabled{% endunless %}"
+                                for="swatch-{{ product.id }}-{{ cv | handle }}-{{ sid }}"
+                                title="{{ cv | escape }}"
+                              >
+                                <span
+                                  class="viaplush-featured-collection__swatch-color"
+                                  {% if swatch_color != blank %}
+                                    style="background-color: {{ swatch_color }};"
+                                  {% else %}
+                                    data-color-name="{{ cv | escape }}"
+                                  {% endif %}
+                                >
+                                  {%- if swatch_image != blank -%}
+                                    <img
+                                      src="{{ swatch_image | image_url: width: 80 }}"
+                                      alt=""
+                                      width="40"
+                                      height="40"
+                                      loading="lazy"
+                                      class="viaplush-featured-collection__swatch-img"
+                                    >
+                                  {%- endif -%}
+                                </span>
+                              </label>
+                            {%- endif -%}
+                          {%- endfor -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </fieldset>
+                  {%- endif -%}
+                </div>
+
+                {%- if size_index != null -%}
+                  <fieldset class="viaplush-featured-collection__sizes" data-size-fieldset>
+                    <legend class="viaplush-featured-collection__visually-hidden">
+                      {{ size_option_name }} for {{ product.title }}
+                    </legend>
+                    {%- assign size_values = '' -%}
+                    {%- for variant in product.variants -%}
+                      {%- case size_index -%}
+                        {%- when 0 -%}
+                          {%- assign sv = variant.option1 -%}
+                        {%- when 1 -%}
+                          {%- assign sv = variant.option2 -%}
+                        {%- when 2 -%}
+                          {%- assign sv = variant.option3 -%}
+                      {%- endcase -%}
+                      {%- assign size_key = '|' | append: sv | append: '|' -%}
+                      {%- unless size_values contains size_key -%}
+                        {%- assign size_values = size_values | append: '|' | append: sv | append: '|' -%}
+                        {%- assign size_available = false -%}
+                        {%- if first_color != blank and color_index != null -%}
+                          {%- for v in product.variants -%}
+                            {%- assign match_color = false -%}
+                            {%- case color_index -%}
+                              {%- when 0 -%}
+                                {%- if v.option1 == first_color -%}{%- assign match_color = true -%}{%- endif -%}
+                              {%- when 1 -%}
+                                {%- if v.option2 == first_color -%}{%- assign match_color = true -%}{%- endif -%}
+                              {%- when 2 -%}
+                                {%- if v.option3 == first_color -%}{%- assign match_color = true -%}{%- endif -%}
+                            {%- endcase -%}
+                            {%- if match_color -%}
+                              {%- case size_index -%}
+                                {%- when 0 -%}
+                                  {%- if v.option1 == sv and v.available -%}
+                                    {%- assign size_available = true -%}
+                                  {%- endif -%}
+                                {%- when 1 -%}
+                                  {%- if v.option2 == sv and v.available -%}
+                                    {%- assign size_available = true -%}
+                                  {%- endif -%}
+                                {%- when 2 -%}
+                                  {%- if v.option3 == sv and v.available -%}
+                                    {%- assign size_available = true -%}
+                                  {%- endif -%}
+                              {%- endcase -%}
+                            {%- endif -%}
+                          {%- endfor -%}
+                        {%- else -%}
+                          {%- if variant.available -%}{%- assign size_available = true -%}{%- endif -%}
+                        {%- endif -%}
+                        <input
+                          type="radio"
+                          class="viaplush-featured-collection__size-input"
+                          name="size-{{ product.id }}-{{ sid }}"
+                          id="size-{{ product.id }}-{{ sv | handle }}-{{ sid }}"
+                          value="{{ sv | escape }}"
+                          data-size-value="{{ sv | escape }}"
+                          {% unless size_available %}
+                            disabled
+                          {% endunless %}
+                        >
+                        <label
+                          class="viaplush-featured-collection__size{% unless size_available %} viaplush-featured-collection__size--disabled{% endunless %}"
+                          for="size-{{ product.id }}-{{ sv | handle }}-{{ sid }}"
+                        >
+                          {{- sv -}}
+                        </label>
+                      {%- endunless -%}
+                    {%- endfor -%}
+                  </fieldset>
+                  <p
+                    class="viaplush-featured-collection__size-error"
+                    data-size-error
+                    role="alert"
+                    aria-live="polite"
+                    hidden
+                  >
+                    {{ s.size_error_message | default: 'Please select a size' }}
+                  </p>
+                {%- endif -%}
+
+                <div class="viaplush-featured-collection__actions">
+                  <button
+                    type="button"
+                    class="viaplush-featured-collection__atc{% if s.atc_full_width %} viaplush-featured-collection__btn--full{% endif %}"
+                    data-add-to-cart
+                    {% unless product.available %}
+                      disabled
+                    {% endunless %}
+                  >
+                    <span class="viaplush-featured-collection__btn-spinner" aria-hidden="true" hidden></span>
+                    <span class="viaplush-featured-collection__btn-label" data-atc-text>
+                      {%- if product.available -%}
+                        {{- s.atc_button_text | default: 'ADD TO CART' -}}
+                      {%- else -%}
+                        {{- s.sold_out_text | default: 'SOLD OUT' -}}
+                      {%- endif -%}
+                    </span>
+                  </button>
+                  <a
+                    href="{{ routes.cart_url }}"
+                    class="viaplush-featured-collection__viewcart"
+                    data-view-cart
+                  >
+                    <span class="viaplush-featured-collection__btn-label">
+                      {{- s.viewcart_button_text | default: 'VIEW CART' -}}
+                    </span>
+                  </a>
+                  <button
+                    type="button"
+                    class="viaplush-featured-collection__buynow{% if s.buynow_full_width %} viaplush-featured-collection__btn--full{% endif %}"
+                    data-checkout
+                  >
+                    <span class="viaplush-featured-collection__btn-spinner" aria-hidden="true" hidden></span>
+                    <span class="viaplush-featured-collection__btn-label" data-checkout-text>
+                      {{- s.checkout_button_text | default: 'CHECKOUT' -}}
+                    </span>
+                  </button>
+                </div>
+
+                <div
+                  class="viaplush-featured-collection__cart-msg"
+                  data-cart-msg
+                  role="status"
+                  aria-live="polite"
+                  hidden
+                ></div>
+              </div>
+            </div>
+
+            <script type="application/json" data-product-data>
+              {
+                "id": {{ product.id | json }},
+                "handle": {{ product.handle | json }},
+                "title": {{ product.title | json }},
+                "url": {{ product.url | json }},
+                "available": {{ product.available | json }},
+                "colorIndex": {{ color_index | default: 'null' }},
+                "sizeIndex": {{ size_index | default: 'null' }},
+                "variants": [
+                  {%- for variant in product.variants -%}
+                    {
+                      "id": {{ variant.id | json }},
+                      "available": {{ variant.available | json }},
+                      "price": {{ variant.price | json }},
+                      "compare_at_price": {{ variant.compare_at_price | json }},
+                      "option1": {{ variant.option1 | json }},
+                      "option2": {{ variant.option2 | json }},
+                      "option3": {{ variant.option3 | json }},
+                      "featured_image": {% if variant.featured_image %}{ "id": {{ variant.featured_image.id | json }}, "src": {{ variant.featured_image | image_url: width: 800 | json }}, "alt": {{ variant.featured_image.alt | default: product.title | json }} }{% else %}null{% endif %}
+                    }{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}
+                ],
+                "images": [
+                  {%- for image in product.images -%}
+                    {
+                      "id": {{ image.id | json }},
+                      "src": {{ image | image_url: width: 800 | json }},
+                      "alt": {{ image.alt | default: product.title | json }},
+                      "variant_ids": {{ image.variants | map: 'id' | json }}
+                    }{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}
+                ]
+              }
+            </script>
+          </article>
+        {%- endfor -%}
+      </div>
+
+      {%- if s.sticky_bar_mode != 'none' -%}
+        <div
+          class="viaplush-featured-collection__sticky viaplush-featured-collection__sticky--{{ s.sticky_bar_mode | default: 'mobile' }}"
+          data-sticky-bar
+          aria-hidden="true"
+        >
+          <div
+            class="viaplush-featured-collection__sticky-msg"
+            data-sticky-msg
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+          <div class="viaplush-featured-collection__sticky-actions">
+            <a href="{{ routes.cart_url }}" class="viaplush-featured-collection__viewcart" data-view-cart tabindex="-1">
+              <span class="viaplush-featured-collection__btn-label">
+                {{- s.viewcart_button_text | default: 'VIEW CART' -}}
+                <span data-sticky-count>
+                  {%- if cart.item_count > 0 %} ({{ cart.item_count }}){% endif -%}
+                </span>
+              </span>
+            </a>
+            <button type="button" class="viaplush-featured-collection__buynow" data-checkout tabindex="-1">
+              <span class="viaplush-featured-collection__btn-spinner" aria-hidden="true" hidden></span>
+              <span class="viaplush-featured-collection__btn-label">
+                {{- s.checkout_button_text | default: 'CHECKOUT' -}}
+              </span>
+            </button>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if s.show_view_all and view_all_url != blank -%}
+        <div class="viaplush-featured-collection__view-all-wrap">
+          <a href="{{ view_all_url }}" class="viaplush-featured-collection__view-all">
+            {{- s.view_all_label | default: 'View All' -}}
+          </a>
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="viaplush-featured-collection__empty">
+        <p>{{ s.empty_message | default: 'Select a collection to display products.' }}</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  @font-face {
+    font-family: 'Coastal';
+    src: url('{{ 'Coastal.otf' | asset_url }}') format('opentype');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #viaplush-featured-collection-{{ sid }} {
+    background-color: var(--vfc-bg);
+    padding-top: var(--vfc-sec-pt-d);
+    padding-bottom: var(--vfc-sec-pb-d);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--bg-gradient {
+    background-image: linear-gradient(var(--vfc-grad-dir), var(--vfc-grad-1), var(--vfc-grad-2));
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__container {
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-theme .viaplush-featured-collection__container {
+    max-width: var(--page-width, 1200px);
+    padding-left: var(--vfc-pad-d);
+    padding-right: var(--vfc-pad-d);
+  }
+  #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-full .viaplush-featured-collection__container {
+    max-width: 100%;
+    padding-left: var(--vfc-pad-d);
+    padding-right: var(--vfc-pad-d);
+  }
+  #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-custom .viaplush-featured-collection__container {
+    max-width: var(--vfc-custom-max);
+    padding-left: var(--vfc-pad-d);
+    padding-right: var(--vfc-pad-d);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__header {
+    margin-bottom: 28px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__header-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.12);
+    margin: 12px auto;
+    max-width: 100%;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__heading {
+    margin: 0 0 6px;
+    font-size: var(--vfc-heading-size-d);
+    color: var(--vfc-heading-color);
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__warning-icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    color: var(--vfc-heading-color);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__warning-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__subheading {
+    margin: 0;
+    font-size: var(--vfc-sub-size-d);
+    font-weight: 600;
+    color: var(--vfc-subheading-color);
+    text-transform: uppercase;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--vfc-cols-d), minmax(0, 1fr));
+    column-gap: var(--vfc-col-gap-d);
+    row-gap: var(--vfc-row-gap-d);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__card {
+    margin: 0;
+    min-width: 0;
+  }
+  #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--equal-height .viaplush-featured-collection__card {
+    display: flex;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__card-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--vfc-card-bg);
+    border: var(--vfc-card-border-w) solid var(--vfc-card-border-color);
+    border-radius: var(--vfc-card-radius);
+    box-shadow: {% if s.card_shadow %}0 2px 12px rgba(0,0,0,0.06){% else %}none{% endif %};
+    overflow: hidden;
+  }
+  #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--equal-height .viaplush-featured-collection__card-inner {
+    flex: 1;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media-wrap {
+    position: relative;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__badge {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    padding: 4px 8px;
+    font-size: var(--vfc-badge-size);
+    font-weight: var(--vfc-badge-weight);
+    color: var(--vfc-badge-text);
+    background: var(--vfc-badge-bg);
+    border-radius: var(--vfc-badge-radius);
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__badge--top-left { left: 8px; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__badge--top-right { right: 8px; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media-inner {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    {% if aspect_css != 'auto' %}aspect-ratio: var(--vfc-img-aspect);{% else %}padding-top: 100%;{% endif %}
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__img {
+    {% if aspect_css == 'auto' %}position: absolute; inset: 0;{% endif %}
+    width: 100%;
+    height: 100%;
+    object-fit: var(--vfc-img-fit);
+    display: block;
+    transition: opacity var(--vfc-img-transition) ease;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__img--back {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--swap:hover .viaplush-featured-collection__img--front,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--show-back .viaplush-featured-collection__img--front {
+    opacity: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--swap:hover .viaplush-featured-collection__img--back,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--show-back .viaplush-featured-collection__img--back {
+    opacity: 1;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 10px 14px;
+    flex: 1;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title {
+    margin: 0;
+    font-size: var(--vfc-title-size-d);
+    font-weight: var(--vfc-title-weight);
+    color: var(--vfc-title-color);
+    text-transform: uppercase;
+    text-align: {{ s.title_alignment | default: 'left' }};
+    width: 100%;
+    min-width: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title--clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--vfc-title-clamp, 2);
+    overflow: hidden;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatches,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sizes {
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vfc-swatch-gap);
+    flex-shrink: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch-input,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    pointer-events: none;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vfc-swatch-size);
+    height: var(--vfc-swatch-size);
+    border: 1px solid var(--vfc-swatch-border);
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch--circle { border-radius: 50%; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch--square { border-radius: 2px; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch-color {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    overflow: hidden;
+    background-color: #e0e0e0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch-input:checked + .viaplush-featured-collection__swatch {
+    border-color: var(--vfc-swatch-selected);
+    box-shadow: 0 0 0 1px var(--vfc-swatch-selected);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch-input:focus-visible + .viaplush-featured-collection__swatch {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatch--disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offers {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vfc-offer-gap);
+    width: 100%;
+    align-items: {% if s.price_alignment == 'center' %}center{% elsif s.price_alignment == 'right' %}flex-end{% else %}flex-start{% endif %};
+    margin-top: 2px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__swatches {
+    flex: 0 0 auto;
+    align-self: flex-start;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--vfc-offer-label-gap);
+    line-height: 1.2;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-label {
+    font-size: var(--vfc-price-size-d);
+    color: var(--vfc-price-color);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-compare {
+    font-family: var(--font-body-family, inherit);
+    font-size: calc(var(--vfc-price-size-d) - 2px);
+    font-weight: 500;
+    color: var(--vfc-compare-color);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-compare s {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vfc-size-gap);
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sizes::-webkit-scrollbar { display: none; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--vfc-size-min-w);
+    height: var(--vfc-size-h);
+    padding: 0 4px;
+    border: 1px solid var(--vfc-size-border);
+    background: transparent;
+    color: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size-input:checked + .viaplush-featured-collection__size {
+    background: var(--vfc-size-selected-bg);
+    color: var(--vfc-size-selected-text);
+    border-color: var(--vfc-size-selected-bg);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size-input:focus-visible + .viaplush-featured-collection__size {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size--disabled {
+    opacity: var(--vfc-size-disabled-opacity);
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size-error {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8B1A1A;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__size-error[hidden] { display: none; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vfc-btn-gap);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-style: solid;
+    border-width: 1px;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    box-sizing: border-box;
+    position: relative;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__btn-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: viaplush-vfc-spin-{{ sid }} 0.65s linear infinite;
+    flex-shrink: 0;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-loading .viaplush-featured-collection__btn-spinner,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-loading .viaplush-featured-collection__btn-spinner {
+    display: block;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-loading,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-loading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-loading .viaplush-featured-collection__btn-label,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-loading .viaplush-featured-collection__btn-label {
+    opacity: 0.85;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-success,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-success {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-success .viaplush-featured-collection__btn-label,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-success .viaplush-featured-collection__btn-label {
+    opacity: 1;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-success .viaplush-featured-collection__btn-spinner,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-success .viaplush-featured-collection__btn-spinner,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-error .viaplush-featured-collection__btn-spinner {
+    display: none !important;
+  }
+  @keyframes viaplush-vfc-spin-{{ sid }} {
+    to { transform: rotate(360deg); }
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc {
+    background: var(--vfc-atc-bg);
+    color: var(--vfc-atc-text);
+    border-color: var(--vfc-atc-bg);
+    border-radius: var(--vfc-atc-radius);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc:hover:not(:disabled) {
+    background: var(--vfc-atc-hover-bg);
+    border-color: var(--vfc-atc-hover-bg);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-success {
+    background: var(--vfc-atc-success-bg);
+    border-color: var(--vfc-atc-success-bg);
+    color: var(--vfc-atc-success-text);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-success:hover:not(:disabled) {
+    background: var(--vfc-atc-success-bg);
+    border-color: var(--vfc-atc-success-bg);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow {
+    background: var(--vfc-buynow-bg);
+    color: var(--vfc-buynow-text);
+    border-color: var(--vfc-buynow-border);
+    border-radius: var(--vfc-buynow-radius);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow:hover:not(:disabled) {
+    background: var(--vfc-buynow-hover-bg);
+    color: var(--vfc-buynow-hover-text);
+    border-color: var(--vfc-buynow-hover-bg);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc:disabled,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-loading,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow.is-loading {
+    opacity: 1;
+    cursor: wait;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-success {
+    opacity: 1;
+    cursor: default;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc.is-error {
+    background: #8b1a1a;
+    border-color: #8b1a1a;
+    color: #ffffff;
+    opacity: 1;
+    cursor: default;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__viewcart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    box-sizing: border-box;
+    border: 1px solid var(--vfc-viewcart-border);
+    border-radius: var(--vfc-buynow-radius);
+    background: var(--vfc-viewcart-bg);
+    color: var(--vfc-viewcart-text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__viewcart:hover {
+    background: var(--vfc-viewcart-hover-bg);
+    color: var(--vfc-viewcart-hover-text);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg {
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: uppercase;
+    background: var(--vfc-msg-bg);
+    color: var(--vfc-msg-text);
+    border-radius: var(--vfc-atc-radius);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg[hidden] { display: none; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg:not([hidden]),
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky-msg:not([hidden]) {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 8px;
+    text-transform: none;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: left;
+    animation: vfcMsgIn-{{ sid }} 0.25s ease-out;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg-check {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--vfc-msg-text);
+    color: var(--vfc-msg-bg);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg-added {
+    display: block;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-note {
+    font-size: calc(var(--vfc-price-size-d) - 3px);
+    font-weight: 700;
+    color: var(--vfc-price-color);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  @keyframes vfcMsgIn-{{ sid }} {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media screen and (max-width: 749px) {
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg:not([hidden]) {
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__cart-msg:not([hidden]) { animation: none; }
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding: 8px var(--vfc-pad-m) calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--vfc-bg);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.12);
+    transform: translateY(110%);
+    transition: transform 0.25s ease;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky.is-visible {
+    transform: translateY(0);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky--all {
+    display: block;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky-msg {
+    margin: 0 0 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: uppercase;
+    text-align: center;
+    background: var(--vfc-msg-bg);
+    color: var(--vfc-msg-text);
+    border-radius: var(--vfc-atc-radius);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky-msg a {
+    color: inherit;
+    text-decoration: underline;
+    white-space: nowrap;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky-msg[hidden] { display: none; }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vfc-btn-gap);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky .viaplush-featured-collection__viewcart,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky .viaplush-featured-collection__buynow {
+    min-height: 44px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky .viaplush-featured-collection__buynow {
+    background: var(--vfc-atc-bg);
+    color: var(--vfc-atc-text);
+    border-color: var(--vfc-atc-bg);
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__atc:focus-visible,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__viewcart:focus-visible,
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__buynow:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__view-all-wrap {
+    text-align: center;
+    margin-top: 28px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__view-all {
+    display: inline-flex;
+    padding: 12px 28px;
+    border: 1px solid #000;
+    text-decoration: none;
+    color: #000;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+  }
+  #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__empty {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #viaplush-featured-collection-{{ sid }} {
+      padding-top: var(--vfc-sec-pt-t);
+      padding-bottom: var(--vfc-sec-pb-t);
+    }
+    #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-theme .viaplush-featured-collection__container,
+    #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-full .viaplush-featured-collection__container,
+    #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-custom .viaplush-featured-collection__container {
+      padding-left: var(--vfc-pad-t);
+      padding-right: var(--vfc-pad-t);
+    }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__grid {
+      grid-template-columns: repeat(var(--vfc-cols-t), minmax(0, 1fr));
+      column-gap: var(--vfc-col-gap-t);
+      row-gap: var(--vfc-row-gap-t);
+    }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__heading { font-size: var(--vfc-heading-size-t); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__subheading { font-size: var(--vfc-sub-size-t); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title { font-size: var(--vfc-title-size-t); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-label { font-size: var(--vfc-price-size-t); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-compare { font-size: calc(var(--vfc-price-size-t) - 2px); }
+  }
+  @media screen and (max-width: 749px) {
+    #viaplush-featured-collection-{{ sid }} {
+      padding-top: var(--vfc-sec-pt-m);
+      padding-bottom: var(--vfc-sec-pb-m);
+    }
+    #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-theme .viaplush-featured-collection__container,
+    #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-full .viaplush-featured-collection__container,
+    #viaplush-featured-collection-{{ sid }}.viaplush-featured-collection--container-custom .viaplush-featured-collection__container {
+      padding-left: var(--vfc-pad-m);
+      padding-right: var(--vfc-pad-m);
+    }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__grid {
+      grid-template-columns: repeat(var(--vfc-cols-m), minmax(0, 1fr));
+      column-gap: var(--vfc-col-gap-m);
+      row-gap: var(--vfc-row-gap-m);
+    }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__heading { font-size: var(--vfc-heading-size-m); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__subheading { font-size: var(--vfc-sub-size-m); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title { font-size: var(--vfc-title-size-m); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-label { font-size: var(--vfc-price-size-m); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__offer-compare { font-size: calc(var(--vfc-price-size-m) - 2px); }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__title-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__sticky--mobile {
+      display: block;
+    }
+    {%- if s.sticky_bar_mode != 'none' %}
+    #viaplush-featured-collection-{{ sid }} {
+      padding-bottom: calc(var(--vfc-sec-pb-m) + 72px);
+    }
+    {%- endif %}
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--swap:hover .viaplush-featured-collection__img--front { opacity: 1; }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--swap:hover .viaplush-featured-collection__img--back { opacity: 0; }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--swap:hover .viaplush-featured-collection__img--front { opacity: 0; }
+    #viaplush-featured-collection-{{ sid }} .viaplush-featured-collection__media--swap:hover .viaplush-featured-collection__img--back { opacity: 1; }
+  }
+</style>
+<script>
+  (function () {
+    var root = document.getElementById('viaplush-featured-collection-{{ sid }}');
+    if (!root) return;
+
+    var moneyFormat = {{ shop.money_format | json }};
+    var atcText = {{ s.atc_button_text | default: 'ADD TO CART' | json }};
+    var atcSuccessText = {{ s.atc_success_text | default: 'SUCCESSFULLY ADDED' | json }};
+    var atcErrorText = {{ s.atc_error_text | default: 'TRY AGAIN' | json }};
+    var atcSuccessDuration = {{ s.atc_success_duration | default: 3000 | json }};
+    var atcErrorDuration = {{ s.atc_error_duration | default: 2500 | json }};
+    var checkoutEmptyText = {{ s.checkout_empty_message | default: 'Your cart is empty. Add a tee first.' | json }};
+    var msgAdded = {{ s.tier_msg_added | default: 'Successfully added to cart!' | json }};
+    var tierMessages = [
+      {{ s.tier_msg_1 | default: 'Add 1 more tee to unlock 2 FOR $75 + FREE SHIPPING!' | json }},
+      {{ s.tier_msg_2 | default: "You've unlocked 2 FOR $75 + FREE SHIPPING! Add 1 more tee to unlock 3 FOR $105 + FREE SHIPPING + FREE GIFT!" | json }},
+      {{ s.tier_msg_3 | default: "You've unlocked 3 FOR $105 + FREE SHIPPING + FREE GIFT! Add 2 more tees to unlock 5 FOR $145 + FREE SHIPPING + BONUS GIFTS!" | json }},
+      {{ s.tier_msg_4 | default: 'Just 1 more tee to unlock 5 FOR $145 + FREE SHIPPING + BONUS GIFTS!' | json }},
+      {{ s.tier_msg_5 | default: "Congratulations! You've unlocked 5 FOR $145 + FREE SHIPPING + BONUS GIFTS!" | json }}
+    ];
+    var msgCartLink = {{ s.tier_msg_link | json }};
+    var soldOutText = {{ s.sold_out_text | default: 'SOLD OUT' | json }};
+    var sizeErrorMsg = {{ s.size_error_message | default: 'Please select a size' | json }};
+    var enableHoverSwap = {{ s.enable_hover_swap | default: true | json }};
+    var shopRoot = (window.Shopify && Shopify.routes && Shopify.routes.root) ? Shopify.routes.root : '/';
+    var cartAddUrl = shopRoot + 'cart/add.js';
+    var cartUrl = {{ routes.cart_url | json }};
+    var stickyBar = root.querySelector('[data-sticky-bar]');
+
+    function fetchCart() {
+      return fetch(shopRoot + 'cart.js', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.json(); });
+    }
+
+    // Only products from this section's collection count toward the Archive Sale bundles.
+    var dealProductIds = {{ collection.products | map: 'id' | json }};
+
+    function dealItemCount(cart) {
+      if (!cart || !cart.items) return 0;
+      if (!dealProductIds || !dealProductIds.length) return cart.item_count;
+      return cart.items.reduce(function (n, item) {
+        return n + (dealProductIds.indexOf(item.product_id) !== -1 ? item.quantity : 0);
+      }, 0);
+    }
+
+    function fillCartMessage(msgEl, cart) {
+      if (!msgEl) return;
+      var count = dealItemCount(cart);
+      msgEl.textContent = '';
+      msgEl.hidden = !count;
+      if (msgEl.hidden) return;
+
+      var tierText = tierMessages[Math.min(count, tierMessages.length) - 1] || '';
+
+      var check = document.createElement('span');
+      check.className = 'viaplush-featured-collection__cart-msg-check';
+      check.setAttribute('aria-hidden', 'true');
+      check.textContent = '\u2713';
+      msgEl.appendChild(check);
+
+      var body = document.createElement('span');
+      body.className = 'viaplush-featured-collection__cart-msg-body';
+
+      var added = document.createElement('strong');
+      added.className = 'viaplush-featured-collection__cart-msg-added';
+      added.textContent = msgAdded;
+      body.appendChild(added);
+
+      if (tierText) {
+        body.appendChild(document.createTextNode(' ' + tierText));
+      }
+
+      if (msgCartLink) {
+        body.appendChild(document.createTextNode(' '));
+        var link = document.createElement('a');
+        link.href = cartUrl;
+        link.textContent = msgCartLink;
+        body.appendChild(link);
+      }
+
+      msgEl.appendChild(body);
+    }
+
+    // The message belongs to the card the shopper last added from; it is refreshed
+    // (or hidden) whenever the cart changes, so the milestone always matches the cart.
+    var activeMsgEl = null;
+
+    function showCartMessage(card, cart) {
+      root.querySelectorAll('[data-cart-msg]').forEach(function (el) {
+        el.hidden = true;
+        el.textContent = '';
+      });
+      activeMsgEl = card.querySelector('[data-cart-msg]');
+      fillCartMessage(activeMsgEl, cart);
+      updateStickyBar(cart, true);
+    }
+
+    function refreshActiveMessage(cart) {
+      if (!cart) return;
+      if (activeMsgEl) fillCartMessage(activeMsgEl, cart);
+      if (stickyBar) {
+        var stickyMsg = stickyBar.querySelector('[data-sticky-msg]');
+        if (stickyMsg && !stickyMsg.hidden) fillCartMessage(stickyMsg, cart);
+        updateStickyBar(cart, false);
+      }
+    }
+
+    function refreshFromServer() {
+      if (!activeMsgEl && !stickyBar) return;
+      fetchCart().then(refreshActiveMessage).catch(function () {});
+    }
+
+    // Catch quantity changes and removals made anywhere on the page (cart drawer, other sections).
+    document.documentElement.addEventListener('viaplush:cart:updated', function (e) {
+      if (e.detail && e.detail.source === 'viaplush-featured-collection') return;
+      if (e.detail && e.detail.cart && e.detail.cart.items) {
+        refreshActiveMessage(e.detail.cart);
+      } else {
+        refreshFromServer();
+      }
+    });
+    ['cart:updated', 'cart:refresh', 'cart-drawer:updated', 'cart:change'].forEach(function (name) {
+      document.addEventListener(name, refreshFromServer);
+    });
+
+    if (window.fetch && !window.__viaplushCartFetchWatch) {
+      window.__viaplushCartFetchWatch = true;
+      var nativeFetch = window.fetch;
+      window.fetch = function (input, init) {
+        var url = typeof input === 'string' ? input : (input && input.url) || '';
+        var p = nativeFetch.apply(this, arguments);
+        if (/\/cart\/(change|update|clear)(\.js)?/.test(url)) {
+          p.then(function () {
+            document.documentElement.dispatchEvent(new CustomEvent('viaplush:cart:external-change'));
+          }).catch(function () {});
+        }
+        return p;
+      };
+    }
+    document.documentElement.addEventListener('viaplush:cart:external-change', refreshFromServer);
+
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) refreshFromServer();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') refreshFromServer();
+    });
+
+    function updateStickyBar(cart, showMsg) {
+      if (!stickyBar || !cart) return;
+      var countEl = stickyBar.querySelector('[data-sticky-count]');
+      if (countEl) countEl.textContent = cart.item_count > 0 ? ' (' + cart.item_count + ')' : '';
+      if (showMsg) fillCartMessage(stickyBar.querySelector('[data-sticky-msg]'), cart);
+    }
+
+    // CHECKOUT: goes to checkout with whatever is already in the cart — no size check, nothing added.
+    function goToCheckout(btn, msgEl) {
+      if (btn.classList.contains('is-loading')) return;
+      setButtonLoading(btn, true);
+      fetchCart()
+        .then(function (cart) {
+          if (cart && cart.item_count > 0) {
+            window.location.href = shopRoot + 'checkout';
+            return;
+          }
+          setButtonLoading(btn, false);
+          btn.disabled = false;
+          if (msgEl) { msgEl.textContent = checkoutEmptyText; msgEl.hidden = false; }
+        })
+        .catch(function () {
+          window.location.href = shopRoot + 'checkout';
+        });
+    }
+
+    // VIEW CART: only opens the cart — no size check, nothing added.
+    function openCart(e) {
+      if (window.ViaplushCartDrawer && typeof window.ViaplushCartDrawer.open === 'function') {
+        e.preventDefault();
+        window.ViaplushCartDrawer.open();
+      }
+    }
+
+    function updateHeaderCartCount(cart) {
+      if (!cart || typeof cart.item_count !== 'number') return;
+      if (window.ViaplushCartDrawer && typeof window.ViaplushCartDrawer.updateCount === 'function') {
+        window.ViaplushCartDrawer.updateCount(cart);
+        if (typeof window.ViaplushCartDrawer.pulseCount === 'function') {
+          window.ViaplushCartDrawer.pulseCount();
+        }
+        return;
+      }
+      document.documentElement.dispatchEvent(new CustomEvent('viaplush:cart:updated', {
+        bubbles: true,
+        detail: { cart: cart, source: 'viaplush-featured-collection' }
+      }));
+      pulseCartCountFallback();
+    }
+
+    function pulseCartCountFallback() {
+      var countEl = document.querySelector('[data-viaplush-cart-count]');
+      if (!countEl) return;
+      countEl.classList.remove('viaplush-minimal-header__cart-count--pulse');
+      void countEl.offsetWidth;
+      countEl.classList.add('viaplush-minimal-header__cart-count--pulse');
+    }
+
+    var COLOR_NAME_MAP = {
+      'black': '#000000', 'white': '#ffffff', 'red': '#c41e3a', 'pink': '#e8a0b8',
+      'hot pink': '#ff69b4', 'rose': '#e8a0b8', 'blush': '#f5c6cb', 'sage': '#9caf88',
+      'sage green': '#9caf88', 'green': '#2d6a4f', 'olive': '#6b7c3e', 'blue': '#1e4d8c',
+      'navy': '#001f3f', 'grey': '#808080', 'gray': '#808080', 'charcoal': '#36454f',
+      'beige': '#d4c4a8', 'cream': '#f5f0e8', 'tan': '#c9a87c', 'brown': '#6b4226',
+      'orange': '#e07020', 'yellow': '#e8c840', 'purple': '#6b3fa0', 'burgundy': '#6b1c2a',
+      'wine': '#722f37', 'lavender': '#b8a9d4', 'mint': '#98d4bb', 'coral': '#e8705a',
+      'teal': '#008080', 'khaki': '#c3b091', 'ivory': '#fffff0', 'sand': '#c2b280',
+      'stone': '#928e85', 'natural': '#e8dcc8', 'nude': '#e3bc9a', 'camel': '#c19a6b'
+    };
+
+    function formatMoney(cents) {
+      if (typeof cents !== 'number') return '';
+      if (window.Shopify && typeof Shopify.formatMoney === 'function') {
+        return Shopify.formatMoney(cents, moneyFormat);
+      }
+      return '$' + (cents / 100).toFixed(2);
+    }
+
+    function colorFromName(name) {
+      if (!name) return '#cccccc';
+      var key = String(name).toLowerCase().trim();
+      if (COLOR_NAME_MAP[key]) return COLOR_NAME_MAP[key];
+      var parts = key.split(/[\s\/\-]+/);
+      for (var i = 0; i < parts.length; i++) {
+        if (COLOR_NAME_MAP[parts[i]]) return COLOR_NAME_MAP[parts[i]];
+      }
+      for (var mapKey in COLOR_NAME_MAP) {
+        if (key.indexOf(mapKey) !== -1) return COLOR_NAME_MAP[mapKey];
+      }
+      var hash = 0;
+      for (var j = 0; j < key.length; j++) hash = key.charCodeAt(j) + ((hash << 5) - hash);
+      var hue = Math.abs(hash) % 360;
+      return 'hsl(' + hue + ', 35%, 55%)';
+    }
+
+    function applySwatchColors(scope) {
+      (scope || root).querySelectorAll('[data-color-name]').forEach(function (el) {
+        if (!el.style.backgroundColor || el.style.backgroundColor === '') {
+          el.style.backgroundColor = colorFromName(el.getAttribute('data-color-name'));
+        }
+      });
+    }
+
+    function getOptionValue(variant, index) {
+      if (index === 0) return variant.option1;
+      if (index === 1) return variant.option2;
+      if (index === 2) return variant.option3;
+      return null;
+    }
+
+    function findVariant(data, colorVal, sizeVal) {
+      if (data.sizeIndex !== null && sizeVal) {
+        return data.variants.find(function (v) {
+          var colorOk = data.colorIndex === null || getOptionValue(v, data.colorIndex) === colorVal;
+          var sizeOk = getOptionValue(v, data.sizeIndex) === sizeVal;
+          return colorOk && sizeOk;
+        });
+      }
+      if (colorVal && data.colorIndex !== null) {
+        return data.variants.find(function (v) {
+          return getOptionValue(v, data.colorIndex) === colorVal && v.available;
+        }) || data.variants.find(function (v) {
+          return getOptionValue(v, data.colorIndex) === colorVal;
+        });
+      }
+      return data.variants.find(function (v) { return v.available; }) || data.variants[0];
+    }
+
+    function getImagesForColor(data, colorVal) {
+      var variants = data.variants.filter(function (v) {
+        return data.colorIndex === null || getOptionValue(v, data.colorIndex) === colorVal;
+      });
+      var variantIds = variants.map(function (v) { return v.id; });
+      var front = null;
+      var back = null;
+      variants.some(function (v) {
+        if (v.featured_image) { front = v.featured_image; return true; }
+        return false;
+      });
+      var colorImages = data.images.filter(function (img) {
+        return img.variant_ids && img.variant_ids.some(function (id) { return variantIds.indexOf(id) !== -1; });
+      });
+      if (!colorImages.length) colorImages = data.images.slice();
+      if (!front && colorImages.length) front = colorImages[0];
+      if (!front && data.images.length) front = data.images[0];
+      if (front) {
+        back = colorImages.find(function (img) { return img.id !== front.id; });
+      }
+      if (!back && data.images.length > 1) {
+        back = data.images.find(function (img) { return !front || img.id !== front.id; });
+      }
+      return { front: front, back: back };
+    }
+
+    function resolveImages(data, variant, colorVal) {
+      if (variant && variant.featured_image) {
+        var front = variant.featured_image;
+        var back = null;
+        var linked = data.images.filter(function (img) {
+          return img.variant_ids && img.variant_ids.indexOf(variant.id) !== -1;
+        });
+        if (linked.length > 1) {
+          back = linked.find(function (img) { return img.id !== front.id; });
+        }
+        if (!back && colorVal) {
+          var colorImgs = getImagesForColor(data, colorVal);
+          if (colorImgs.back && colorImgs.back.id !== front.id) back = colorImgs.back;
+        }
+        if (!back && data.images.length > 1) {
+          back = data.images.find(function (img) { return img.id !== front.id; });
+        }
+        return { front: front, back: back };
+      }
+      if (colorVal) return getImagesForColor(data, colorVal);
+      return { front: data.images[0] || null, back: data.images[1] || null };
+    }
+
+    function updateCardImages(card, data, variant, colorVal) {
+      var imgs = resolveImages(data, variant, colorVal);
+      var frontImg = card.querySelector('[data-front-image]');
+      var backImg = card.querySelector('[data-back-image]');
+      var media = card.querySelector('[data-media-link]');
+      if (media) media.classList.remove('viaplush-featured-collection__media--show-back');
+      if (frontImg && imgs.front) {
+        frontImg.src = imgs.front.src;
+        frontImg.srcset = imgs.front.src + ' 600w';
+        frontImg.alt = imgs.front.alt || data.title;
+      }
+      if (backImg) {
+        if (imgs.back) {
+          backImg.src = imgs.back.src;
+          backImg.alt = imgs.back.alt || data.title;
+          backImg.hidden = false;
+        } else {
+          backImg.hidden = true;
+        }
+      }
+    }
+
+    function updateSizeAvailability(card, data, colorVal) {
+      card.querySelectorAll('[data-size-fieldset] .viaplush-featured-collection__size-input').forEach(function (input) {
+        var sizeVal = input.value;
+        var match = data.variants.find(function (v) {
+          var colorOk = data.colorIndex === null || getOptionValue(v, data.colorIndex) === colorVal;
+          var sizeOk = data.sizeIndex === null || getOptionValue(v, data.sizeIndex) === sizeVal;
+          return colorOk && sizeOk && v.available;
+        });
+        input.disabled = !match;
+        var label = card.querySelector('label[for="' + input.id + '"]');
+        if (label) label.classList.toggle('viaplush-featured-collection__size--disabled', !match);
+        if (!match && input.checked) input.checked = false;
+      });
+    }
+
+    function setButtonLoading(btn, loading) {
+      if (!btn) return;
+      btn.classList.toggle('is-loading', loading);
+      btn.classList.remove('is-success');
+      btn.setAttribute('aria-busy', loading ? 'true' : 'false');
+      var spinner = btn.querySelector('.viaplush-featured-collection__btn-spinner');
+      if (spinner) spinner.hidden = !loading;
+      if (loading) btn.disabled = true;
+    }
+
+    function setButtonSuccess(btn, textEl, card, data, cart) {
+      if (!btn) return;
+      btn.classList.remove('is-loading', 'is-error');
+      btn.classList.add('is-success');
+      btn.setAttribute('aria-busy', 'false');
+      btn.disabled = true;
+      var spinner = btn.querySelector('.viaplush-featured-collection__btn-spinner');
+      if (spinner) {
+        spinner.hidden = true;
+        spinner.style.display = 'none';
+      }
+      if (textEl) textEl.textContent = atcSuccessText;
+
+      updateHeaderCartCount(cart);
+
+      window.setTimeout(function () {
+        btn.classList.remove('is-success');
+        btn.disabled = false;
+        if (textEl) textEl.textContent = atcText;
+        updateCardUI(card, data);
+      }, atcSuccessDuration);
+    }
+
+    function setButtonError(btn, textEl, card, data) {
+      if (!btn) return;
+      btn.classList.remove('is-loading', 'is-success');
+      btn.classList.add('is-error');
+      btn.setAttribute('aria-busy', 'false');
+      btn.disabled = false;
+      var spinner = btn.querySelector('.viaplush-featured-collection__btn-spinner');
+      if (spinner) {
+        spinner.hidden = true;
+        spinner.style.display = 'none';
+      }
+      if (textEl) textEl.textContent = atcErrorText;
+      window.setTimeout(function () {
+        btn.classList.remove('is-error');
+        if (textEl) textEl.textContent = atcText;
+        updateCardUI(card, data);
+      }, atcErrorDuration);
+    }
+
+    function updateCardUI(card, data) {
+      var colorInput = card.querySelector('[data-color-fieldset] .viaplush-featured-collection__swatch-input:checked');
+      var sizeInput = card.querySelector('[data-size-fieldset] .viaplush-featured-collection__size-input:checked');
+      var colorVal = colorInput ? colorInput.value : null;
+      var sizeVal = sizeInput ? sizeInput.value : null;
+
+      if (data.colorIndex !== null && colorVal) updateSizeAvailability(card, data, colorVal);
+
+      var variant = findVariant(data, colorVal, sizeVal);
+
+      var atcBtn = card.querySelector('[data-add-to-cart]');
+      var atcTextEl = card.querySelector('[data-atc-text]');
+      var soldOut = !data.available;
+      if (variant && sizeVal) {
+        soldOut = !variant.available;
+      } else if (colorVal && data.colorIndex !== null) {
+        soldOut = !data.variants.some(function (v) {
+          return getOptionValue(v, data.colorIndex) === colorVal && v.available;
+        });
+      }
+
+      if (atcBtn && !atcBtn.classList.contains('is-loading') && !atcBtn.classList.contains('is-success') && !atcBtn.classList.contains('is-error')) {
+        atcBtn.disabled = soldOut;
+        atcBtn.dataset.variantId = variant ? variant.id : '';
+      }
+      if (atcTextEl && atcBtn && !atcBtn.classList.contains('is-loading') && !atcBtn.classList.contains('is-success') && !atcBtn.classList.contains('is-error')) atcTextEl.textContent = soldOut ? soldOutText : atcText;
+
+      updateCardImages(card, data, variant, colorVal);
+      card.dataset.selectedVariantId = variant ? variant.id : '';
+      return { variant: variant, sizeVal: sizeVal, colorVal: colorVal };
+    }
+
+    function hideSizeError(card) {
+      var err = card.querySelector('[data-size-error]');
+      if (err) err.hidden = true;
+    }
+
+    function showSizeError(card) {
+      var err = card.querySelector('[data-size-error]');
+      if (err) { err.textContent = sizeErrorMsg; err.hidden = false; }
+    }
+
+    function addToCart(variantId) {
+      return fetch(cartAddUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ items: [{ id: parseInt(variantId, 10), quantity: 1 }] })
+      }).then(function (res) {
+        return res.json().then(function (body) {
+          if (!res.ok) throw body;
+          return body;
+        });
+      }).then(fetchCart);
+    }
+
+    applySwatchColors(root);
+
+    root.querySelectorAll('[data-product-card]').forEach(function (card) {
+      var dataScript = card.querySelector('[data-product-data]');
+      if (!dataScript) return;
+      var data;
+      try { data = JSON.parse(dataScript.textContent); } catch (e) { return; }
+
+      applySwatchColors(card);
+
+      var media = card.querySelector('[data-media-link]');
+      if (media && enableHoverSwap) {
+        media.addEventListener('click', function (e) {
+          if (window.matchMedia('(hover: none)').matches) {
+            e.preventDefault();
+            media.classList.toggle('viaplush-featured-collection__media--show-back');
+          }
+        });
+      }
+
+      card.querySelectorAll('[data-color-fieldset] .viaplush-featured-collection__swatch-input').forEach(function (input) {
+        input.addEventListener('change', function () {
+          hideSizeError(card);
+          updateCardUI(card, data);
+        });
+      });
+
+      card.querySelectorAll('[data-size-fieldset] .viaplush-featured-collection__size-input').forEach(function (input) {
+        input.addEventListener('change', function () {
+          hideSizeError(card);
+          updateCardUI(card, data);
+        });
+      });
+
+      updateCardUI(card, data);
+
+      var atcBtn = card.querySelector('[data-add-to-cart]');
+      var atcTextEl = card.querySelector('[data-atc-text]');
+      var viewCartBtn = card.querySelector('[data-view-cart]');
+      var checkoutBtn = card.querySelector('[data-checkout]');
+
+      if (atcBtn) {
+        atcBtn.addEventListener('click', function () {
+          if (atcBtn.classList.contains('is-success')) return;
+          var state = updateCardUI(card, data);
+          if (data.sizeIndex !== null && !state.sizeVal) { showSizeError(card); return; }
+          if (!state.variant || !state.variant.available) return;
+
+          atcBtn.disabled = true;
+          atcBtn.setAttribute('aria-busy', 'true');
+
+          addToCart(state.variant.id)
+            .then(function (cart) {
+              setButtonSuccess(atcBtn, atcTextEl, card, data, cart);
+              showCartMessage(card, cart);
+            })
+            .catch(function () {
+              setButtonError(atcBtn, atcTextEl, card, data);
+            });
+        });
+      }
+
+      if (viewCartBtn) {
+        viewCartBtn.addEventListener('click', function (e) {
+          hideSizeError(card);
+          openCart(e);
+        });
+      }
+
+      if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function () {
+          hideSizeError(card);
+          goToCheckout(checkoutBtn, card.querySelector('[data-cart-msg]'));
+        });
+      }
+    });
+
+    // Sticky bar: visible only while the grid is on screen, so View cart / Checkout
+    // are reachable from any row without scrolling to a card.
+    if (stickyBar) {
+      var stickyViewCart = stickyBar.querySelector('[data-view-cart]');
+      var stickyCheckout = stickyBar.querySelector('[data-checkout]');
+      if (stickyViewCart) stickyViewCart.addEventListener('click', openCart);
+      if (stickyCheckout) {
+        stickyCheckout.addEventListener('click', function () {
+          goToCheckout(stickyCheckout, stickyBar.querySelector('[data-sticky-msg]'));
+        });
+      }
+
+      var grid = root.querySelector('.viaplush-featured-collection__grid');
+      var setStickyVisible = function (visible) {
+        stickyBar.classList.toggle('is-visible', visible);
+        stickyBar.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        stickyBar.querySelectorAll('a, button').forEach(function (el) {
+          if (visible) el.removeAttribute('tabindex'); else el.setAttribute('tabindex', '-1');
+        });
+      };
+      if (grid && 'IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          setStickyVisible(entries[0].isIntersecting);
+        }, { threshold: 0 }).observe(grid);
+      } else {
+        setStickyVisible(true);
+      }
+
+      document.documentElement.addEventListener('viaplush:cart:updated', function (e) {
+        if (e.detail && e.detail.cart) updateStickyBar(e.detail.cart, false);
+      });
+    }
+
+    // Reset the Checkout spinner when the page is restored via the browser back button.
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      root.querySelectorAll('[data-checkout]').forEach(function (btn) {
+        setButtonLoading(btn, false);
+        btn.disabled = false;
+      });
+    });
+  })();
+</script>
+{% schema %}
+{
+  "name": "VIAPLUSH Collection Grid",
+  "tag": "section",
+  "class": "viaplush-featured-collection-section",
+  "settings": [
+    { "type": "header", "content": "Collection" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "checkbox", "id": "show_all_products", "label": "Show all products (up to 50)", "default": false },
+    { "type": "range", "id": "product_limit", "label": "Product limit", "min": 2, "max": 50, "step": 1, "default": 7 },
+    {
+      "type": "text",
+      "id": "color_option_name",
+      "label": "Color option name",
+      "default": "Color",
+      "info": "Must match your product option name exactly."
+    },
+    {
+      "type": "text",
+      "id": "size_option_name",
+      "label": "Size option name",
+      "default": "Size",
+      "info": "Must match your product option name exactly."
+    },
+    { "type": "checkbox", "id": "show_view_all", "label": "Show View All button", "default": false },
+    { "type": "text", "id": "view_all_label", "label": "View All label", "default": "View All" },
+    { "type": "url", "id": "view_all_url", "label": "View All URL (optional, defaults to collection URL)" },
+    {
+      "type": "text",
+      "id": "empty_message",
+      "label": "Empty state message",
+      "default": "Select a collection to display products."
+    },
+
+    { "type": "header", "content": "Section container" },
+    {
+      "type": "select",
+      "id": "container_type",
+      "label": "Container width",
+      "options": [
+        { "value": "theme", "label": "Theme / Page width" },
+        { "value": "full", "label": "Full width" },
+        { "value": "custom", "label": "Custom width" }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "range",
+      "id": "custom_max_width",
+      "label": "Custom max width (px)",
+      "min": 900,
+      "max": 1800,
+      "step": 10,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding_desktop",
+      "label": "Desktop horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "container_padding_tablet",
+      "label": "Tablet horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "container_padding_mobile",
+      "label": "Mobile horizontal padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16
+    },
+
+    { "type": "header", "content": "Grid layout" },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Products per row — desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Products per row — tablet",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Products per row — mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "column_gap_desktop",
+      "label": "Column gap — desktop (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "column_gap_tablet",
+      "label": "Column gap — tablet (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "column_gap_mobile",
+      "label": "Column gap — mobile (px)",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "row_gap_desktop",
+      "label": "Row gap — desktop (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "row_gap_tablet",
+      "label": "Row gap — tablet (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "row_gap_mobile",
+      "label": "Row gap — mobile (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 20
+    },
+    { "type": "checkbox", "id": "equal_card_height", "label": "Equal card height", "default": true },
+
+    { "type": "header", "content": "Section header" },
+    { "type": "checkbox", "id": "show_header", "label": "Show section header", "default": true },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "LIMITED SIZES. NO RESTOCK." },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "ONCE IT'S ARCHIVED, IT'S GONE FOREVER." },
+    { "type": "checkbox", "id": "show_warning_icon", "label": "Show warning icon", "default": true },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    { "type": "color", "id": "heading_color", "label": "Heading color", "default": "#8B1A1A" },
+    { "type": "color", "id": "subheading_color", "label": "Subheading color", "default": "#000000" },
+    {
+      "type": "range",
+      "id": "heading_font_size_desktop",
+      "label": "Heading size — desktop (px)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_tablet",
+      "label": "Heading size — tablet (px)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading size — mobile (px)",
+      "min": 11,
+      "max": 24,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_desktop",
+      "label": "Subheading size — desktop (px)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_tablet",
+      "label": "Subheading size — tablet (px)",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_mobile",
+      "label": "Subheading size — mobile (px)",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "default": 12
+    },
+    { "type": "checkbox", "id": "show_divider_above", "label": "Divider above header", "default": false },
+    { "type": "checkbox", "id": "show_divider_below", "label": "Divider below header", "default": false },
+
+    { "type": "header", "content": "Section background & spacing" },
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background type",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" }
+      ],
+      "default": "solid"
+    },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F9F7F2" },
+    { "type": "color", "id": "gradient_color_1", "label": "Gradient color 1", "default": "#F9F7F2" },
+    { "type": "color", "id": "gradient_color_2", "label": "Gradient color 2", "default": "#EDE8DF" },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to bottom", "label": "Top to bottom" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to right"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "label": "Padding top — desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "label": "Padding bottom — desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_tablet",
+      "label": "Padding top — tablet",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_tablet",
+      "label": "Padding bottom — tablet",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Padding top — mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Padding bottom — mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 32
+    },
+
+    { "type": "header", "content": "Product card" },
+    { "type": "color", "id": "card_background_color", "label": "Card background", "default": "#F9F7F2" },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "card_border_width",
+      "label": "Card border width (px)",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "default": 0
+    },
+    { "type": "color", "id": "card_border_color", "label": "Card border color", "default": "transparent" },
+    { "type": "checkbox", "id": "card_shadow", "label": "Card shadow", "default": false },
+
+    { "type": "header", "content": "Product image" },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "square", "label": "1:1" },
+        { "value": "4_5", "label": "4:5" },
+        { "value": "3_4", "label": "3:4" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" }
+      ],
+      "default": "cover"
+    },
+    { "type": "checkbox", "id": "enable_hover_swap", "label": "Enable hover / tap image swap", "default": true },
+    {
+      "type": "range",
+      "id": "image_swap_speed",
+      "label": "Swap transition speed (ms)",
+      "min": 100,
+      "max": 800,
+      "step": 50,
+      "default": 300
+    },
+
+    { "type": "header", "content": "Badge" },
+    {
+      "type": "select",
+      "id": "badge_source",
+      "label": "Badge source",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "automatic", "label": "Automatic (SALE)" },
+        { "value": "manual", "label": "Manual text" },
+        { "value": "metafield", "label": "Product metafield" },
+        { "value": "tag", "label": "Product tag" }
+      ],
+      "default": "none"
+    },
+    { "type": "text", "id": "manual_badge_text", "label": "Manual badge text", "default": "LIMITED" },
+    { "type": "text", "id": "badge_tag", "label": "Badge tag", "default": "limited" },
+    { "type": "text", "id": "badge_tag_text", "label": "Badge text for tag", "default": "LIMITED" },
+    {
+      "type": "select",
+      "id": "badge_position",
+      "label": "Badge position",
+      "options": [
+        { "value": "top-left", "label": "Top left" },
+        { "value": "top-right", "label": "Top right" }
+      ],
+      "default": "top-left"
+    },
+    { "type": "color", "id": "badge_background_color", "label": "Badge background", "default": "#8B1A1A" },
+    { "type": "color", "id": "badge_text_color", "label": "Badge text color", "default": "#ffffff" },
+    {
+      "type": "range",
+      "id": "badge_font_size",
+      "label": "Badge font size (px)",
+      "min": 9,
+      "max": 16,
+      "step": 1,
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "badge_font_weight",
+      "label": "Badge font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "badge_border_radius",
+      "label": "Badge border radius (px)",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "default": 2
+    },
+
+    { "type": "header", "content": "Product title" },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "label": "Title size — desktop (px)",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_tablet",
+      "label": "Title size — tablet (px)",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "label": "Title size — mobile (px)",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "title_font_weight",
+      "label": "Title font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 700
+    },
+    { "type": "color", "id": "title_color", "label": "Title color", "default": "#000000" },
+    {
+      "type": "select",
+      "id": "title_alignment",
+      "label": "Title alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    { "type": "checkbox", "id": "title_truncate", "label": "Truncate title", "default": true },
+    {
+      "type": "range",
+      "id": "title_max_lines",
+      "label": "Max title lines",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    { "type": "checkbox", "id": "link_title_to_product", "label": "Link title to product page", "default": true },
+
+    { "type": "header", "content": "Archive sale offers" },
+    {
+      "type": "paragraph",
+      "content": "Shown below each product title on every card. Use the same offer copy as your Archive Sale hero."
+    },
+    { "type": "text", "id": "deal_single_text", "label": "Single tee text (leave empty to hide)" },
+    { "type": "text", "id": "deal_single_compare", "label": "Single tee compare-at price" },
+    { "type": "text", "id": "deal_1_text", "label": "Deal 1 text", "default": "2 for $75" },
+    { "type": "text", "id": "deal_1_compare", "label": "Deal 1 compare-at price", "default": "$105" },
+    { "type": "text", "id": "deal_2_text", "label": "Deal 2 text", "default": "3 for $105" },
+    { "type": "text", "id": "deal_2_compare", "label": "Deal 2 compare-at price", "default": "$156.50" },
+    { "type": "text", "id": "deal_3_text", "label": "Deal 3 text", "default": "5 for $145" },
+    { "type": "text", "id": "deal_3_compare", "label": "Deal 3 compare-at price", "default": "$258" },
+    { "type": "text", "id": "deal_note_text", "label": "Note under deals", "default": "Free shipping on every bundle" },
+    {
+      "type": "range",
+      "id": "offer_row_gap",
+      "label": "Gap between offer rows (px)",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "offer_label_compare_gap",
+      "label": "Gap between sale & compare price (px)",
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "default": 8
+    },
+
+    { "type": "header", "content": "Price styling" },
+    {
+      "type": "range",
+      "id": "price_font_size_desktop",
+      "label": "Price size — desktop (px)",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "price_font_size_tablet",
+      "label": "Price size — tablet (px)",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "price_font_size_mobile",
+      "label": "Price size — mobile (px)",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "price_font_weight",
+      "label": "Price font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 700
+    },
+    { "type": "color", "id": "price_color", "label": "Sale price color", "default": "#8B1A1A" },
+    { "type": "color", "id": "compare_color", "label": "Compare-at color", "default": "#888888" },
+    {
+      "type": "select",
+      "id": "price_alignment",
+      "label": "Price alignment",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "flex-start"
+    },
+
+    { "type": "header", "content": "Color swatches" },
+    {
+      "type": "select",
+      "id": "swatch_shape",
+      "label": "Swatch shape",
+      "options": [
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "range",
+      "id": "swatch_size",
+      "label": "Swatch size (px)",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "swatch_spacing",
+      "label": "Swatch spacing (px)",
+      "min": 2,
+      "max": 16,
+      "step": 1,
+      "default": 6
+    },
+    { "type": "color", "id": "swatch_border_color", "label": "Swatch border color", "default": "#cccccc" },
+    { "type": "color", "id": "swatch_selected_border_color", "label": "Selected swatch border", "default": "#000000" },
+    {
+      "type": "checkbox",
+      "id": "show_disabled_colors",
+      "label": "Show out-of-stock colors (disabled)",
+      "default": true
+    },
+
+    { "type": "header", "content": "Size selector" },
+    {
+      "type": "range",
+      "id": "size_button_height",
+      "label": "Size button height (px)",
+      "min": 24,
+      "max": 40,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "size_button_min_width",
+      "label": "Size button min width (px)",
+      "min": 24,
+      "max": 48,
+      "step": 1,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "size_spacing",
+      "label": "Size spacing (px)",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    { "type": "color", "id": "size_border_color", "label": "Size border color", "default": "#000000" },
+    { "type": "color", "id": "size_selected_background", "label": "Selected size background", "default": "#000000" },
+    { "type": "color", "id": "size_selected_text_color", "label": "Selected size text color", "default": "#ffffff" },
+    {
+      "type": "range",
+      "id": "size_disabled_opacity",
+      "label": "Disabled size opacity (%)",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "type": "text",
+      "id": "size_error_message",
+      "label": "Size validation message",
+      "default": "Please select a size"
+    },
+
+    { "type": "header", "content": "Add to Cart button" },
+    { "type": "text", "id": "atc_button_text", "label": "Button text", "default": "ADD TO CART" },
+    { "type": "text", "id": "atc_success_text", "label": "Success text", "default": "SUCCESSFULLY ADDED" },
+    { "type": "text", "id": "atc_error_text", "label": "Error text", "default": "TRY AGAIN" },
+    {
+      "type": "range",
+      "id": "atc_success_duration",
+      "label": "Success text duration (ms)",
+      "min": 1500,
+      "max": 6000,
+      "step": 100,
+      "default": 3000
+    },
+    { "type": "color", "id": "atc_success_background_color", "label": "Success background", "default": "#2d6a4f" },
+    { "type": "color", "id": "atc_success_text_color", "label": "Success text color", "default": "#ffffff" },
+    { "type": "color", "id": "atc_background_color", "label": "Background", "default": "#000000" },
+    { "type": "color", "id": "atc_text_color", "label": "Text color", "default": "#ffffff" },
+    { "type": "color", "id": "atc_hover_background_color", "label": "Hover background", "default": "#1a1a1a" },
+    {
+      "type": "range",
+      "id": "atc_border_radius",
+      "label": "Border radius (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 0
+    },
+    { "type": "checkbox", "id": "atc_full_width", "label": "Full width", "default": true },
+
+    { "type": "header", "content": "View Cart button" },
+    { "type": "text", "id": "viewcart_button_text", "label": "Button text", "default": "VIEW CART" },
+    { "type": "color", "id": "viewcart_background_color", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "viewcart_text_color", "label": "Text color", "default": "#000000" },
+    { "type": "color", "id": "viewcart_border_color", "label": "Border color", "default": "#000000" },
+    { "type": "color", "id": "viewcart_hover_background_color", "label": "Hover background", "default": "#000000" },
+    { "type": "color", "id": "viewcart_hover_text_color", "label": "Hover text color", "default": "#ffffff" },
+
+    { "type": "header", "content": "Cart messages (below Add to Cart)" },
+    {
+      "type": "paragraph",
+      "content": "Shown after a tee from this collection is added. The count uses all eligible tees in the cart and updates when tees are added or removed."
+    },
+    { "type": "text", "id": "tier_msg_added", "label": "Confirmation line", "default": "Successfully added to cart!" },
+    {
+      "type": "text",
+      "id": "tier_msg_1",
+      "label": "1 tee in cart",
+      "default": "Add 1 more tee to unlock 2 FOR $75 + FREE SHIPPING!"
+    },
+    {
+      "type": "text",
+      "id": "tier_msg_2",
+      "label": "2 tees in cart",
+      "default": "You've unlocked 2 FOR $75 + FREE SHIPPING! Add 1 more tee to unlock 3 FOR $105 + FREE SHIPPING + FREE GIFT!"
+    },
+    {
+      "type": "text",
+      "id": "tier_msg_3",
+      "label": "3 tees in cart",
+      "default": "You've unlocked 3 FOR $105 + FREE SHIPPING + FREE GIFT! Add 2 more tees to unlock 5 FOR $145 + FREE SHIPPING + BONUS GIFTS!"
+    },
+    {
+      "type": "text",
+      "id": "tier_msg_4",
+      "label": "4 tees in cart",
+      "default": "Just 1 more tee to unlock 5 FOR $145 + FREE SHIPPING + BONUS GIFTS!"
+    },
+    {
+      "type": "text",
+      "id": "tier_msg_5",
+      "label": "5 or more tees in cart",
+      "default": "Congratulations! You've unlocked 5 FOR $145 + FREE SHIPPING + BONUS GIFTS!"
+    },
+    { "type": "text", "id": "tier_msg_link", "label": "Optional cart link text (leave empty to hide)" },
+    {
+      "type": "text",
+      "id": "checkout_empty_message",
+      "label": "Checkout with empty cart message",
+      "default": "Your cart is empty. Add a tee first."
+    },
+    { "type": "color", "id": "cart_msg_background_color", "label": "Message background", "default": "#2d6a4f" },
+    { "type": "color", "id": "cart_msg_text_color", "label": "Message text color", "default": "#ffffff" },
+
+    { "type": "header", "content": "Old offer and message copy (not used)" },
+    { "type": "text", "id": "offer_1_text", "label": "Old offer 1 text", "default": "1 for $35" },
+    { "type": "text", "id": "offer_1_compare", "label": "Old offer 1 compare", "default": "$50" },
+    { "type": "text", "id": "offer_2_text", "label": "Old offer 2 text", "default": "2 for $60" },
+    { "type": "text", "id": "offer_2_compare", "label": "Old offer 2 compare", "default": "$100" },
+    { "type": "text", "id": "cart_msg_one_item", "label": "Old message 1", "default": "Not used" },
+    { "type": "text", "id": "cart_msg_two_items", "label": "Old message 2", "default": "Not used" },
+    { "type": "text", "id": "cart_msg_two_items_link", "label": "Old link text", "default": "Not used" },
+
+    { "type": "header", "content": "Sticky cart bar" },
+    {
+      "type": "select",
+      "id": "sticky_bar_mode",
+      "label": "Show sticky View cart / Checkout bar",
+      "options": [
+        { "value": "mobile", "label": "Mobile only" },
+        { "value": "all", "label": "Mobile + desktop" },
+        { "value": "none", "label": "Off" }
+      ],
+      "default": "mobile",
+      "info": "Pinned to the bottom of the screen while the product grid is visible."
+    },
+
+    { "type": "header", "content": "Checkout button" },
+    { "type": "text", "id": "checkout_button_text", "label": "Button text", "default": "CHECKOUT" },
+    { "type": "color", "id": "buynow_background_color", "label": "Background", "default": "transparent" },
+    { "type": "color", "id": "buynow_text_color", "label": "Text color", "default": "#000000" },
+    { "type": "color", "id": "buynow_border_color", "label": "Border color", "default": "#000000" },
+    { "type": "color", "id": "buynow_hover_background_color", "label": "Hover background", "default": "#000000" },
+    { "type": "color", "id": "buynow_hover_text_color", "label": "Hover text color", "default": "#ffffff" },
+    {
+      "type": "range",
+      "id": "buynow_border_radius",
+      "label": "Border radius (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 0
+    },
+    { "type": "checkbox", "id": "buynow_full_width", "label": "Full width", "default": true },
+    {
+      "type": "range",
+      "id": "button_gap",
+      "label": "Gap between buttons (px)",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "default": 8
+    },
+    { "type": "text", "id": "sold_out_text", "label": "Sold out button text", "default": "SOLD OUT" }
+  ],
+  "presets": [
+    {
+      "name": "VIAPLUSH Collection Grid",
+      "settings": {
+        "show_header": true,
+        "heading": "LIMITED SIZES. NO RESTOCK.",
+        "subheading": "ONCE IT'S ARCHIVED, IT'S GONE FOREVER.",
+        "show_warning_icon": true,
+        "columns_desktop": 4,
+        "columns_mobile": 1,
+        "product_limit": 7,
+        "deal_1_text": "2 for $75",
+        "deal_1_compare": "$105",
+        "deal_2_text": "3 for $105",
+        "deal_2_compare": "$156.50",
+        "deal_3_text": "5 for $145",
+        "deal_3_compare": "$258"
+      }
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,226 @@
+{% comment %}
+  Section contract.
+  "Shop the collection" grid for landing templates. With "One card per color" on, every color of
+  every selected product gets its own card (customers then pick only the size); otherwise each
+  product gets one card with color and size pickers. Cards share `assets/landing-purchase.js`
+  with the bundle offers. The section `id` is the in-page anchor used by the hero.
+  @example
+  <!-- templates/page.winter-sets.json, below the bundle offers -->
+{% endcomment %}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign anchor = section.settings.anchor_id | handleize
+  if anchor == blank
+    assign anchor = 'collection-' | append: section.id
+  endif
+
+  assign card_width = 1280 | divided_by: section.settings.columns
+  assign card_sizes = '(min-width: 1100px) ' | append: card_width | append: 'px, (min-width: 750px) 45vw, calc(100vw - 32px)'
+-%}
+
+<section
+  id="{{ anchor }}"
+  class="lp lp-products{% if section.settings.snow %} lp-winter{% endif %}"
+  style="{% render 'landing-section-vars', settings: section.settings %} --lp-products-columns: {{ section.settings.columns }};"
+>
+  <div class="lp-container">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="lp-section-head">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="lp-heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="lp-subheading">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.products != blank -%}
+      <ul class="lp-products__grid" role="list">
+        {%- for product in section.settings.products -%}
+          {%- liquid
+            assign color_index = -1
+            assign color_values = nil
+            for option in product.options_with_values
+              assign option_name = option.name | downcase
+              if option_name contains 'color' or option_name contains 'colour'
+                assign color_index = forloop.index0
+                assign color_values = option.values
+                break
+              endif
+            endfor
+          -%}
+          {%- if section.settings.split_by_color and color_index >= 0 -%}
+            {%- for color_value in color_values -%}
+              {% render 'landing-product-card',
+                product: product,
+                section_id: section.id,
+                card_sizes: card_sizes,
+                color_index: color_index,
+                fixed_value: color_value.name,
+                swatch_map: section.settings.swatch_colors
+              %}
+            {%- endfor -%}
+          {%- else -%}
+            {% render 'landing-product-card',
+              product: product,
+              section_id: section.id,
+              card_sizes: card_sizes,
+              swatch_map: section.settings.swatch_colors
+            %}
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- elsif request.design_mode -%}
+      <p class="lp-editor-note">{{ 'landing.product.editor_empty' | t }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script
+  type="module"
+  src="{{ 'landing-purchase.js' | asset_url }}"
+></script>
+
+{% stylesheet %}
+  .lp-products {
+    padding-block: clamp(40px, 6vw, 72px);
+    scroll-margin-block-start: 24px;
+  }
+
+  .lp-products__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+    gap: clamp(14px, 2vw, 22px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 1100px) {
+    .lp-products__grid {
+      grid-template-columns: repeat(var(--lp-products-columns, 4), minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 559px) {
+    .lp-products__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lp-products .lp-product__body {
+      padding-inline: 10px;
+    }
+
+    .lp-products .lp-btn {
+      padding-inline: 10px;
+      font-size: 0.8125rem;
+      gap: 6px;
+    }
+
+    .lp-products .lp-btn svg {
+      inline-size: 18px;
+      block-size: 18px;
+    }
+
+    .lp-products .lp-price__current {
+      font-size: 1.75rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:landing.names.landing_products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "t:landing.settings.anchor_id",
+      "info": "t:landing.content.anchor_info",
+      "default": "collection"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:landing.settings.heading",
+      "default": "Shop the collection"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:landing.settings.subheading"
+    },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "t:landing.settings.products",
+      "limit": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "split_by_color",
+      "label": "t:landing.settings.split_by_color",
+      "info": "t:landing.content.split_by_color_info",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "swatch_colors",
+      "label": "t:landing.settings.swatch_colors",
+      "info": "t:landing.content.swatch_colors_info",
+      "default": "Brown: #F7B98F, #B5451B\nCream: #F4EAD8, #1D5BB5, #EE6A1E"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:landing.settings.columns",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.brand_colors"
+    },
+    {
+      "type": "checkbox",
+      "id": "snow",
+      "label": "t:landing.settings.snow",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:landing.settings.background",
+      "default": "#FCEFE2"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:landing.settings.text",
+      "default": "#1E2A3A"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:landing.settings.accent",
+      "default": "#C94A0C"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "t:landing.settings.secondary",
+      "default": "#1D4F91"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:landing.names.landing_products"
+    }
+  ]
+}
+{% endschema %}

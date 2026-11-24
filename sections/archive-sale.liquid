@@ -1,0 +1,289 @@
+{{ 'archive-sale.css' | asset_url | stylesheet_tag }}
+
+<div class="arc-sale">
+
+  {% if section.settings.show_announcement %}
+  <div class="arc-announce">
+    <p>{{ section.settings.announcement_text }}</p>
+  </div>
+  {% endif %}
+
+  <!-- HERO -->
+  <div class="arc-hero">
+    <div class="arc-hero__media">
+      {% if section.settings.hero_image %}
+        <img src="{{ section.settings.hero_image | image_url: width: 1400 }}"
+             srcset="{{ section.settings.hero_image | image_url: width: 700 }} 700w,
+                     {{ section.settings.hero_image | image_url: width: 1400 }} 1400w"
+             alt="{{ section.settings.hero_image.alt | escape }}"
+             loading="eager" width="{{ section.settings.hero_image.width }}" height="{{ section.settings.hero_image.height }}">
+      {% else %}
+        <div class="arc-hero__placeholder">{{ 'hero-apparel-1' | placeholder_svg_tag }}</div>
+      {% endif %}
+    </div>
+
+    <div class="arc-hero__content">
+      <p class="arc-hero__eyebrow">{{ section.settings.hero_eyebrow }}</p>
+      <p class="arc-hero__intro">{{ section.settings.hero_intro }}</p>
+      <h1 class="arc-hero__title">{{ section.settings.hero_title }}</h1>
+
+      {% if section.settings.hero_button_label != blank %}
+        <a href="{{ section.settings.hero_button_link | default: '#' }}" class="arc-btn arc-btn--pill">
+          <span>{{ section.settings.hero_button_label }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+      {% endif %}
+
+      <div class="arc-hero__deals">
+        {% for block in section.blocks %}
+          {% if block.type == 'deal' %}
+            <div class="arc-hero__deal" {{ block.shopify_attributes }}>
+              <p class="arc-hero__deal-label">{{ block.settings.label }}</p>
+              <p class="arc-hero__deal-price">{{ block.settings.price }}</p>
+            </div>
+            {% unless forloop.last %}<div class="arc-hero__deal-divider"></div>{% endunless %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- TRUST BADGES -->
+  <div class="arc-badges">
+    {% for block in section.blocks %}
+      {% if block.type == 'badge' %}
+        <div class="arc-badge" {{ block.shopify_attributes }}>
+          <div class="arc-badge__icon">{{ block.settings.icon }}</div>
+          <div>
+            <p class="arc-badge__title">{{ block.settings.title }}</p>
+            <p class="arc-badge__text">{{ block.settings.text }}</p>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- PRODUCT GRID -->
+  <div class="arc-shop">
+    <div class="arc-shop__head">
+      <p class="arc-shop__eyebrow">{{ section.settings.grid_eyebrow }}</p>
+      <h2 class="arc-shop__title">{{ section.settings.grid_title }}</h2>
+      <p class="arc-shop__subtitle">{{ section.settings.grid_subtitle }}</p>
+      <p class="arc-shop__notice">
+        <span class="arc-shop__notice-icon">&#9888;</span>
+        <strong>{{ section.settings.grid_notice_strong }}</strong>
+        <span>{{ section.settings.grid_notice_text }}</span>
+      </p>
+    </div>
+
+    <div class="arc-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'product' %}
+          {% assign product = block.settings.product %}
+          <div class="arc-card" {{ block.shopify_attributes }}>
+            <div class="arc-card__media">
+              {% if block.settings.tag_text != blank %}
+                <span class="arc-card__tag" style="background:{{ block.settings.tag_color }};">{{ block.settings.tag_text }}</span>
+              {% endif %}
+              {% if product %}
+                <a href="{{ product.url }}">
+                  <img src="{{ product.featured_image | image_url: width: 700 }}" alt="{{ product.featured_image.alt | escape }}" loading="lazy">
+                </a>
+              {% elsif block.settings.image %}
+                <img src="{{ block.settings.image | image_url: width: 700 }}" alt="{{ block.settings.image.alt | escape }}" loading="lazy">
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'arc-card__placeholder' }}
+              {% endif %}
+            </div>
+
+            <div class="arc-card__body">
+              <h3 class="arc-card__title">
+                {% if product %}<a href="{{ product.url }}">{{ product.title }}</a>{% else %}{{ block.settings.title }}{% endif %}
+              </h3>
+              <p class="arc-card__desc">{{ block.settings.description }}</p>
+
+              <p class="arc-card__price">
+                <span class="arc-card__price-now">
+                  {% if product %}{{ product.price | money_without_trailing_zeros }}{% else %}{{ block.settings.price }}{% endif %}
+                </span>
+                {% if product and product.compare_at_price > product.price %}
+                  <span class="arc-card__price-was">{{ product.compare_at_price | money_without_trailing_zeros }}</span>
+                {% elsif block.settings.compare_price != blank %}
+                  <span class="arc-card__price-was">{{ block.settings.compare_price }}</span>
+                {% endif %}
+                {% if block.settings.rating != blank %}
+                  <span class="arc-card__rating">( &#9733; {{ block.settings.rating }} )</span>
+                {% endif %}
+              </p>
+
+              {% if product and product.options contains 'Color' %}
+                <div class="arc-swatches">
+                  {% for variant in product.variants %}
+                    {% if variant.option1 == variant.option1 and variant.title contains variant.option1 %}{% endif %}
+                  {% endfor %}
+                </div>
+              {% elsif block.settings.swatch_colors != blank %}
+                <div class="arc-swatches">
+                  {% assign colors = block.settings.swatch_colors | split: ',' %}
+                  {% for c in colors %}
+                    <span class="arc-swatch" style="background:{{ c | strip }};"></span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if block.settings.sizes != blank %}
+                <div class="arc-sizes">
+                  {% assign sizes = block.settings.sizes | split: ',' %}
+                  {% for s in sizes %}
+                    <span class="arc-size">{{ s | strip }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <button type="button" class="arc-btn arc-btn--full"
+                      {% if product %}data-product-id="{{ product.id }}" data-variant-id="{{ product.selected_or_first_available_variant.id }}"{% endif %}
+                      onclick="ArcSale.addToBag(this)">
+                <span>{{ section.settings.add_to_bag_label }}</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="arc-cta">
+    <div class="arc-cta__left">
+      <h2 class="arc-cta__title">{{ section.settings.cta_title }}</h2>
+      <p class="arc-cta__text">{{ section.settings.cta_text }}</p>
+      {% if section.settings.cta_button_label != blank %}
+        <a href="{{ section.settings.cta_button_link | default: '#' }}" class="arc-btn arc-btn--pill arc-btn--light">
+          <span>{{ section.settings.cta_button_label }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+      {% endif %}
+    </div>
+    <div class="arc-cta__right">
+      <p class="arc-cta__signature">{{ section.settings.cta_signature }}</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  window.ArcSale = window.ArcSale || {
+    addToBag: function (btn) {
+      var variantId = btn.getAttribute('data-variant-id');
+      if (!variantId) { console.log('No variant linked — connect a product on this card.'); return; }
+      btn.disabled = true;
+      var original = btn.innerHTML;
+      btn.innerHTML = '<span>Adding…</span>';
+      fetch('{{ routes.cart_add_url }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: [{ id: variantId, quantity: 1 }] })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          btn.innerHTML = '<span>Added ✓</span>';
+          document.dispatchEvent(new CustomEvent('cart:refresh'));
+          setTimeout(function () { btn.innerHTML = original; btn.disabled = false; }, 1500);
+        })
+        .catch(function () {
+          btn.innerHTML = '<span>Error</span>';
+          setTimeout(function () { btn.innerHTML = original; btn.disabled = false; }, 1500);
+        });
+    }
+  };
+</script>
+
+{% schema %}
+{
+  "name": "Archive Sale Page",
+  "class": "arc-sale-section",
+  "settings": [
+    { "type": "header", "content": "Announcement bar" },
+    { "type": "checkbox", "id": "show_announcement", "label": "Show announcement bar", "default": true },
+    { "type": "text", "id": "announcement_text", "label": "Announcement text", "default": "ARCHIVE SALE — 1 TEE $35 · 2 TEES $60 · FINAL SIZES · NO RESTOCK" },
+
+    { "type": "header", "content": "Hero" },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
+    { "type": "text", "id": "hero_eyebrow", "label": "Eyebrow", "default": "Making Room For What's Next." },
+    { "type": "textarea", "id": "hero_intro", "label": "Intro text", "default": "Legendary ViaPlush Pieces Are Leaving The Lineup. Shop The Final Available Sizes Before These Designs Are Archived For Good." },
+    { "type": "text", "id": "hero_title", "label": "Hero title", "default": "ARCHIVE SALE" },
+    { "type": "text", "id": "hero_button_label", "label": "Hero button label", "default": "Shop The Archive" },
+    { "type": "url", "id": "hero_button_link", "label": "Hero button link" },
+
+    { "type": "header", "content": "Product grid header" },
+    { "type": "text", "id": "grid_eyebrow", "label": "Eyebrow", "default": "The Archive Edit" },
+    { "type": "text", "id": "grid_title", "label": "Title", "default": "LAST CALL ON ICONIC PIECES." },
+    { "type": "textarea", "id": "grid_subtitle", "label": "Subtitle", "default": "Wearable art inspired by culture, identity and fearless self-expression — now in its final run. When your size disappears, it may not return." },
+    { "type": "text", "id": "grid_notice_strong", "label": "Notice (bold part)", "default": "Limited Sizes. No Restock." },
+    { "type": "text", "id": "grid_notice_text", "label": "Notice (rest)", "default": "Once It's Archived, It's Gone Forever." },
+    { "type": "text", "id": "add_to_bag_label", "label": "Add to bag button label", "default": "Add To Bag" },
+
+    { "type": "header", "content": "CTA band" },
+    { "type": "text", "id": "cta_title", "label": "CTA title", "default": "GRAB IT BEFORE IT'S ARCHIVED." },
+    { "type": "textarea", "id": "cta_text", "label": "CTA text", "default": "Final pieces. Final sizes. One last chance to own the designs that helped define the chapter." },
+    { "type": "text", "id": "cta_button_label", "label": "CTA button label", "default": "Shop All Archive Tees" },
+    { "type": "url", "id": "cta_button_link", "label": "CTA button link" },
+    { "type": "text", "id": "cta_signature", "label": "Signature wordmark text", "default": "Viaplush" }
+  ],
+  "blocks": [
+    {
+      "type": "deal",
+      "name": "Deal card",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "1 TEE FOR" },
+        { "type": "text", "id": "price", "label": "Price", "default": "$35" }
+      ]
+    },
+    {
+      "type": "badge",
+      "name": "Trust badge",
+      "settings": [
+        { "type": "text", "id": "icon", "label": "Icon (emoji or symbol)", "default": "★" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Premium Quality" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Thoughtful fabrics, graphics and finishing." }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product card",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Link a product (recommended)" },
+        { "type": "text", "id": "title", "label": "Title (used if no product linked)", "default": "Puzzles Exaggerated Fit Tee" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "A statement graphic built around identity, culture and bold self-expression." },
+        { "type": "image_picker", "id": "image", "label": "Image (used if no product linked)" },
+        { "type": "text", "id": "price", "label": "Price (used if no product linked)", "default": "$35" },
+        { "type": "text", "id": "compare_price", "label": "Compare-at price (used if no product linked)", "default": "$75.99" },
+        { "type": "text", "id": "rating", "label": "Rating", "default": "4.5/5" },
+        { "type": "text", "id": "tag_text", "label": "Corner tag text", "default": "ARCHIVE" },
+        { "type": "color", "id": "tag_color", "label": "Corner tag color", "default": "#e8593a" },
+        { "type": "text", "id": "swatch_colors", "label": "Swatch colors (comma-separated hex, used if no product linked)", "default": "#000000, #c9c9c9, #e0b23a, #6cb33f" },
+        { "type": "text", "id": "sizes", "label": "Sizes (comma-separated)", "default": "S, M, L" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Archive Sale Page",
+      "blocks": [
+        { "type": "deal", "settings": { "label": "1 TEE FOR", "price": "$35" } },
+        { "type": "deal", "settings": { "label": "2 TEES FOR", "price": "$60" } },
+        { "type": "badge", "settings": { "icon": "♛", "title": "Premium Quality", "text": "Thoughtful fabrics, graphics and finishing." } },
+        { "type": "badge", "settings": { "icon": "⌂", "title": "Fast Delivery", "text": "Quick order processing with tracked shipping." } },
+        { "type": "badge", "settings": { "icon": "✓", "title": "Secure Checkout", "text": "Protected payment experience at checkout." } },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}

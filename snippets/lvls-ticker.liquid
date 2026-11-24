@@ -1,0 +1,127 @@
+<div class="lvls-ticker" aria-label="Store announcements">
+  <div class="lvls-ticker__track">
+
+    <div class="lvls-ticker__reel">
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        Limited edition drops — once they’re gone, they’re gone
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.1"/></svg>
+        Easy 30-day returns
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secure checkout — encrypted &amp; protected
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Wearable art celebrating African heritage
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+    </div>
+
+    <div class="lvls-ticker__reel" aria-hidden="true">
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        Limited edition drops — once they’re gone, they’re gone
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.1"/></svg>
+        Easy 30-day returns
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secure checkout — encrypted &amp; protected
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+      <span class="lvls-ticker__item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Wearable art celebrating African heritage
+      </span>
+      <span class="lvls-ticker__dot" aria-hidden="true">&bull;</span>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .lvls-ticker {
+    background: #111;
+    color: #f0ebe0;
+    height: 36px;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    z-index: 100;
+  }
+
+  .lvls-ticker__track {
+    display: flex;
+    width: max-content;
+    animation: lvls-marquee 28s linear infinite;
+    height: 100%;
+  }
+
+  .lvls-ticker:hover .lvls-ticker__track {
+    animation-play-state: paused;
+  }
+
+  .lvls-ticker__reel {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0 32px;
+    height: 36px;
+  }
+
+  .lvls-ticker__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    padding: 0 20px;
+    white-space: nowrap;
+  }
+
+  .lvls-ticker__item svg {
+    flex-shrink: 0;
+    opacity: 0.9;
+  }
+
+  .lvls-ticker__dot {
+    font-size: 16px;
+    opacity: 0.3;
+    line-height: 1;
+  }
+
+  @keyframes lvls-marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lvls-ticker__track { animation: none; }
+    .lvls-ticker__reel:last-child { display: none; }
+    .lvls-ticker { height: auto; padding: 8px 16px; }
+    .lvls-ticker__reel { flex-wrap: wrap; gap: 8px 16px; height: auto; white-space: normal; }
+    .lvls-ticker__dot { display: none; }
+  }
+</style>

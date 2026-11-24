@@ -1,0 +1,276 @@
+{
+  "sections": {
+    "viaplush_winter_header": {
+      "type": "viaplush-minimal-archive-sale-header",
+      "name": "VIAPLUSH Winter Header",
+      "settings": {
+        "hide_theme_header": true,
+        "hide_theme_footer": true,
+        "logo_override": "shopify://shop_images/viaplush-corrected-black_57e527ae-e807-4aba-be56-ed9143497d8a.png",
+        "logo_alt": "VIAPLUSH",
+        "logo_text_fallback": "Viaplush",
+        "logo_text_color": "#000000",
+        "logo_dot_color": "#c41e3a",
+        "logo_text_size_desktop": 36,
+        "logo_text_size_tablet": 32,
+        "logo_text_size_mobile": 28,
+        "logo_max_height_desktop": 54,
+        "logo_max_height_tablet": 46,
+        "logo_max_height_mobile": 36,
+        "logo_alignment": "center",
+        "cart_icon_style": "cart-outline",
+        "cart_icon_size_desktop": 30,
+        "cart_icon_size_tablet": 28,
+        "cart_icon_size_mobile": 24,
+        "cart_icon_color": "#1E2A3A",
+        "count_bubble_bg_color": "#C94A0C",
+        "count_bubble_text_color": "#FFFFFF",
+        "count_bubble_offset_top": -6,
+        "count_bubble_offset_right": -8,
+        "hide_zero_count": false,
+        "cart_focus_color": "#1D4F91",
+        "drawer_title": "Your Bag",
+        "drawer_checkout_text": "CHECKOUT",
+        "drawer_empty_text": "Your bag is empty.",
+        "drawer_remove_label": "Remove",
+        "drawer_background_color": "#FFFBF6",
+        "drawer_text_color": "#000000",
+        "drawer_muted_color": "#666666",
+        "drawer_border_color": "#F1D7C2",
+        "drawer_overlay_color": "rgba(0, 0, 0, 0.45)",
+        "drawer_checkout_bg": "#C94A0C",
+        "drawer_checkout_text_color": "#ffffff",
+        "drawer_checkout_hover_bg": "#A93C08",
+        "drawer_width_desktop": 420,
+        "drawer_padding": 24,
+        "container_type": "full",
+        "custom_max_width": 1200,
+        "container_padding_desktop": 40,
+        "container_padding_tablet": 28,
+        "container_padding_mobile": 16,
+        "section_padding_top_desktop": 0,
+        "section_padding_bottom_desktop": 0,
+        "section_padding_top_tablet": 0,
+        "section_padding_bottom_tablet": 0,
+        "section_padding_top_mobile": 0,
+        "section_padding_bottom_mobile": 0,
+        "header_padding_horizontal_desktop": 40,
+        "header_padding_horizontal_tablet": 28,
+        "header_padding_horizontal_mobile": 16,
+        "header_padding_vertical_desktop": 18,
+        "header_padding_vertical_tablet": 16,
+        "header_padding_vertical_mobile": 12,
+        "content_vertical_align": "center",
+        "background_transparent": false,
+        "background_color": "#FCEFE2",
+        "show_bottom_border": false,
+        "border_color": "#FCEFE2",
+        "border_thickness": 1,
+        "sticky_header": false,
+        "sticky_scroll_background": "#FCEFE2",
+        "sticky_shadow_on_scroll": false,
+        "tagline": "Clothing that speaks",
+        "tagline_color": "#1E2A3A",
+        "tagline_accent_color": "#E8691F"
+      }
+    },
+    "hero": {
+      "type": "landing-hero",
+      "settings": {
+        "show_branches": true,
+        "heading_line_1": "The",
+        "heading_line_2": "Winter",
+        "heading_line_3": "Set Edit",
+        "script_font": "covered_by_your_grace_n4",
+        "tagline": "Culture.\nComfort.\nArt. Expression.",
+        "badge": "Limited\nstock",
+        "offer_title": "The Matching Set",
+        "offer_subtitle": "Sweatshirt + Sweatpants",
+        "offer_compare": "$240",
+        "offer_price": "$159",
+        "shipping_text": "Free shipping",
+        "option_1_title": "1 Matching Set",
+        "option_1_note": "Save 34% + 4 free accessories",
+        "option_1_price": "$159",
+        "option_2_title": "2 Matching Sets",
+        "option_2_note": "Save 46% + 6 free accessories",
+        "option_2_price": "$259",
+        "option_2_tag": "Best value",
+        "primary_label": "Choose colors & sizes",
+        "secondary_label": "Shop single pieces",
+        "background_color": "#FCEFE2",
+        "text_color": "#1E2A3A",
+        "accent_color": "#C94A0C",
+        "secondary_color": "#1D4F91",
+        "image_asset": "winter-hero-models.jpg",
+        "image_alt": "Models wearing the Jazz Ain't Blue matching sets",
+        "option_1_anchor": "one-set",
+        "option_2_anchor": "two-sets"
+      }
+    },
+    "bundles": {
+      "type": "bundle-offers",
+      "blocks": {
+        "one_set": {
+          "type": "_bundle-offer",
+          "settings": {
+            "title": "One Matching Set",
+            "badge": "",
+            "highlight": false,
+            "sets": 1,
+            "includes": "Sweatshirt + Sweatpants",
+            "price": 159,
+            "show_savings": true,
+            "free_shipping": true,
+            "gift_text": "+ 4 free accessories",
+            "gift_quantity": 1,
+            "gift_products": [
+              "braided-cross-bracelet",
+              "dope-soul-earring",
+              "i-am-black-history-earrings",
+              "key-chain"
+            ],
+            "gift_count": 4,
+            "discount_code": "",
+            "anchor_id": "one-set"
+          }
+        },
+        "two_sets": {
+          "type": "_bundle-offer",
+          "settings": {
+            "title": "Two Matching Sets",
+            "badge": "Best value",
+            "highlight": true,
+            "sets": 2,
+            "includes": "2 Sweatshirts + 2 Sweatpants",
+            "price": 259,
+            "show_savings": true,
+            "free_shipping": true,
+            "gift_text": "+ 6 free accessories",
+            "gift_quantity": 1,
+            "gift_products": [
+              "braided-cross-bracelet",
+              "dope-soul-earring",
+              "i-am-black-history-earrings",
+              "key-chain"
+            ],
+            "gift_count": 6,
+            "discount_code": "",
+            "anchor_id": "two-sets"
+          }
+        }
+      },
+      "block_order": [
+        "one_set",
+        "two_sets"
+      ],
+      "settings": {
+        "anchor_id": "sets",
+        "limited_stock": "Limited stock",
+        "heading": "Choose your set",
+        "subheading": "Mix and match: pick the color and size for every sweatshirt and every pair of sweatpants.",
+        "top_products": [
+          "jazz-aint-blue-sweatshirt"
+        ],
+        "top_label": "Sweatshirt",
+        "bottom_products": [
+          "jazz-aint-blue-sweat-pants"
+        ],
+        "bottom_label": "Sweatpants",
+        "snow": true,
+        "background_color": "#FFF4EA",
+        "text_color": "#1E2A3A",
+        "accent_color": "#C94A0C",
+        "secondary_color": "#1D4F91",
+        "swatch_colors": "Brown: #F7B98F, #B5451B\nCream: #F4EAD8, #1D5BB5, #EE6A1E"
+      }
+    },
+    "products": {
+      "type": "landing-products",
+      "settings": {
+        "anchor_id": "collection",
+        "heading": "Shop the collection",
+        "subheading": "",
+        "products": [
+          "jazz-aint-blue-sweatshirt",
+          "jazz-aint-blue-sweat-pants"
+        ],
+        "split_by_color": true,
+        "columns": 4,
+        "snow": true,
+        "background_color": "#FCEFE2",
+        "text_color": "#1E2A3A",
+        "accent_color": "#C94A0C",
+        "secondary_color": "#1D4F91",
+        "swatch_colors": "Brown: #F7B98F, #B5451B\nCream: #F4EAD8, #1D5BB5, #EE6A1E"
+      }
+    },
+    "details": {
+      "type": "landing-details",
+      "blocks": {
+        "artwork": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Iconic Artwork",
+            "caption": "Bold. Cultural. Timeless.",
+            "image_asset": "winter-detail-artwork.jpg"
+          }
+        },
+        "back": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Back Detail",
+            "caption": "Subtle touches. Big meaning.",
+            "image_asset": "winter-detail-back.jpg"
+          }
+        },
+        "slit": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Side Slit Pants",
+            "caption": "Movement. Style. Comfort.",
+            "image_asset": "winter-detail-slit.jpg"
+          }
+        },
+        "signature": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Signature Detail",
+            "caption": "Authentic. Original.",
+            "image_asset": "winter-detail-signature.jpg"
+          }
+        },
+        "fabric": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Premium Fabric",
+            "caption": "Soft. Durable. All season.",
+            "image_asset": "winter-detail-fabric.jpg"
+          }
+        }
+      },
+      "block_order": [
+        "artwork",
+        "back",
+        "slit",
+        "signature",
+        "fabric"
+      ],
+      "settings": {
+        "heading": "Close-up details",
+        "snow": true,
+        "background_color": "#FCEFE2",
+        "text_color": "#1E2A3A",
+        "accent_color": "#C94A0C",
+        "secondary_color": "#1D4F91"
+      }
+    }
+  },
+  "order": [
+    "viaplush_winter_header",
+    "hero",
+    "bundles",
+    "products",
+    "details"
+  ]
+}

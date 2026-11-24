@@ -1,0 +1,89 @@
+{% comment %} LVLS Agency — CRO product recommendations section overrides {% endcomment %}
+<style>
+  /* ── You may also like section ── */
+  .product-recommendations-section,
+  [data-section-type="product-recommendations"] {
+    background: #fafafa;
+    padding: 48px 0;
+  }
+
+  /* Section heading */
+  .product-recommendations-section h3,
+  .product-recommendations-section h4,
+  [data-section-type="product-recommendations"] h3,
+  [data-section-type="product-recommendations"] h4 {
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    text-align: center;
+    margin-bottom: 32px;
+    color: #111;
+  }
+
+  /* Product card title — kill ALL CAPS from theme font setting */
+  .product-recommendations-section .product-card a,
+  .product-recommendations-section .product-title,
+  .product-recommendations-section [class*="product-title"],
+  .product-recommendations-section [class*="product-card"] h3,
+  .product-recommendations-section [class*="product-card"] h4,
+  .product-recommendations-section [class*="product-card"] h5,
+  .product-recommendations-section [class*="product-card"] p,
+  [data-section-type="product-recommendations"] [class*="product-card"] h3,
+  [data-section-type="product-recommendations"] [class*="product-card"] h4,
+  [data-section-type="product-recommendations"] [class*="product-card"] h5,
+  [data-section-type="product-recommendations"] [class*="product-title"] {
+    text-transform: none !important;
+    letter-spacing: 0.01em !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #1a1a1a !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Price */
+  .product-recommendations-section [class*="price"],
+  [data-section-type="product-recommendations"] [class*="price"] {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Card image — taller, portrait ratio */
+  .product-recommendations-section [class*="product-card-gallery"] img,
+  [data-section-type="product-recommendations"] [class*="product-card-gallery"] img {
+    object-fit: cover;
+    object-position: top center;
+    aspect-ratio: 3 / 4;
+    width: 100%;
+    display: block;
+  }
+
+  /* Card container — subtle hover lift */
+  .product-recommendations-section [class*="product-card"],
+  [data-section-type="product-recommendations"] [class*="product-card"] {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .product-recommendations-section [class*="product-card"]:hover,
+  [data-section-type="product-recommendations"] [class*="product-card"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  /* Card info padding */
+  .product-recommendations-section [class*="product-card-group"],
+  [data-section-type="product-recommendations"] [class*="product-card-group"] {
+    padding: 10px 2px 4px;
+  }
+
+  /* Hide color swatch dots in recs — too small to be useful */
+  .product-recommendations-section [class*="swatches"],
+  [data-section-type="product-recommendations"] [class*="swatches"] {
+    display: none !important;
+  }
+</style>

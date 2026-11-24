@@ -1,0 +1,1997 @@
+{%- comment -%}
+  VIAPLUSH – Archive Sale Hero
+  Shopify Online Store 2.0 section for Atelier theme.
+  Scoped to #viaplush-archive-hero-{{ section.id }} — no global styles.
+  Liquid + HTML + CSS only. No JavaScript.
+  Updated: three offer cards (2 / 3 / 5 tees) replace the old two-offer price box.
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign s = section.settings
+
+  assign container_type = s.container_type | default: 'theme'
+  assign hero_height = s.hero_height | default: 'auto'
+  assign mobile_order = s.mobile_order | default: 'content_first'
+  assign mobile_price_layout = s.mobile_price_layout | default: 'side_by_side'
+  assign content_h_align = s.content_horizontal_align | default: 'left'
+  assign content_v_align = s.content_vertical_align | default: 'center'
+  assign media_v_align = s.media_vertical_align | default: 'center'
+
+  assign img_display = s.image_display | default: 'contain'
+  assign img_aspect = s.image_aspect_ratio | default: 'auto'
+
+  assign img_pos_h = s.image_position_horizontal | default: 'center'
+  assign img_pos_v = s.image_position_vertical | default: 'center'
+  assign object_position = img_pos_h | append: ' ' | append: img_pos_v
+  assign image_class = 'viaplush-archive-hero__image viaplush-archive-hero__image--' | append: img_display
+
+  assign media_bg_type = s.media_background_type | default: 'solid'
+  assign highlight_offer_2 = s.highlight_offer_2
+  assign highlight_style = s.highlight_style | default: 'larger'
+
+  assign content_align_items = 'flex-start'
+  if content_h_align == 'center'
+    assign content_align_items = 'center'
+  elsif content_h_align == 'right'
+    assign content_align_items = 'flex-end'
+  endif
+
+  assign content_justify = 'center'
+  if content_v_align == 'top'
+    assign content_justify = 'flex-start'
+  elsif content_v_align == 'bottom'
+    assign content_justify = 'flex-end'
+  endif
+
+  assign media_align = 'center'
+  if media_v_align == 'top'
+    assign media_align = 'flex-start'
+  elsif media_v_align == 'bottom'
+    assign media_align = 'flex-end'
+  endif
+
+  assign aspect_css = 'auto'
+  case img_aspect
+    when 'square'
+      assign aspect_css = '1 / 1'
+    when '4_5'
+      assign aspect_css = '4 / 5'
+    when '3_4'
+      assign aspect_css = '3 / 4'
+    when '4_3'
+      assign aspect_css = '4 / 3'
+    when '16_9'
+      assign aspect_css = '16 / 9'
+    when 'custom'
+      assign aspect_css = s.image_aspect_custom | default: '4 / 5'
+  endcase
+
+  assign hero_h_d = 'auto'
+  assign hero_h_t = 'auto'
+  assign hero_h_m = 'auto'
+  case hero_height
+    when 'small'
+      assign hero_h_d = '520px'
+      assign hero_h_t = '480px'
+      assign hero_h_m = 'auto'
+    when 'medium'
+      assign hero_h_d = '640px'
+      assign hero_h_t = '560px'
+      assign hero_h_m = 'auto'
+    when 'large'
+      assign hero_h_d = '760px'
+      assign hero_h_t = '640px'
+      assign hero_h_m = 'auto'
+    when 'custom'
+      assign hero_h_d = s.hero_height_desktop | append: 'px'
+      assign hero_h_t = s.hero_height_tablet | append: 'px'
+      assign hero_h_m = s.hero_height_mobile | append: 'px'
+  endcase
+
+  assign archive_transform = 'none'
+  case s.archive_text_transform
+    when 'uppercase'
+      assign archive_transform = 'uppercase'
+    when 'lowercase'
+      assign archive_transform = 'lowercase'
+    when 'capitalize'
+      assign archive_transform = 'capitalize'
+  endcase
+
+  assign sale_transform = 'none'
+  case s.sale_text_transform
+    when 'uppercase'
+      assign sale_transform = 'uppercase'
+    when 'lowercase'
+      assign sale_transform = 'lowercase'
+    when 'capitalize'
+      assign sale_transform = 'capitalize'
+  endcase
+
+  assign btn_href = s.button_url | default: '#'
+  if s.button_url == blank
+    assign btn_href = '#'
+  endif
+
+  assign d_labels = '2 TEES|3 TEES|5 TEES' | split: '|'
+  assign d_badges = 'NONE|MOST POPULAR|BEST VALUE' | split: '|'
+  assign d_prices = '$75|$105|$145' | split: '|'
+  assign d_shirts = '$100|$150|$250' | split: '|'
+  assign d_ship = '$5|$6.50|$8' | split: '|'
+  assign d_totals = '$105|$156.50|$258' | split: '|'
+  assign d_saves = 'Save 25% on shirts|Save 30% on shirts|Save 42% on shirts' | split: '|'
+  assign d_total_saves = 'Total savings $30|Total savings $51.50|Total savings $113' | split: '|'
+  assign d_benefits = 'FREE SHIPPING INCLUDED|FREE SHIPPING + 1 FREE GIFT|FREE SHIPPING + BONUS GIFTS' | split: '|'
+  assign card_price_color = s.offer1_price_color | default: '#8B1A1A'
+-%}
+
+<section
+  id="viaplush-archive-hero-{{ sid }}"
+  class="viaplush-archive-hero viaplush-archive-hero--container-{{ container_type }} viaplush-archive-hero--height-{{ hero_height }} viaplush-archive-hero--mobile-{{ mobile_order }} viaplush-archive-hero--mobile-price-{{ mobile_price_layout }} viaplush-archive-hero--bg-{{ s.background_type | default: 'solid' }}"
+  style="
+    --vah-bg: {{ s.background_color | default: '#F9F7F2' }};
+    --vah-grad-1: {{ s.gradient_color_1 | default: '#F9F7F2' }};
+    --vah-grad-2: {{ s.gradient_color_2 | default: '#EDE8DF' }};
+    --vah-grad-dir: {{ s.gradient_direction | default: 'to right' }};
+    --vah-overlay: {{ s.overlay_color | default: '#000000' }};
+    --vah-overlay-opacity: {{ s.overlay_opacity | default: 0 | divided_by: 100.0 }};
+    --vah-bg-pos: {{ s.background_image_position | default: 'center center' }};
+    --vah-custom-max: {{ s.custom_max_width | default: 1200 }}px;
+    --vah-pad-d: {{ s.container_padding_desktop | default: 24 }}px;
+    --vah-pad-t: {{ s.container_padding_tablet | default: 20 }}px;
+    --vah-pad-m: {{ s.container_padding_mobile | default: 16 }}px;
+    --vah-hero-h-d: {{ hero_h_d }};
+    --vah-hero-h-t: {{ hero_h_t }};
+    --vah-hero-h-m: {{ hero_h_m }};
+    --vah-sec-pt-d: {{ s.section_padding_top_desktop | default: 40 }}px;
+    --vah-sec-pb-d: {{ s.section_padding_bottom_desktop | default: 40 }}px;
+    --vah-sec-pt-t: {{ s.section_padding_top_tablet | default: 32 }}px;
+    --vah-sec-pb-t: {{ s.section_padding_bottom_tablet | default: 32 }}px;
+    --vah-sec-pt-m: {{ s.section_padding_top_mobile | default: 24 }}px;
+    --vah-sec-pb-m: {{ s.section_padding_bottom_mobile | default: 24 }}px;
+    --vah-col-gap-d: {{ s.column_gap_desktop | default: 32 }}px;
+    --vah-col-gap-t: {{ s.column_gap_tablet | default: 24 }}px;
+    --vah-col-gap-m: {{ s.column_gap_mobile | default: 0 }}px;
+    --vah-content-gap-d: {{ s.content_gap_desktop | default: 14 }}px;
+    --vah-content-gap-t: {{ s.content_gap_tablet | default: 12 }}px;
+    --vah-content-gap-m: {{ s.content_gap_mobile | default: 12 }}px;
+    --vah-price-gap: {{ s.price_box_spacing | default: 8 }}px;
+    --vah-cta-gap: {{ s.cta_spacing | default: 10 }}px;
+    --vah-archive-size-d: {{ s.archive_font_size_desktop | default: 108 }}px;
+    --vah-archive-size-t: {{ s.archive_font_size_tablet | default: 80 }}px;
+    --vah-archive-size-m: {{ s.archive_font_size_mobile | default: 52 }}px;
+    --vah-sale-size-d: {{ s.sale_font_size_desktop | default: 108 }}px;
+    --vah-sale-size-t: {{ s.sale_font_size_tablet | default: 80 }}px;
+    --vah-sale-size-m: {{ s.sale_font_size_mobile | default: 52 }}px;
+    --vah-headline-spacing: {{ s.headline_line_spacing | default: 0 }}px;
+    --vah-sub-size-d: {{ s.subheadline_font_size_desktop | default: 20 }}px;
+    --vah-sub-size-t: {{ s.subheadline_font_size_tablet | default: 18 }}px;
+    --vah-sub-size-m: {{ s.subheadline_font_size_mobile | default: 15 }}px;
+    --vah-desc-size-d: {{ s.description_font_size_desktop | default: 16 }}px;
+    --vah-desc-size-t: {{ s.description_font_size_tablet | default: 15 }}px;
+    --vah-desc-size-m: {{ s.description_font_size_mobile | default: 14 }}px;
+    --vah-offer-label-size-d: {{ s.offer_label_font_size_desktop | default: 15 }}px;
+    --vah-offer-label-size-t: {{ s.offer_label_font_size_tablet | default: 14 }}px;
+    --vah-offer-label-size-m: {{ s.offer_label_font_size_mobile | default: 13 }}px;
+    --vah-offer-price-size-d: {{ s.offer_price_font_size_desktop | default: 36 }}px;
+    --vah-offer-price-size-t: {{ s.offer_price_font_size_tablet | default: 32 }}px;
+    --vah-offer-price-size-m: {{ s.offer_price_font_size_mobile | default: 28 }}px;
+    --vah-offer2-price-size-d: {{ s.offer2_price_font_size_desktop | default: 42 }}px;
+    --vah-offer2-price-size-t: {{ s.offer2_price_font_size_tablet | default: 38 }}px;
+    --vah-offer2-price-size-m: {{ s.offer2_price_font_size_mobile | default: 32 }}px;
+    --vah-promo-size-d: {{ s.promo_font_size_desktop | default: 14 }}px;
+    --vah-promo-size-t: {{ s.promo_font_size_tablet | default: 13 }}px;
+    --vah-promo-size-m: {{ s.promo_font_size_mobile | default: 12 }}px;
+    --vah-btn-size-d: {{ s.button_font_size_desktop | default: 15 }}px;
+    --vah-btn-size-t: {{ s.button_font_size_tablet | default: 14 }}px;
+    --vah-btn-size-m: {{ s.button_font_size_mobile | default: 14 }}px;
+    --vah-btn-h-d: {{ s.button_height_desktop | default: 52 }}px;
+    --vah-btn-h-t: {{ s.button_height_tablet | default: 48 }}px;
+    --vah-btn-h-m: {{ s.button_height_mobile | default: 48 }}px;
+    --vah-img-scale: {{ s.image_scale | default: 100 | divided_by: 100.0 }};
+    --vah-img-w: {% if s.image_width > 0 %}{{ s.image_width }}px{% else %}100%{% endif %};
+    --vah-img-max-w: {% if s.image_max_width > 0 %}{{ s.image_max_width }}px{% else %}100%{% endif %};
+    --vah-img-h: {% if s.image_height > 0 %}{{ s.image_height }}px{% else %}auto{% endif %};
+    --vah-img-max-h: {% if s.image_max_height > 0 %}{{ s.image_max_height }}px{% else %}100%{% endif %};
+    --vah-img-aspect: {{ aspect_css }};
+    --vah-media-bg: {{ s.media_background_color | default: '#F9F7F2' }};
+    --vah-media-grad-1: {{ s.media_gradient_color_1 | default: '#F9F7F2' }};
+    --vah-media-grad-2: {{ s.media_gradient_color_2 | default: '#EDE8DF' }};
+    --vah-media-grad-dir: {{ s.media_gradient_direction | default: 'to bottom' }};
+    --vah-highlight-accent: {{ s.highlight_accent_color | default: '#8B1A1A' }};
+    --vah-btn-bg: {{ s.button_bg_color | default: '#000000' }};
+    --vah-btn-text: {{ s.button_text_color | default: '#ffffff' }};
+    --vah-btn-border: {{ s.button_border_color | default: '#000000' }};
+    --vah-btn-hover-bg: {{ s.button_hover_bg_color | default: '#1a1a1a' }};
+    --vah-btn-hover-text: {{ s.button_hover_text_color | default: '#ffffff' }};
+    --vah-btn-radius: {{ s.button_border_radius | default: 0 }}px;
+    --vah-btn-border-w: {{ s.button_border_width | default: 0 }}px;
+    --vah-btn-grad-1: {{ s.button_gradient_color_1 | default: '#000000' }};
+    --vah-btn-grad-2: {{ s.button_gradient_color_2 | default: '#333333' }};
+    --vah-btn-grad-dir: {{ s.button_gradient_direction | default: 'to right' }};
+    {% if s.button_width == 'full' %}--vah-btn-width: 100%;{% elsif s.button_width == 'custom' %}--vah-btn-width: {{ s.button_custom_width | default: 320 }}px;{% else %}--vah-btn-width: auto;{% endif %}
+    --vah-content-align: {{ content_align_items }};
+    --vah-content-justify: {{ content_justify }};
+    --vah-media-align: {{ media_align }};
+    --vah-image-gap-m: {{ s.image_gap_mobile | default: 20 }}px;
+  "
+>
+  {%- if s.background_type == 'image' and s.background_image != blank -%}
+    <div class="viaplush-archive-hero__bg-image" aria-hidden="true">
+      {{
+        s.background_image
+        | image_url: width: 2400
+        | image_tag:
+          loading: 'eager',
+          fetchpriority: 'high',
+          class: 'viaplush-archive-hero__bg-image-el',
+          sizes: '100vw'
+      }}
+    </div>
+  {%- endif -%}
+
+  {%- if s.overlay_opacity > 0 -%}
+    <div class="viaplush-archive-hero__overlay" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="viaplush-archive-hero__container{% if container_type == 'theme' %} page-width{% endif %}">
+    <div class="viaplush-archive-hero__grid">
+      <div class="viaplush-archive-hero__content" style="text-align: {{ content_h_align }};">
+        <h1 class="viaplush-archive-hero__headline">
+          <span
+            class="viaplush-archive-hero__headline-archive"
+            style="
+              color: {{ s.archive_color | default: '#8B1A1A' }};
+              font-weight: {{ s.archive_font_weight | default: 800 }};
+              text-transform: {{ archive_transform }};
+              text-align: {{ s.archive_alignment | default: content_h_align }};
+              max-width: {% if s.archive_max_width > 0 %}{{ s.archive_max_width }}px{% else %}none{% endif %};
+            "
+          >
+            {{- s.archive_text | default: 'ARCHIVE' -}}
+          </span>
+          <span
+            class="viaplush-archive-hero__headline-sale"
+            style="
+              color: {{ s.sale_color | default: '#000000' }};
+              font-weight: {{ s.sale_font_weight | default: 800 }};
+              text-transform: {{ sale_transform }};
+              text-align: {{ s.sale_alignment | default: content_h_align }};
+              max-width: {% if s.sale_max_width > 0 %}{{ s.sale_max_width }}px{% else %}none{% endif %};
+            "
+          >
+            {{- s.sale_text | default: 'SALE' -}}
+          </span>
+        </h1>
+
+        {%- if s.subheadline != blank -%}
+          <p
+            class="viaplush-archive-hero__subheadline"
+            style="
+              font-weight: {{ s.subheadline_font_weight | default: 700 }};
+              color: {{ s.subheadline_color | default: '#000000' }};
+              text-align: {{ s.subheadline_alignment | default: content_h_align }};
+              max-width: {% if s.subheadline_max_width > 0 %}{{ s.subheadline_max_width }}px{% else %}100%{% endif %};
+              margin-top: {{ s.subheadline_margin_top | default: 4 }}px;
+              margin-bottom: {{ s.subheadline_margin_bottom | default: 0 }}px;
+            "
+          >
+            {{ s.subheadline }}
+          </p>
+        {%- endif -%}
+
+        {%- if s.description != blank -%}
+          <div
+            class="viaplush-archive-hero__description"
+            style="
+              color: {{ s.description_color | default: '#000000' }};
+              text-align: {{ s.description_alignment | default: content_h_align }};
+              max-width: {% if s.description_max_width > 0 %}{{ s.description_max_width }}px{% else %}100%{% endif %};
+              margin-top: {{ s.description_margin_top | default: 6 }}px;
+              margin-bottom: {{ s.description_margin_bottom | default: 0 }}px;
+            "
+          >
+            {{ s.description }}
+          </div>
+        {%- endif -%}
+
+        <div
+          class="viaplush-archive-hero__offer-cards"
+          role="group"
+          aria-label="{{ s.price_box_aria_label | default: 'Archive Sale pricing' }}"
+          style="margin-top: {{ s.price_box_margin_top | default: 10 }}px;"
+        >
+          {%- for i in (1..3) -%}
+            {%- liquid
+              assign idx = forloop.index0
+              assign pre = 'card' | append: i | append: '_'
+
+              assign k = pre | append: 'badge'
+              assign c_badge = s[k] | default: d_badges[idx]
+              assign k = pre | append: 'label'
+              assign c_label = s[k] | default: d_labels[idx]
+              assign k = pre | append: 'price'
+              assign c_price = s[k] | default: d_prices[idx]
+              assign k = pre | append: 'shirts_was'
+              assign c_shirts = s[k] | default: d_shirts[idx]
+              assign k = pre | append: 'shipping_was'
+              assign c_ship = s[k] | default: d_ship[idx]
+              assign k = pre | append: 'total_was'
+              assign c_total = s[k] | default: d_totals[idx]
+              assign k = pre | append: 'save_text'
+              assign c_save = s[k] | default: d_saves[idx]
+              assign k = pre | append: 'total_save_text'
+              assign c_total_save = s[k] | default: d_total_saves[idx]
+              assign k = pre | append: 'benefit'
+              assign c_benefit = s[k] | default: d_benefits[idx]
+
+              assign badge_check = c_badge | upcase
+              if badge_check == 'NONE'
+                assign c_badge = ''
+              endif
+            -%}
+
+            <div class="viaplush-archive-hero__card{% if c_badge != '' %} viaplush-archive-hero__card--featured{% endif %}">
+              {%- if c_badge != '' -%}
+                <span class="viaplush-archive-hero__card-badge">{{ c_badge }}</span>
+              {%- endif -%}
+
+              <p class="viaplush-archive-hero__offer-label">{{ c_label }}</p>
+              <p
+                class="viaplush-archive-hero__offer-price viaplush-archive-hero__card-price"
+                style="color: {{ card_price_color }};"
+              >
+                {{ c_price }}
+              </p>
+
+              <p class="viaplush-archive-hero__card-was">
+                <s>{{ c_shirts }}</s> shirts + <s>{{ c_ship }}</s> shipping
+              </p>
+              <p class="viaplush-archive-hero__card-was">
+                Original total <s>{{ c_total }}</s>
+              </p>
+
+              <p class="viaplush-archive-hero__card-save">{{ c_save }}</p>
+              <p class="viaplush-archive-hero__card-save">{{ c_total_save }}</p>
+
+              <p class="viaplush-archive-hero__card-benefit">{{ c_benefit }}</p>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {%- if s.promo_text != blank -%}
+          <p
+            class="viaplush-archive-hero__promo"
+            style="
+              color: {{ s.promo_color | default: '#8B1A1A' }};
+              font-weight: {{ s.promo_font_weight | default: 700 }};
+              text-align: {{ s.promo_alignment | default: content_h_align }};
+              max-width: {% if s.promo_max_width > 0 %}{{ s.promo_max_width }}px{% else %}100%{% endif %};
+              margin-top: {{ s.promo_margin_top | default: 6 }}px;
+              margin-bottom: {{ s.promo_margin_bottom | default: 0 }}px;
+            "
+          >
+            {{ s.promo_text }}
+          </p>
+        {%- endif -%}
+
+        {%- if s.show_button -%}
+          <a
+            href="{{ btn_href }}"
+            class="viaplush-archive-hero__button viaplush-archive-hero__button--{{ s.button_style | default: 'solid' }}"
+            {% if s.button_open_new_tab %}
+              target="_blank" rel="noopener noreferrer"
+            {% endif %}
+            style="font-weight: {{ s.button_font_weight | default: 700 }};"
+          >
+            <span class="viaplush-archive-hero__button-text">{{ s.button_text | default: 'SHOP ALL TEES' }}</span>
+            {%- if s.button_show_arrow -%}
+              <span class="viaplush-archive-hero__button-arrow" aria-hidden="true">&rarr;</span>
+            {%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+
+      <div class="viaplush-archive-hero__media viaplush-archive-hero__media--bg-{{ media_bg_type }}">
+        {%- if s.hero_image != blank -%}
+          <div class="viaplush-archive-hero__media-inner">
+            {{
+              s.hero_image
+              | image_url: width: 2000
+              | image_tag: loading: 'eager', fetchpriority: 'high', alt: s.hero_image_alt
+              | default: 'VIAPLUSH Archive Sale',
+                class: image_class,
+                sizes: '(min-width: 990px) 50vw, 100vw',
+                widths: '400, 600, 800, 1000, 1200, 1600, 2000'
+            }}
+          </div>
+        {%- else -%}
+          <div
+            class="viaplush-archive-hero__media-inner viaplush-archive-hero__media-placeholder"
+            role="img"
+            aria-label="{{ s.hero_image_alt | default: 'VIAPLUSH Archive Sale' }}"
+          >
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'viaplush-archive-hero__placeholder-svg' }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @font-face {
+    font-family: 'Coastal';
+    src: url('{{ 'Coastal.otf' | asset_url }}') format('opentype');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #viaplush-archive-hero-{{ sid }} {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--vah-bg);
+    padding-top: var(--vah-sec-pt-d);
+    padding-bottom: var(--vah-sec-pb-d);
+    min-height: var(--vah-hero-h-d);
+  }
+  #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--bg-gradient {
+    background-image: linear-gradient(var(--vah-grad-dir), var(--vah-grad-1), var(--vah-grad-2));
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__bg-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__bg-image-el {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--vah-bg-pos);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--vah-overlay);
+    opacity: var(--vah-overlay-opacity);
+    pointer-events: none;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin: 0 auto;
+  }
+  #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-theme .viaplush-archive-hero__container {
+    max-width: var(--page-width, 1200px);
+    padding-left: var(--vah-pad-d);
+    padding-right: var(--vah-pad-d);
+  }
+  #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-full .viaplush-archive-hero__container {
+    max-width: 100%;
+    padding-left: var(--vah-pad-d);
+    padding-right: var(--vah-pad-d);
+  }
+  #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-custom .viaplush-archive-hero__container {
+    max-width: var(--vah-custom-max);
+    padding-left: var(--vah-pad-d);
+    padding-right: var(--vah-pad-d);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: var(--vah-col-gap-d);
+    min-height: inherit;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--vah-content-align);
+    justify-content: var(--vah-content-justify);
+    gap: var(--vah-content-gap-d);
+    padding: 16px 0;
+    width: 100%;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline {
+    margin: 0;
+    width: 100%;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-archive,
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-sale {
+    display: block;
+    line-height: 0.9;
+    font-family: 'Coastal', serif;
+    font-weight: 700;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-archive {
+    font-size: var(--vah-archive-size-d);
+    margin-bottom: var(--vah-headline-spacing);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-sale {
+    font-size: var(--vah-sale-size-d);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__subheadline {
+    margin: 0;
+    font-size: var(--vah-sub-size-d);
+    line-height: 1.25;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    width: 100%;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__description {
+    font-size: var(--vah-desc-size-d);
+    line-height: 1.45;
+    width: 100%;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__description p {
+    margin: 0;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__price-box,
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__promo,
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button {
+    align-self: stretch;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-label {
+    margin: 0 0 4px;
+    font-size: var(--vah-offer-label-size-d);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-price {
+    margin: 0;
+    font-size: var(--vah-offer-price-size-d);
+    line-height: 1;
+    font-family: 'Coastal', serif;
+    font-weight: 700;
+  }
+
+  /* ---------- Offer cards (2 / 3 / 5 tees) ---------- */
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    padding-top: 10px;
+    align-self: stretch;
+    box-sizing: border-box;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+    padding: 22px 10px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card--featured {
+    border: 2px solid var(--vah-highlight-accent);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-badge {
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--vah-highlight-accent);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-price {
+    margin: 2px 0 8px;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-was {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-was s {
+    text-decoration: line-through;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-save {
+    margin: 6px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--vah-highlight-accent);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-save + .viaplush-archive-hero__card-save {
+    margin-top: 2px;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__card-benefit {
+    width: 100%;
+    margin: 10px 0 0;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.2);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  /* ---------- end offer cards ---------- */
+
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__promo {
+    margin: 0;
+    font-size: var(--vah-promo-size-d);
+    line-height: 1.35;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: var(--vah-btn-width, 100%);
+    min-height: var(--vah-btn-h-d);
+    margin-top: var(--vah-cta-gap);
+    padding: 0 24px;
+    font-size: var(--vah-btn-size-d);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-radius: var(--vah-btn-radius);
+    border-width: var(--vah-btn-border-w);
+    border-style: solid;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button--solid {
+    background-color: var(--vah-btn-bg);
+    color: var(--vah-btn-text);
+    border-color: var(--vah-btn-border);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button--solid:hover {
+    background-color: var(--vah-btn-hover-bg);
+    color: var(--vah-btn-hover-text);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button--gradient {
+    background-image: linear-gradient(var(--vah-btn-grad-dir), var(--vah-btn-grad-1), var(--vah-btn-grad-2));
+    color: var(--vah-btn-text);
+    border-color: transparent;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button--outline {
+    background: transparent;
+    color: var(--vah-btn-text);
+    border-color: var(--vah-btn-border);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button--outline:hover {
+    background-color: var(--vah-btn-hover-bg);
+    color: var(--vah-btn-hover-text);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media {
+    display: flex;
+    align-items: var(--vah-media-align);
+    justify-content: center;
+    min-height: 320px;
+    background-color: var(--vah-media-bg);
+    overflow: hidden;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media--bg-transparent {
+    background: transparent;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media--bg-gradient {
+    background-image: linear-gradient(var(--vah-media-grad-dir), var(--vah-media-grad-1), var(--vah-media-grad-2));
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__image {
+    display: block;
+    width: var(--vah-img-w);
+    max-width: var(--vah-img-max-w);
+    height: var(--vah-img-h);
+    max-height: var(--vah-img-max-h);
+    transform: scale(var(--vah-img-scale));
+    transform-origin: center center;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__image--contain {
+    object-fit: contain;
+    object-position: {{ object_position }};
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__image--cover {
+    object-fit: cover;
+    object-position: {{ object_position }};
+    width: 100%;
+    height: 100%;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__image--fill {
+    object-fit: fill;
+    object-position: {{ object_position }};
+    width: 100%;
+    height: 100%;
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media-placeholder {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__placeholder-svg {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  @media screen and (min-width: 990px) {
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--height-auto .viaplush-archive-hero__grid {
+      min-height: 0;
+    }
+    #viaplush-archive-hero-{{ sid }}:not(.viaplush-archive-hero--height-auto) .viaplush-archive-hero__grid {
+      min-height: var(--vah-hero-h-d);
+    }
+    {% if img_aspect != 'auto' %}
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media-inner {
+      aspect-ratio: var(--vah-img-aspect);
+    }
+    {% endif %}
+  }
+  @media screen and (max-width: 989px) {
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-cards {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+  }
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #viaplush-archive-hero-{{ sid }} {
+      padding-top: var(--vah-sec-pt-t);
+      padding-bottom: var(--vah-sec-pb-t);
+      min-height: var(--vah-hero-h-t);
+    }
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-theme .viaplush-archive-hero__container,
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-full .viaplush-archive-hero__container,
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-custom .viaplush-archive-hero__container {
+      padding-left: var(--vah-pad-t);
+      padding-right: var(--vah-pad-t);
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__grid {
+      gap: var(--vah-col-gap-t);
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__content {
+      gap: var(--vah-content-gap-t);
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-archive { font-size: var(--vah-archive-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-sale { font-size: var(--vah-sale-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__subheadline { font-size: var(--vah-sub-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__description { font-size: var(--vah-desc-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-label { font-size: var(--vah-offer-label-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-price { font-size: var(--vah-offer-price-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__promo { font-size: var(--vah-promo-size-t); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button {
+      font-size: var(--vah-btn-size-t);
+      min-height: var(--vah-btn-h-t);
+    }
+  }
+  @media screen and (max-width: 749px) {
+    #viaplush-archive-hero-{{ sid }} {
+      padding-top: var(--vah-sec-pt-m);
+      padding-bottom: var(--vah-sec-pb-m);
+      min-height: var(--vah-hero-h-m);
+    }
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-theme .viaplush-archive-hero__container,
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-full .viaplush-archive-hero__container,
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--container-custom .viaplush-archive-hero__container {
+      padding-left: var(--vah-pad-m);
+      padding-right: var(--vah-pad-m);
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--vah-col-gap-m);
+    }
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--mobile-content_first .viaplush-archive-hero__content { order: 1; }
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--mobile-content_first .viaplush-archive-hero__media { order: 2; margin-top: var(--vah-image-gap-m); }
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--mobile-image_first .viaplush-archive-hero__content { order: 2; }
+    #viaplush-archive-hero-{{ sid }}.viaplush-archive-hero--mobile-image_first .viaplush-archive-hero__media { order: 1; margin-bottom: var(--vah-image-gap-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__content {
+      gap: var(--vah-content-gap-m);
+      padding: 0;
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-archive { font-size: var(--vah-archive-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__headline-sale { font-size: var(--vah-sale-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__subheadline { font-size: var(--vah-sub-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__description { font-size: var(--vah-desc-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-label { font-size: var(--vah-offer-label-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__offer-price { font-size: var(--vah-offer-price-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__promo { font-size: var(--vah-promo-size-m); }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button {
+      font-size: var(--vah-btn-size-m);
+      min-height: var(--vah-btn-h-m);
+      width: 100%;
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media {
+      min-height: 280px;
+    }
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__media-inner {
+      min-height: 280px;
+      {% if img_aspect != 'auto' %}aspect-ratio: var(--vah-img-aspect);{% endif %}
+    }
+  }
+  @media screen and (prefers-reduced-motion: reduce) {
+    #viaplush-archive-hero-{{ sid }} .viaplush-archive-hero__button { transition: none; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "VIAPLUSH – Archive Hero",
+  "tag": "section",
+  "class": "viaplush-archive-hero-section",
+  "settings": [
+    { "type": "header", "content": "Section container" },
+    {
+      "type": "select",
+      "id": "container_type",
+      "label": "Container width",
+      "options": [
+        { "value": "theme", "label": "Theme / Page width" },
+        { "value": "full", "label": "Full width" },
+        { "value": "custom", "label": "Custom width" }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "range",
+      "id": "custom_max_width",
+      "label": "Custom max width (px)",
+      "min": 900,
+      "max": 1800,
+      "step": 10,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding_desktop",
+      "label": "Desktop horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "container_padding_tablet",
+      "label": "Tablet horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "container_padding_mobile",
+      "label": "Mobile horizontal padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16
+    },
+
+    { "type": "header", "content": "Hero height" },
+    {
+      "type": "select",
+      "id": "hero_height",
+      "label": "Hero height",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "custom", "label": "Custom" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "range",
+      "id": "hero_height_desktop",
+      "label": "Custom desktop height (px)",
+      "min": 300,
+      "max": 1000,
+      "step": 10,
+      "default": 640
+    },
+    {
+      "type": "range",
+      "id": "hero_height_tablet",
+      "label": "Custom tablet height (px)",
+      "min": 300,
+      "max": 900,
+      "step": 10,
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "hero_height_mobile",
+      "label": "Custom mobile height (px)",
+      "min": 0,
+      "max": 800,
+      "step": 10,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Section background" },
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background type",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "image", "label": "Image" }
+      ],
+      "default": "solid"
+    },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F9F7F2" },
+    { "type": "color", "id": "gradient_color_1", "label": "Gradient color 1", "default": "#F9F7F2" },
+    { "type": "color", "id": "gradient_color_2", "label": "Gradient color 2", "default": "#EDE8DF" },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to left", "label": "Right to left" },
+        { "value": "to bottom", "label": "Top to bottom" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to right"
+    },
+    { "type": "image_picker", "id": "background_image", "label": "Background image" },
+    {
+      "type": "select",
+      "id": "background_image_position",
+      "label": "Background image position",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center", "label": "Top" },
+        { "value": "bottom center", "label": "Bottom" }
+      ],
+      "default": "center center"
+    },
+    { "type": "color", "id": "overlay_color", "label": "Overlay color", "default": "#000000" },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity (%)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Spacing — desktop" },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "label": "Section padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "label": "Section padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "column_gap_desktop",
+      "label": "Column gap",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "content_gap_desktop",
+      "label": "Content gap",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "price_box_spacing",
+      "label": "Price box spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 8
+    },
+    { "type": "range", "id": "cta_spacing", "label": "CTA spacing", "min": 0, "max": 40, "step": 2, "default": 10 },
+
+    { "type": "header", "content": "Spacing — tablet" },
+    {
+      "type": "range",
+      "id": "section_padding_top_tablet",
+      "label": "Section padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_tablet",
+      "label": "Section padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "column_gap_tablet",
+      "label": "Column gap",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "content_gap_tablet",
+      "label": "Content gap",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "default": 12
+    },
+
+    { "type": "header", "content": "Spacing — mobile" },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Section padding top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Section padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 24
+    },
+    { "type": "range", "id": "column_gap_mobile", "label": "Column gap", "min": 0, "max": 40, "step": 4, "default": 0 },
+    {
+      "type": "range",
+      "id": "content_gap_mobile",
+      "label": "Content gap",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "default": 12
+    },
+    { "type": "range", "id": "image_gap_mobile", "label": "Image gap", "min": 0, "max": 48, "step": 4, "default": 20 },
+
+    { "type": "header", "content": "Content alignment" },
+    {
+      "type": "select",
+      "id": "content_horizontal_align",
+      "label": "Horizontal alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "content_vertical_align",
+      "label": "Vertical alignment",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+
+    { "type": "header", "content": "ARCHIVE headline" },
+    { "type": "text", "id": "archive_text", "label": "Text", "default": "ARCHIVE" },
+    { "type": "color", "id": "archive_color", "label": "Color", "default": "#8B1A1A" },
+    {
+      "type": "range",
+      "id": "archive_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 40,
+      "max": 180,
+      "step": 2,
+      "default": 108
+    },
+    {
+      "type": "range",
+      "id": "archive_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 32,
+      "max": 140,
+      "step": 2,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "archive_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 28,
+      "max": 100,
+      "step": 2,
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "archive_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 800
+    },
+    {
+      "type": "select",
+      "id": "archive_text_transform",
+      "label": "Text transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "archive_alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "archive_max_width",
+      "label": "Max width (px, 0 = none)",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "default": 0
+    },
+
+    { "type": "header", "content": "SALE headline" },
+    { "type": "text", "id": "sale_text", "label": "Text", "default": "SALE" },
+    { "type": "color", "id": "sale_color", "label": "Color", "default": "#000000" },
+    {
+      "type": "range",
+      "id": "sale_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 40,
+      "max": 180,
+      "step": 2,
+      "default": 108
+    },
+    {
+      "type": "range",
+      "id": "sale_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 32,
+      "max": 140,
+      "step": 2,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "sale_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 28,
+      "max": 100,
+      "step": 2,
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "sale_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 800
+    },
+    {
+      "type": "select",
+      "id": "sale_text_transform",
+      "label": "Text transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "sale_alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "sale_max_width",
+      "label": "Max width (px, 0 = none)",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "headline_line_spacing",
+      "label": "Spacing between ARCHIVE and SALE (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Supporting headline" },
+    { "type": "text", "id": "subheadline", "label": "Text", "default": "MAKING ROOM FOR WHAT'S NEXT." },
+    {
+      "type": "range",
+      "id": "subheadline_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 12,
+      "max": 40,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subheadline_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "subheadline_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 11,
+      "max": 28,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "subheadline_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 700
+    },
+    { "type": "color", "id": "subheadline_color", "label": "Color", "default": "#000000" },
+    {
+      "type": "select",
+      "id": "subheadline_alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "subheadline_max_width",
+      "label": "Max width (px)",
+      "min": 200,
+      "max": 700,
+      "step": 10,
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "subheadline_margin_top",
+      "label": "Margin top (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "subheadline_margin_bottom",
+      "label": "Margin bottom (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Description" },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Text",
+      "default": "<p>Legendary pieces. Final chance to own them<br>before they're gone for good.</p>"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "default": 14
+    },
+    { "type": "color", "id": "description_color", "label": "Color", "default": "#000000" },
+    {
+      "type": "select",
+      "id": "description_alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "description_max_width",
+      "label": "Max width (px)",
+      "min": 200,
+      "max": 700,
+      "step": 10,
+      "default": 460
+    },
+    {
+      "type": "range",
+      "id": "description_margin_top",
+      "label": "Margin top (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "description_margin_bottom",
+      "label": "Margin bottom (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Offer cards (2, 3, 5 tees)" },
+    { "type": "paragraph", "content": "Type NONE in a badge field to hide that badge." },
+
+    { "type": "text", "id": "card1_badge", "label": "Card 1 badge", "default": "NONE" },
+    { "type": "text", "id": "card1_label", "label": "Card 1 label", "default": "2 TEES" },
+    { "type": "text", "id": "card1_price", "label": "Card 1 offer price", "default": "$75" },
+    { "type": "text", "id": "card1_shirts_was", "label": "Card 1 original shirts", "default": "$100" },
+    { "type": "text", "id": "card1_shipping_was", "label": "Card 1 original shipping", "default": "$5" },
+    { "type": "text", "id": "card1_total_was", "label": "Card 1 original total", "default": "$105" },
+    { "type": "text", "id": "card1_save_text", "label": "Card 1 discount text", "default": "Save 25% on shirts" },
+    { "type": "text", "id": "card1_total_save_text", "label": "Card 1 total savings text", "default": "Total savings $30" },
+    { "type": "text", "id": "card1_benefit", "label": "Card 1 benefit", "default": "FREE SHIPPING INCLUDED" },
+
+    { "type": "text", "id": "card2_badge", "label": "Card 2 badge", "default": "MOST POPULAR" },
+    { "type": "text", "id": "card2_label", "label": "Card 2 label", "default": "3 TEES" },
+    { "type": "text", "id": "card2_price", "label": "Card 2 offer price", "default": "$105" },
+    { "type": "text", "id": "card2_shirts_was", "label": "Card 2 original shirts", "default": "$150" },
+    { "type": "text", "id": "card2_shipping_was", "label": "Card 2 original shipping", "default": "$6.50" },
+    { "type": "text", "id": "card2_total_was", "label": "Card 2 original total", "default": "$156.50" },
+    { "type": "text", "id": "card2_save_text", "label": "Card 2 discount text", "default": "Save 30% on shirts" },
+    { "type": "text", "id": "card2_total_save_text", "label": "Card 2 total savings text", "default": "Total savings $51.50" },
+    { "type": "text", "id": "card2_benefit", "label": "Card 2 benefit", "default": "FREE SHIPPING + 1 FREE GIFT" },
+
+    { "type": "text", "id": "card3_badge", "label": "Card 3 badge", "default": "BEST VALUE" },
+    { "type": "text", "id": "card3_label", "label": "Card 3 label", "default": "5 TEES" },
+    { "type": "text", "id": "card3_price", "label": "Card 3 offer price", "default": "$145" },
+    { "type": "text", "id": "card3_shirts_was", "label": "Card 3 original shirts", "default": "$250" },
+    { "type": "text", "id": "card3_shipping_was", "label": "Card 3 original shipping", "default": "$8" },
+    { "type": "text", "id": "card3_total_was", "label": "Card 3 original total", "default": "$258" },
+    { "type": "text", "id": "card3_save_text", "label": "Card 3 discount text", "default": "Save 42% on shirts" },
+    { "type": "text", "id": "card3_total_save_text", "label": "Card 3 total savings text", "default": "Total savings $113" },
+    { "type": "text", "id": "card3_benefit", "label": "Card 3 benefit", "default": "FREE SHIPPING + BONUS GIFTS" },
+
+    { "type": "header", "content": "Offer card styling" },
+    { "type": "color", "id": "offer1_price_color", "label": "Card price color", "default": "#8B1A1A" },
+    { "type": "color", "id": "highlight_accent_color", "label": "Badge, border and savings color", "default": "#8B1A1A" },
+    { "type": "text", "id": "price_box_aria_label", "label": "Accessibility label", "default": "Archive Sale pricing" },
+    {
+      "type": "range",
+      "id": "price_box_margin_top",
+      "label": "Margin top (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "offer_label_font_size_desktop",
+      "label": "Card label font size — desktop (px)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "offer_label_font_size_tablet",
+      "label": "Card label font size — tablet (px)",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "offer_label_font_size_mobile",
+      "label": "Card label font size — mobile (px)",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "offer_price_font_size_desktop",
+      "label": "Card price font size — desktop (px)",
+      "min": 20,
+      "max": 60,
+      "step": 1,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "offer_price_font_size_tablet",
+      "label": "Card price font size — tablet (px)",
+      "min": 18,
+      "max": 52,
+      "step": 1,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "offer_price_font_size_mobile",
+      "label": "Card price font size — mobile (px)",
+      "min": 16,
+      "max": 44,
+      "step": 1,
+      "default": 28
+    },
+
+    { "type": "header", "content": "Mix & Match message" },
+    {
+      "type": "text",
+      "id": "promo_text",
+      "label": "Text",
+      "default": "MIX & MATCH ANY DESIGNS, COLORS AND SIZES"
+    },
+    { "type": "color", "id": "promo_color", "label": "Color", "default": "#8B1A1A" },
+    {
+      "type": "range",
+      "id": "promo_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 10,
+      "max": 32,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "promo_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "promo_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 9,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "promo_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 800
+    },
+    {
+      "type": "select",
+      "id": "promo_alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "promo_max_width",
+      "label": "Max width (px)",
+      "min": 200,
+      "max": 700,
+      "step": 10,
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "promo_margin_top",
+      "label": "Margin top (px)",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "promo_margin_bottom",
+      "label": "Margin bottom (px)",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 0
+    },
+
+    { "type": "header", "content": "CTA button" },
+    { "type": "checkbox", "id": "show_button", "label": "Show button", "default": true },
+    { "type": "text", "id": "button_text", "label": "Button text", "default": "SHOP ALL TEES" },
+    { "type": "url", "id": "button_url", "label": "Button URL" },
+    { "type": "checkbox", "id": "button_open_new_tab", "label": "Open in new tab", "default": false },
+    { "type": "checkbox", "id": "button_show_arrow", "label": "Show arrow", "default": false },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "outline", "label": "Transparent / outline" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "select",
+      "id": "button_width",
+      "label": "Button width",
+      "options": [
+        { "value": "full", "label": "Full width" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "custom", "label": "Custom" }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "range",
+      "id": "button_custom_width",
+      "label": "Custom width (px)",
+      "min": 120,
+      "max": 500,
+      "step": 10,
+      "default": 320
+    },
+    {
+      "type": "range",
+      "id": "button_height_desktop",
+      "label": "Height — desktop (px)",
+      "min": 36,
+      "max": 72,
+      "step": 2,
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "button_height_tablet",
+      "label": "Height — tablet (px)",
+      "min": 36,
+      "max": 68,
+      "step": 2,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "button_height_mobile",
+      "label": "Height — mobile (px)",
+      "min": 36,
+      "max": 64,
+      "step": 2,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "button_font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "button_font_size_tablet",
+      "label": "Font size — tablet (px)",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_font_weight",
+      "label": "Font weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "default": 700
+    },
+    { "type": "color", "id": "button_bg_color", "label": "Background color", "default": "#000000" },
+    { "type": "color", "id": "button_text_color", "label": "Text color", "default": "#ffffff" },
+    { "type": "color", "id": "button_border_color", "label": "Border color", "default": "#000000" },
+    {
+      "type": "range",
+      "id": "button_border_width",
+      "label": "Border width (px)",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius (px)",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "default": 0
+    },
+    { "type": "color", "id": "button_hover_bg_color", "label": "Hover background", "default": "#1a1a1a" },
+    { "type": "color", "id": "button_hover_text_color", "label": "Hover text color", "default": "#ffffff" },
+    { "type": "color", "id": "button_gradient_color_1", "label": "Gradient color 1", "default": "#000000" },
+    { "type": "color", "id": "button_gradient_color_2", "label": "Gradient color 2", "default": "#333333" },
+    {
+      "type": "select",
+      "id": "button_gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to left", "label": "Right to left" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to right"
+    },
+
+    { "type": "header", "content": "Hero image" },
+    { "type": "image_picker", "id": "hero_image", "label": "Image" },
+    { "type": "text", "id": "hero_image_alt", "label": "Alt text", "default": "VIAPLUSH Archive Sale" },
+    {
+      "type": "select",
+      "id": "image_display",
+      "label": "Image display",
+      "options": [
+        { "value": "contain", "label": "Contain" },
+        { "value": "cover", "label": "Cover" },
+        { "value": "fill", "label": "Fill" }
+      ],
+      "default": "contain"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Aspect ratio",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "4_5", "label": "4:5" },
+        { "value": "3_4", "label": "3:4" },
+        { "value": "4_3", "label": "4:3" },
+        { "value": "16_9", "label": "16:9" },
+        { "value": "custom", "label": "Custom" }
+      ],
+      "default": "auto"
+    },
+    { "type": "text", "id": "image_aspect_custom", "label": "Custom aspect ratio (e.g. 4 / 5)", "default": "4 / 5" },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image width (px, 0 = auto)",
+      "min": 0,
+      "max": 800,
+      "step": 10,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "image_max_width",
+      "label": "Image max width (px, 0 = none)",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Image height (px, 0 = auto)",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "image_max_height",
+      "label": "Image max height (px, 0 = none)",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "image_scale",
+      "label": "Image scale (%)",
+      "min": 50,
+      "max": 150,
+      "step": 5,
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "image_position_horizontal",
+      "label": "Position horizontal",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "image_position_vertical",
+      "label": "Position vertical",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "media_vertical_align",
+      "label": "Image column vertical alignment",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+
+    { "type": "header", "content": "Image column background" },
+    {
+      "type": "select",
+      "id": "media_background_type",
+      "label": "Background type",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "transparent", "label": "Transparent" }
+      ],
+      "default": "solid"
+    },
+    { "type": "color", "id": "media_background_color", "label": "Background color", "default": "#F9F7F2" },
+    { "type": "color", "id": "media_gradient_color_1", "label": "Gradient color 1", "default": "#F9F7F2" },
+    { "type": "color", "id": "media_gradient_color_2", "label": "Gradient color 2", "default": "#EDE8DF" },
+    {
+      "type": "select",
+      "id": "media_gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to bottom", "label": "Top to bottom" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to bottom"
+    },
+
+    { "type": "header", "content": "Mobile layout" },
+    {
+      "type": "select",
+      "id": "mobile_order",
+      "label": "Mobile order",
+      "options": [
+        { "value": "content_first", "label": "Content first" },
+        { "value": "image_first", "label": "Image first" }
+      ],
+      "default": "content_first"
+    },
+    {
+      "type": "select",
+      "id": "mobile_price_layout",
+      "label": "Mobile price box layout (not used)",
+      "options": [
+        { "value": "side_by_side", "label": "Side by side" },
+        { "value": "stacked", "label": "Stacked" }
+      ],
+      "default": "side_by_side"
+    },
+
+    { "type": "header", "content": "Old price box (not used, kept for saved data)" },
+    { "type": "text", "id": "offer1_label", "label": "Old offer 1 label", "default": "1 FOR" },
+    { "type": "text", "id": "offer1_current_price", "label": "Old offer 1 price", "default": "$35" },
+    { "type": "text", "id": "offer1_previous_price", "label": "Old offer 1 previous price", "default": "$50" },
+    { "type": "checkbox", "id": "offer1_show_previous", "label": "Old offer 1 show previous", "default": true },
+    { "type": "checkbox", "id": "offer1_previous_strikethrough", "label": "Old offer 1 strikethrough", "default": true },
+    { "type": "color", "id": "offer1_label_color", "label": "Old offer 1 label color", "default": "#000000" },
+    { "type": "color", "id": "offer1_previous_color", "label": "Old offer 1 previous color", "default": "#000000" },
+    { "type": "range", "id": "offer1_label_weight", "label": "Old offer 1 label weight", "min": 400, "max": 900, "step": 100, "default": 700 },
+    { "type": "range", "id": "offer1_price_weight", "label": "Old offer 1 price weight", "min": 400, "max": 900, "step": 100, "default": 800 },
+    {
+      "type": "select",
+      "id": "offer1_alignment",
+      "label": "Old offer 1 alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    { "type": "text", "id": "offer2_label", "label": "Old offer 2 label", "default": "2 FOR" },
+    { "type": "text", "id": "offer2_current_price", "label": "Old offer 2 price", "default": "$60" },
+    { "type": "text", "id": "offer2_previous_price", "label": "Old offer 2 previous price", "default": "$100" },
+    { "type": "checkbox", "id": "offer2_show_previous", "label": "Old offer 2 show previous", "default": true },
+    { "type": "checkbox", "id": "offer2_previous_strikethrough", "label": "Old offer 2 strikethrough", "default": true },
+    { "type": "color", "id": "offer2_label_color", "label": "Old offer 2 label color", "default": "#000000" },
+    { "type": "color", "id": "offer2_price_color", "label": "Old offer 2 price color", "default": "#8B1A1A" },
+    { "type": "color", "id": "offer2_previous_color", "label": "Old offer 2 previous color", "default": "#000000" },
+    { "type": "text", "id": "offer2_value_text", "label": "Old offer 2 value text", "default": "BEST VALUE" },
+    { "type": "color", "id": "offer2_value_text_color", "label": "Old offer 2 value color", "default": "#8B1A1A" },
+    {
+      "type": "select",
+      "id": "offer2_value_text_weight",
+      "label": "Old offer 2 value weight",
+      "options": [
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra bold" }
+      ],
+      "default": "700"
+    },
+    { "type": "range", "id": "offer2_label_weight", "label": "Old offer 2 label weight", "min": 400, "max": 900, "step": 100, "default": 700 },
+    { "type": "range", "id": "offer2_price_weight", "label": "Old offer 2 price weight", "min": 400, "max": 900, "step": 100, "default": 900 },
+    {
+      "type": "select",
+      "id": "offer2_alignment",
+      "label": "Old offer 2 alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    { "type": "checkbox", "id": "highlight_offer_2", "label": "Old highlight offer 2", "default": true },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "Old highlight style",
+      "options": [
+        { "value": "larger", "label": "Larger current price" },
+        { "value": "bold", "label": "Stronger font weight" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "accent", "label": "Bottom accent line" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "larger"
+    },
+    { "type": "range", "id": "offer2_price_font_size_desktop", "label": "Old offer 2 size desktop", "min": 20, "max": 72, "step": 1, "default": 42 },
+    { "type": "range", "id": "offer2_price_font_size_tablet", "label": "Old offer 2 size tablet", "min": 18, "max": 60, "step": 1, "default": 38 },
+    { "type": "range", "id": "offer2_price_font_size_mobile", "label": "Old offer 2 size mobile", "min": 16, "max": 52, "step": 1, "default": 32 }
+  ],
+  "presets": [
+    {
+      "name": "VIAPLUSH – Archive Hero",
+      "settings": {}
+    }
+  ]
+}
+{% endschema %}

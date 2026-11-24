@@ -1,0 +1,1343 @@
+{%- comment -%}
+  VIAPLUSH – Trust Badge Row
+  Shopify OS 2.0 section for Atelier theme.
+  Scoped to #viaplush-trust-row-{{ section.id }}
+  Liquid + HTML + CSS + minimal vanilla JS (slideshow only).
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign s = section.settings
+  assign container_type = s.container_type | default: 'theme'
+  assign section_bg = s.section_background_type | default: 'transparent'
+  assign inner_bg = s.inner_background_type | default: 'solid'
+  assign mobile_layout = s.mobile_layout | default: 'grid'
+  assign mobile_grid_cols = s.mobile_grid_columns | default: '1'
+  assign mobile_divider = s.mobile_divider_type | default: 'horizontal'
+  assign mobile_icon_pos = s.mobile_icon_position | default: 'left'
+  assign height_mode = s.height_mode | default: 'equal'
+  assign block_count = section.blocks.size
+-%}
+
+<section
+  id="viaplush-trust-row-{{ sid }}"
+  class="viaplush-trust-row viaplush-trust-row--container-{{ container_type }} viaplush-trust-row--section-bg-{{ section_bg }} viaplush-trust-row--inner-bg-{{ inner_bg }} viaplush-trust-row--mobile-{{ mobile_layout }} viaplush-trust-row--mobile-cols-{{ mobile_grid_cols }} viaplush-trust-row--mobile-divider-{{ mobile_divider }} viaplush-trust-row--mobile-icon-{{ mobile_icon_pos }} viaplush-trust-row--height-{{ height_mode }}{% if s.show_dividers %} viaplush-trust-row--dividers{% endif %}{% if mobile_layout == 'slideshow' and s.slideshow_autoplay %} viaplush-trust-row--autoplay{% endif %}"
+  data-viaplush-trust-row
+  data-section-id="{{ sid }}"
+  data-mobile-layout="{{ mobile_layout }}"
+  data-autoplay="{% if s.slideshow_autoplay %}true{% else %}false{% endif %}"
+  data-autoplay-speed="{{ s.slideshow_autoplay_speed | default: 5 }}"
+  style="
+    --vtr-sec-bg: {{ s.section_background_color | default: 'transparent' }};
+    --vtr-sec-grad-1: {{ s.section_gradient_color_1 | default: '#F9F7F2' }};
+    --vtr-sec-grad-2: {{ s.section_gradient_color_2 | default: '#EDE8DF' }};
+    --vtr-sec-grad-dir: {{ s.section_gradient_direction | default: 'to right' }};
+    --vtr-inner-bg: {{ s.inner_background_color | default: '#F3F0EB' }};
+    --vtr-inner-grad-1: {{ s.inner_gradient_color_1 | default: '#F3F0EB' }};
+    --vtr-inner-grad-2: {{ s.inner_gradient_color_2 | default: '#EBE6DF' }};
+    --vtr-inner-grad-dir: {{ s.inner_gradient_direction | default: 'to right' }};
+    --vtr-inner-border-color: {{ s.inner_border_color | default: 'rgba(0,0,0,0.08)' }};
+    --vtr-inner-border-width: {{ s.inner_border_width | default: 1 }}px;
+    --vtr-inner-radius: {{ s.inner_border_radius | default: 12 }}px;
+    --vtr-item-radius: {{ s.item_border_radius | default: 0 }}px;
+    --vtr-custom-max: {{ s.custom_max_width | default: 1200 }}px;
+    --vtr-pad-d: {{ s.container_padding_desktop | default: 24 }}px;
+    --vtr-pad-t: {{ s.container_padding_tablet | default: 20 }}px;
+    --vtr-pad-m: {{ s.container_padding_mobile | default: 16 }}px;
+    --vtr-sec-pt-d: {{ s.section_padding_top_desktop | default: 24 }}px;
+    --vtr-sec-pb-d: {{ s.section_padding_bottom_desktop | default: 24 }}px;
+    --vtr-sec-pt-t: {{ s.section_padding_top_tablet | default: 20 }}px;
+    --vtr-sec-pb-t: {{ s.section_padding_bottom_tablet | default: 20 }}px;
+    --vtr-sec-pt-m: {{ s.section_padding_top_mobile | default: 16 }}px;
+    --vtr-sec-pb-m: {{ s.section_padding_bottom_mobile | default: 16 }}px;
+    --vtr-inner-pad-d: {{ s.inner_padding_desktop | default: 28 }}px;
+    --vtr-inner-pad-t: {{ s.inner_padding_tablet | default: 24 }}px;
+    --vtr-inner-pad-m: {{ s.inner_padding_mobile | default: 20 }}px;
+    --vtr-col-gap-d: {{ s.column_gap_desktop | default: 0 }}px;
+    --vtr-col-gap-t: {{ s.column_gap_tablet | default: 0 }}px;
+    --vtr-item-gap-m: {{ s.item_gap_mobile | default: 0 }}px;
+    --vtr-icon-gap-d: {{ s.icon_text_gap_desktop | default: 16 }}px;
+    --vtr-icon-gap-t: {{ s.icon_text_gap_tablet | default: 14 }}px;
+    --vtr-icon-gap-m: {{ s.icon_text_gap_mobile | default: 12 }}px;
+    --vtr-divider-color: {{ s.divider_color | default: 'rgba(0,0,0,0.15)' }};
+    --vtr-divider-width: {{ s.divider_width | default: 1 }}px;
+    --vtr-divider-height: {{ s.divider_height | default: 72 }}%;
+    --vtr-divider-spacing: {{ s.divider_spacing | default: 0 }}px;
+    --vtr-item-min-h-d: {{ s.item_min_height_desktop | default: 100 }}px;
+    --vtr-item-min-h-t: {{ s.item_min_height_tablet | default: 90 }}px;
+    --vtr-item-min-h-m: {{ s.item_min_height_mobile | default: 0 }}px;
+    --vtr-block-count: {{ block_count }};
+  "
+>
+  <div class="viaplush-trust-row__container{% if container_type == 'theme' %} page-width{% endif %}">
+    <div class="viaplush-trust-row__inner">
+      {%- if mobile_layout == 'slideshow' -%}
+        <div class="viaplush-trust-row__slideshow-wrap">
+          {%- if s.slideshow_show_arrows -%}
+            <button
+              type="button"
+              class="viaplush-trust-row__arrow viaplush-trust-row__arrow--prev"
+              aria-label="Previous trust badge"
+              data-trust-prev
+            >
+              <span aria-hidden="true">&lsaquo;</span>
+            </button>
+          {%- endif -%}
+      {%- endif -%}
+
+      <div
+        class="viaplush-trust-row__grid"
+        {% if mobile_layout == 'slideshow' %}
+          data-trust-slideshow role="region" aria-label="Trust badges"
+        {% endif %}
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign b = block.settings
+            assign icon_type = b.icon_type | default: 'default_icon'
+            assign icon_align = b.icon_alignment | default: 'center'
+            assign content_align = b.content_alignment | default: 'left'
+            assign item_tag = 'div'
+            if b.enable_link and b.link_url != blank
+              assign item_tag = 'a'
+            endif
+          -%}
+
+          {%- unless forloop.first -%}
+            {%- if s.show_dividers -%}
+              <div class="viaplush-trust-row__divider viaplush-trust-row__divider--v" aria-hidden="true"></div>
+            {%- endif -%}
+          {%- endunless -%}
+
+          <{{ item_tag }}
+            class="viaplush-trust-row__item"
+            {% if item_tag == 'a' %}
+              href="{{ b.link_url }}"
+              {%- if b.link_new_tab %} target="_blank" rel="noopener noreferrer"{% endif -%}
+            {% endif %}
+            style="
+              --vtr-item-icon-size-d: {{ b.icon_size_desktop | default: 52 }}px;
+              --vtr-item-icon-size-t: {{ b.icon_size_tablet | default: 46 }}px;
+              --vtr-item-icon-size-m: {{ b.icon_size_mobile | default: 40 }}px;
+              --vtr-item-icon-color: {{ b.icon_color | default: '#000000' }};
+              --vtr-item-icon-w: {% if b.icon_width > 0 %}{{ b.icon_width }}px{% else %}auto{% endif %};
+              --vtr-item-icon-h: {% if b.icon_height > 0 %}{{ b.icon_height }}px{% else %}auto{% endif %};
+              --vtr-item-icon-gap: {{ b.icon_text_gap | default: 0 }}px;
+              --vtr-title-size-d: {{ b.title_font_size_desktop | default: 15 }}px;
+              --vtr-title-size-t: {{ b.title_font_size_tablet | default: 14 }}px;
+              --vtr-title-size-m: {{ b.title_font_size_mobile | default: 13 }}px;
+              --vtr-title-weight: {{ b.title_font_weight | default: 700 }};
+              --vtr-title-color: {{ b.title_color | default: '#000000' }};
+              --vtr-desc-size-d: {{ b.description_font_size_desktop | default: 13 }}px;
+              --vtr-desc-size-t: {{ b.description_font_size_tablet | default: 12 }}px;
+              --vtr-desc-size-m: {{ b.description_font_size_mobile | default: 12 }}px;
+              --vtr-desc-weight: {{ b.description_font_weight | default: 400 }};
+              --vtr-desc-color: {{ b.description_color | default: '#000000' }};
+            "
+            {{ block.shopify_attributes }}
+          >
+            <div class="viaplush-trust-row__item-inner viaplush-trust-row__item-inner--icon-{{ icon_align }} viaplush-trust-row__item-inner--align-{{ content_align }}">
+              <div
+                class="viaplush-trust-row__icon"
+                aria-hidden="{% if icon_type == 'image' %}false{% else %}true{% endif %}"
+              >
+                {%- case icon_type -%}
+                  {%- when 'image' -%}
+                    {%- if b.icon_image != blank -%}
+                      {{
+                        b.icon_image
+                        | image_url: width: 200
+                        | image_tag: loading: 'lazy', alt: b.icon_alt
+                        | default: b.title, class: 'viaplush-trust-row__icon-img', widths: '40, 60, 80, 100, 120, 160'
+                      }}
+                    {%- endif -%}
+                  {%- when 'custom_svg' -%}
+                    {%- if b.custom_svg != blank -%}
+                      <span class="viaplush-trust-row__icon-svg viaplush-trust-row__icon-svg--custom">
+                        {{- b.custom_svg -}}
+                      </span>
+                    {%- endif -%}
+                  {%- else -%}
+                    <span class="viaplush-trust-row__icon-svg viaplush-trust-row__icon-svg--{{ b.default_icon | default: 'shield' }}">
+                      {%- case b.default_icon -%}
+                        {%- when 'truck' -%}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 64 64"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            focusable="false"
+                          >
+                            <path d="M4 42h36V22H16L4 32v10z"/><path d="M40 28h12l8 8v6H40V28z"/><circle cx="14" cy="44" r="4"/><circle cx="50" cy="44" r="4"/><path d="M2 30h6"/><path d="M0 34h4"/><path d="M2 38h6"/>
+                          </svg>
+                        {%- when 'padlock' -%}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 64 64"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            focusable="false"
+                          >
+                            <rect x="16" y="28" width="32" height="28" rx="3"/><path d="M22 28v-6a10 10 0 0 1 20 0v6"/><circle cx="32" cy="42" r="2"/><path d="M32 44v4"/>
+                          </svg>
+                        {%- else -%}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 64 64"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            focusable="false"
+                          >
+                            <path d="M32 6l20 8v18c0 14-9 24-20 28-11-4-20-14-20-28V14l20-8z"/><path d="M22 32l6 6 14-14"/>
+                          </svg>
+                      {%- endcase -%}
+                    </span>
+                {%- endcase -%}
+              </div>
+              <div class="viaplush-trust-row__content" style="text-align: {{ content_align }};">
+                {%- if b.title != blank -%}
+                  <span
+                    class="viaplush-trust-row__title"
+                    style="text-align: {{ b.title_alignment | default: content_align }};"
+                  >
+                    {{ b.title }}
+                  </span>
+                {%- endif -%}
+                {%- if b.description != blank -%}
+                  <div
+                    class="viaplush-trust-row__description"
+                    style="text-align: {{ b.description_alignment | default: content_align }};"
+                  >
+                    {{ b.description }}
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          </{{ item_tag }}>
+
+          {%- if mobile_divider != 'none' and mobile_layout != 'slideshow' -%}
+            {%- unless forloop.last -%}
+              <div class="viaplush-trust-row__divider viaplush-trust-row__divider--mobile" aria-hidden="true"></div>
+            {%- endunless -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- if mobile_layout == 'slideshow' -%}
+        {%- if s.slideshow_show_arrows -%}
+          <button
+            type="button"
+            class="viaplush-trust-row__arrow viaplush-trust-row__arrow--next"
+            aria-label="Next trust badge"
+            data-trust-next
+          >
+            <span aria-hidden="true">&rsaquo;</span>
+          </button>
+        {%- endif -%}
+        </div>
+        {%- if s.slideshow_show_dots -%}
+          <div class="viaplush-trust-row__dots" data-trust-dots role="tablist" aria-label="Trust badge slides"></div>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  @font-face {
+    font-family: 'Coastal';
+    src: url('{{ 'Coastal.otf' | asset_url }}') format('opentype');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #viaplush-trust-row-{{ sid }} {
+    width: 100%;
+    padding-top: var(--vtr-sec-pt-d);
+    padding-bottom: var(--vtr-sec-pb-d);
+    background-color: var(--vtr-sec-bg);
+    box-sizing: border-box;
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--section-bg-solid {
+    background-color: var(--vtr-sec-bg);
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--section-bg-transparent {
+    background-color: transparent;
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--section-bg-gradient {
+    background-image: linear-gradient(var(--vtr-sec-grad-dir), var(--vtr-sec-grad-1), var(--vtr-sec-grad-2));
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__container {
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-theme .viaplush-trust-row__container {
+    max-width: var(--page-width, 1200px);
+    padding-left: var(--vtr-pad-d);
+    padding-right: var(--vtr-pad-d);
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-full .viaplush-trust-row__container {
+    max-width: 100%;
+    padding-left: var(--vtr-pad-d);
+    padding-right: var(--vtr-pad-d);
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-custom .viaplush-trust-row__container {
+    max-width: var(--vtr-custom-max);
+    padding-left: var(--vtr-pad-d);
+    padding-right: var(--vtr-pad-d);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__inner {
+    border-radius: var(--vtr-inner-radius);
+    padding: var(--vtr-inner-pad-d);
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--inner-bg-solid .viaplush-trust-row__inner {
+    background-color: var(--vtr-inner-bg);
+    border: var(--vtr-inner-border-width) solid var(--vtr-inner-border-color);
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--inner-bg-none .viaplush-trust-row__inner {
+    background: transparent;
+    border: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--inner-bg-gradient .viaplush-trust-row__inner {
+    background-image: linear-gradient(var(--vtr-inner-grad-dir), var(--vtr-inner-grad-1), var(--vtr-inner-grad-2));
+    border: var(--vtr-inner-border-width) solid var(--vtr-inner-border-color);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__grid {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: var(--vtr-col-gap-d);
+    width: 100%;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item {
+    flex: 1 1 0;
+    min-width: 0;
+    border-radius: var(--vtr-item-radius);
+    text-decoration: none;
+    color: inherit;
+    box-sizing: border-box;
+  }
+  #viaplush-trust-row-{{ sid }}.viaplush-trust-row--height-equal .viaplush-trust-row__item {
+    min-height: var(--vtr-item-min-h-d);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: max(var(--vtr-icon-gap-d), var(--vtr-item-icon-gap, 0px));
+    height: 100%;
+    padding: 4px 8px;
+    box-sizing: border-box;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner--icon-top { align-items: flex-start; }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner--icon-bottom { align-items: flex-end; }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner--align-center { justify-content: center; }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner--align-right { justify-content: flex-end; }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vtr-item-icon-w, auto);
+    height: var(--vtr-item-icon-h, auto);
+    color: var(--vtr-item-icon-color);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vtr-item-icon-size-d);
+    height: var(--vtr-item-icon-size-d);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-svg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-img {
+    width: var(--vtr-item-icon-size-d);
+    height: var(--vtr-item-icon-size-d);
+    object-fit: contain;
+    display: block;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__content {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__title {
+    margin: 0 0 4px;
+    font-size: var(--vtr-title-size-d);
+    font-weight: 700;
+    color: var(--vtr-title-color);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__description {
+    font-size: var(--vtr-desc-size-d);
+    font-weight: var(--vtr-desc-weight);
+    color: var(--vtr-desc-color);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__description p {
+    margin: 0;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__divider--v {
+    width: var(--vtr-divider-width);
+    flex-shrink: 0;
+    align-self: center;
+    height: var(--vtr-divider-height);
+    background-color: var(--vtr-divider-color);
+    margin: 0 var(--vtr-divider-spacing);
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__divider--mobile {
+    display: none;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__slideshow-wrap {
+    position: relative;
+    width: 100%;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__arrow {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__arrow:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__arrow--prev { left: 4px; }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__arrow--next { right: 4px; }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__dots {
+    display: none;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.2);
+    cursor: pointer;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__dot.is-active {
+    background: #000;
+  }
+  #viaplush-trust-row-{{ sid }} .viaplush-trust-row__dot:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #viaplush-trust-row-{{ sid }} {
+      padding-top: var(--vtr-sec-pt-t);
+      padding-bottom: var(--vtr-sec-pb-t);
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-theme .viaplush-trust-row__container,
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-full .viaplush-trust-row__container,
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-custom .viaplush-trust-row__container {
+      padding-left: var(--vtr-pad-t);
+      padding-right: var(--vtr-pad-t);
+    }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__inner { padding: var(--vtr-inner-pad-t); }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__grid { gap: var(--vtr-col-gap-t); }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner { gap: max(var(--vtr-icon-gap-t), var(--vtr-item-icon-gap, 0px)); }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--height-equal .viaplush-trust-row__item { min-height: var(--vtr-item-min-h-t); }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-svg,
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-img {
+      width: var(--vtr-item-icon-size-t);
+      height: var(--vtr-item-icon-size-t);
+    }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__title { font-size: var(--vtr-title-size-t); }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__description { font-size: var(--vtr-desc-size-t); }
+  }
+  @media screen and (max-width: 749px) {
+    #viaplush-trust-row-{{ sid }} {
+      padding-top: var(--vtr-sec-pt-m);
+      padding-bottom: var(--vtr-sec-pb-m);
+      overflow-x: hidden;
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-theme .viaplush-trust-row__container,
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-full .viaplush-trust-row__container,
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--container-custom .viaplush-trust-row__container {
+      padding-left: var(--vtr-pad-m);
+      padding-right: var(--vtr-pad-m);
+    }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__inner { padding: var(--vtr-inner-pad-m); }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__divider--v { display: none; }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-grid .viaplush-trust-row__grid,
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-one_by_one .viaplush-trust-row__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--vtr-item-gap-m);
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-grid.viaplush-trust-row--mobile-cols-2 .viaplush-trust-row__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-grid .viaplush-trust-row__item,
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-one_by_one .viaplush-trust-row__item {
+      flex: none;
+      min-height: var(--vtr-item-min-h-m);
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-divider-horizontal .viaplush-trust-row__divider--mobile {
+      display: block;
+      width: 100%;
+      height: var(--vtr-divider-width);
+      background-color: var(--vtr-divider-color);
+      grid-column: 1 / -1;
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-divider-vertical .viaplush-trust-row__divider--mobile {
+      display: none;
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-divider-vertical.viaplush-trust-row--mobile-cols-2 .viaplush-trust-row__grid {
+      column-gap: var(--vtr-item-gap-m);
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-divider-vertical.viaplush-trust-row--mobile-cols-2 .viaplush-trust-row__item:not(:nth-child(2n of .viaplush-trust-row__item)) {
+      border-right: var(--vtr-divider-width) solid var(--vtr-divider-color);
+      padding-right: 10px;
+      margin-right: 2px;
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-divider-horizontal .viaplush-trust-row__item {
+      padding-bottom: 4px;
+    }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__item-inner {
+      gap: max(var(--vtr-icon-gap-m), var(--vtr-item-icon-gap, 0px));
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-icon-above .viaplush-trust-row__item-inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-icon-above .viaplush-trust-row__content {
+      text-align: center;
+    }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-svg,
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__icon-img {
+      width: var(--vtr-item-icon-size-m);
+      height: var(--vtr-item-icon-size-m);
+    }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__title { font-size: var(--vtr-title-size-m); }
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__description { font-size: var(--vtr-desc-size-m); }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-slideshow .viaplush-trust-row__grid {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 0;
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-slideshow .viaplush-trust-row__grid::-webkit-scrollbar { display: none; }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-slideshow .viaplush-trust-row__item {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      min-height: var(--vtr-item-min-h-m);
+    }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-slideshow .viaplush-trust-row__divider--mobile { display: none; }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-slideshow .viaplush-trust-row__arrow { display: flex; }
+    #viaplush-trust-row-{{ sid }}.viaplush-trust-row--mobile-slideshow .viaplush-trust-row__dots { display: flex; }
+  }
+  @media screen and (min-width: 750px) {
+    #viaplush-trust-row-{{ sid }} .viaplush-trust-row__divider--mobile { display: none !important; }
+  }
+</style>
+<script>
+  (function () {
+    var root = document.getElementById('viaplush-trust-row-{{ sid }}');
+    if (!root || root.dataset.mobileLayout !== 'slideshow') return;
+
+    var track = root.querySelector('[data-trust-slideshow]');
+    var dotsWrap = root.querySelector('[data-trust-dots]');
+    var prevBtn = root.querySelector('[data-trust-prev]');
+    var nextBtn = root.querySelector('[data-trust-next]');
+    if (!track) return;
+
+    var slides = track.querySelectorAll('.viaplush-trust-row__item');
+    if (!slides.length) return;
+
+    var index = 0;
+    var autoplayTimer = null;
+    var speed = parseInt(root.dataset.autoplaySpeed, 10) * 1000 || 5000;
+
+    function isMobile() {
+      return window.matchMedia('(max-width: 749px)').matches;
+    }
+
+    function goTo(i) {
+      index = (i + slides.length) % slides.length;
+      var slide = slides[index];
+      if (slide) {
+        track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+      }
+      if (dotsWrap) {
+        dotsWrap.querySelectorAll('.viaplush-trust-row__dot').forEach(function (dot, di) {
+          dot.classList.toggle('is-active', di === index);
+          dot.setAttribute('aria-selected', di === index ? 'true' : 'false');
+        });
+      }
+    }
+
+    function buildDots() {
+      if (!dotsWrap || dotsWrap.childElementCount) return;
+      slides.forEach(function (_, i) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'viaplush-trust-row__dot' + (i === 0 ? ' is-active' : '');
+        dot.setAttribute('role', 'tab');
+        dot.setAttribute('aria-label', 'Go to trust badge ' + (i + 1));
+        dot.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+        dot.addEventListener('click', function () {
+          goTo(i);
+          resetAutoplay();
+        });
+        dotsWrap.appendChild(dot);
+      });
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      if (root.dataset.autoplay !== 'true' || !isMobile()) return;
+      autoplayTimer = setInterval(function () {
+        goTo(index + 1);
+      }, speed);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    function resetAutoplay() {
+      stopAutoplay();
+      startAutoplay();
+    }
+
+    buildDots();
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        goTo(index - 1);
+        resetAutoplay();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        goTo(index + 1);
+        resetAutoplay();
+      });
+    }
+
+    track.addEventListener(
+      'scroll',
+      function () {
+        if (!isMobile()) return;
+        var scrollLeft = track.scrollLeft;
+        var closest = 0;
+        var minDist = Infinity;
+        slides.forEach(function (slide, i) {
+          var dist = Math.abs(slide.offsetLeft - scrollLeft);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = i;
+          }
+        });
+        if (closest !== index) {
+          index = closest;
+          if (dotsWrap) {
+            dotsWrap.querySelectorAll('.viaplush-trust-row__dot').forEach(function (dot, di) {
+              dot.classList.toggle('is-active', di === index);
+              dot.setAttribute('aria-selected', di === index ? 'true' : 'false');
+            });
+          }
+        }
+      },
+      { passive: true }
+    );
+
+    root.addEventListener('mouseenter', stopAutoplay);
+    root.addEventListener('mouseleave', startAutoplay);
+    root.addEventListener('focusin', stopAutoplay);
+    root.addEventListener('focusout', startAutoplay);
+    window.addEventListener('resize', startAutoplay);
+    startAutoplay();
+  })();
+</script>
+{% schema %}
+{
+  "name": "VIAPLUSH – Trust Badge",
+  "tag": "section",
+  "class": "viaplush-trust-row-section",
+  "max_blocks": 6,
+  "settings": [
+    { "type": "header", "content": "Section container" },
+    {
+      "type": "select",
+      "id": "container_type",
+      "label": "Container width",
+      "options": [
+        { "value": "theme", "label": "Theme / Page width" },
+        { "value": "full", "label": "Full width" },
+        { "value": "custom", "label": "Custom width" }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "range",
+      "id": "custom_max_width",
+      "label": "Custom max width (px)",
+      "min": 900,
+      "max": 1600,
+      "step": 10,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding_desktop",
+      "label": "Desktop horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "container_padding_tablet",
+      "label": "Tablet horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "container_padding_mobile",
+      "label": "Mobile horizontal padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16
+    },
+
+    { "type": "header", "content": "Section background" },
+    {
+      "type": "select",
+      "id": "section_background_type",
+      "label": "Background type",
+      "options": [
+        { "value": "transparent", "label": "Transparent" },
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" }
+      ],
+      "default": "transparent"
+    },
+    { "type": "color", "id": "section_background_color", "label": "Background color", "default": "#F9F7F2" },
+    { "type": "color", "id": "section_gradient_color_1", "label": "Gradient color 1", "default": "#F9F7F2" },
+    { "type": "color", "id": "section_gradient_color_2", "label": "Gradient color 2", "default": "#EDE8DF" },
+    {
+      "type": "select",
+      "id": "section_gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to bottom", "label": "Top to bottom" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to right"
+    },
+
+    { "type": "header", "content": "Trust row inner card" },
+    {
+      "type": "select",
+      "id": "inner_background_type",
+      "label": "Inner background",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "solid", "label": "Solid" },
+        { "value": "gradient", "label": "Gradient" }
+      ],
+      "default": "solid"
+    },
+    { "type": "color", "id": "inner_background_color", "label": "Inner background color", "default": "#F3F0EB" },
+    { "type": "color", "id": "inner_gradient_color_1", "label": "Inner gradient color 1", "default": "#F3F0EB" },
+    { "type": "color", "id": "inner_gradient_color_2", "label": "Inner gradient color 2", "default": "#EBE6DF" },
+    {
+      "type": "select",
+      "id": "inner_gradient_direction",
+      "label": "Inner gradient direction",
+      "options": [
+        { "value": "to right", "label": "Left to right" },
+        { "value": "to bottom", "label": "Top to bottom" },
+        { "value": "135deg", "label": "Diagonal" }
+      ],
+      "default": "to right"
+    },
+    { "type": "color", "id": "inner_border_color", "label": "Border color", "default": "rgba(0,0,0,0.08)" },
+    {
+      "type": "range",
+      "id": "inner_border_width",
+      "label": "Border width (px)",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "inner_border_radius",
+      "label": "Inner card border radius (px)",
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "item_border_radius",
+      "label": "Item border radius (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Dividers" },
+    { "type": "checkbox", "id": "show_dividers", "label": "Show desktop dividers", "default": true },
+    { "type": "color", "id": "divider_color", "label": "Divider color", "default": "rgba(0,0,0,0.15)" },
+    {
+      "type": "range",
+      "id": "divider_width",
+      "label": "Divider width (px)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "divider_height",
+      "label": "Divider height (%)",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "divider_spacing",
+      "label": "Divider spacing (px)",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Item height" },
+    {
+      "type": "select",
+      "id": "height_mode",
+      "label": "Height mode",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "equal", "label": "Equal height" }
+      ],
+      "default": "equal"
+    },
+    {
+      "type": "range",
+      "id": "item_min_height_desktop",
+      "label": "Desktop min height (px)",
+      "min": 60,
+      "max": 200,
+      "step": 5,
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "item_min_height_tablet",
+      "label": "Tablet min height (px)",
+      "min": 60,
+      "max": 180,
+      "step": 5,
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "item_min_height_mobile",
+      "label": "Mobile min height (px)",
+      "min": 0,
+      "max": 160,
+      "step": 5,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Spacing — desktop" },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "label": "Section padding top",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "label": "Section padding bottom",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "inner_padding_desktop",
+      "label": "Inner card padding",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "column_gap_desktop",
+      "label": "Column gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "icon_text_gap_desktop",
+      "label": "Icon to text gap",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "default": 16
+    },
+
+    { "type": "header", "content": "Spacing — tablet" },
+    {
+      "type": "range",
+      "id": "section_padding_top_tablet",
+      "label": "Section padding top",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_tablet",
+      "label": "Section padding bottom",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "inner_padding_tablet",
+      "label": "Inner card padding",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "default": 24
+    },
+    { "type": "range", "id": "column_gap_tablet", "label": "Column gap", "min": 0, "max": 32, "step": 2, "default": 0 },
+    {
+      "type": "range",
+      "id": "icon_text_gap_tablet",
+      "label": "Icon to text gap",
+      "min": 8,
+      "max": 36,
+      "step": 2,
+      "default": 14
+    },
+
+    { "type": "header", "content": "Spacing — mobile" },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Section padding top",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Section padding bottom",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "inner_padding_mobile",
+      "label": "Card padding",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "default": 20
+    },
+    { "type": "range", "id": "item_gap_mobile", "label": "Item gap", "min": 0, "max": 32, "step": 2, "default": 0 },
+    {
+      "type": "range",
+      "id": "icon_text_gap_mobile",
+      "label": "Icon to text gap",
+      "min": 6,
+      "max": 32,
+      "step": 2,
+      "default": 12
+    },
+
+    { "type": "header", "content": "Mobile layout" },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slideshow", "label": "Slideshow" },
+        { "value": "one_by_one", "label": "One by one" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "mobile_grid_columns",
+      "label": "Mobile grid columns",
+      "options": [
+        { "value": "1", "label": "1 column" },
+        { "value": "2", "label": "2 columns" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "mobile_divider_type",
+      "label": "Mobile dividers",
+      "options": [
+        { "value": "horizontal", "label": "Horizontal divider" },
+        { "value": "vertical", "label": "Vertical divider" },
+        { "value": "none", "label": "No divider" }
+      ],
+      "default": "horizontal"
+    },
+    {
+      "type": "select",
+      "id": "mobile_icon_position",
+      "label": "Mobile icon position",
+      "options": [
+        { "value": "left", "label": "Left of content" },
+        { "value": "above", "label": "Above content" }
+      ],
+      "default": "left"
+    },
+
+    { "type": "header", "content": "Mobile slideshow" },
+    { "type": "checkbox", "id": "slideshow_autoplay", "label": "Autoplay", "default": false },
+    {
+      "type": "range",
+      "id": "slideshow_autoplay_speed",
+      "label": "Autoplay speed (seconds)",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    { "type": "checkbox", "id": "slideshow_show_arrows", "label": "Show arrows", "default": true },
+    { "type": "checkbox", "id": "slideshow_show_dots", "label": "Show pagination dots", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust badge",
+      "settings": [
+        { "type": "header", "content": "Icon" },
+        {
+          "type": "select",
+          "id": "icon_type",
+          "label": "Icon type",
+          "options": [
+            { "value": "default_icon", "label": "Theme / default icon" },
+            { "value": "custom_svg", "label": "Custom SVG" },
+            { "value": "image", "label": "Image" }
+          ],
+          "default": "default_icon"
+        },
+        {
+          "type": "select",
+          "id": "default_icon",
+          "label": "Default icon",
+          "options": [
+            { "value": "shield", "label": "Shield with checkmark" },
+            { "value": "truck", "label": "Delivery truck" },
+            { "value": "padlock", "label": "Padlock" }
+          ],
+          "default": "shield"
+        },
+        { "type": "html", "id": "custom_svg", "label": "Custom SVG code" },
+        { "type": "image_picker", "id": "icon_image", "label": "Icon image" },
+        { "type": "text", "id": "icon_alt", "label": "Icon alt text" },
+        {
+          "type": "range",
+          "id": "icon_size_desktop",
+          "label": "Icon size — desktop (px)",
+          "min": 24,
+          "max": 80,
+          "step": 2,
+          "default": 52
+        },
+        {
+          "type": "range",
+          "id": "icon_size_tablet",
+          "label": "Icon size — tablet (px)",
+          "min": 24,
+          "max": 72,
+          "step": 2,
+          "default": 46
+        },
+        {
+          "type": "range",
+          "id": "icon_size_mobile",
+          "label": "Icon size — mobile (px)",
+          "min": 20,
+          "max": 64,
+          "step": 2,
+          "default": 40
+        },
+        { "type": "color", "id": "icon_color", "label": "Icon color", "default": "#000000" },
+        {
+          "type": "range",
+          "id": "icon_width",
+          "label": "Icon width (px, 0 = auto)",
+          "min": 0,
+          "max": 120,
+          "step": 2,
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "icon_height",
+          "label": "Icon height (px, 0 = auto)",
+          "min": 0,
+          "max": 120,
+          "step": 2,
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "icon_text_gap",
+          "label": "Icon to text gap override (px, 0 = section default)",
+          "min": 0,
+          "max": 40,
+          "step": 2,
+          "default": 0
+        },
+        {
+          "type": "select",
+          "id": "icon_alignment",
+          "label": "Icon alignment",
+          "options": [
+            { "value": "top", "label": "Top" },
+            { "value": "center", "label": "Center" },
+            { "value": "bottom", "label": "Bottom" }
+          ],
+          "default": "center"
+        },
+
+        { "type": "header", "content": "Title" },
+        { "type": "text", "id": "title", "label": "Title", "default": "PREMIUM QUALITY" },
+        {
+          "type": "range",
+          "id": "title_font_size_desktop",
+          "label": "Font size — desktop (px)",
+          "min": 11,
+          "max": 24,
+          "step": 1,
+          "default": 15
+        },
+        {
+          "type": "range",
+          "id": "title_font_size_tablet",
+          "label": "Font size — tablet (px)",
+          "min": 11,
+          "max": 22,
+          "step": 1,
+          "default": 14
+        },
+        {
+          "type": "range",
+          "id": "title_font_size_mobile",
+          "label": "Font size — mobile (px)",
+          "min": 10,
+          "max": 20,
+          "step": 1,
+          "default": 13
+        },
+        {
+          "type": "range",
+          "id": "title_font_weight",
+          "label": "Font weight",
+          "min": 400,
+          "max": 900,
+          "step": 100,
+          "default": 700
+        },
+        { "type": "color", "id": "title_color", "label": "Color", "default": "#000000" },
+        {
+          "type": "select",
+          "id": "title_alignment",
+          "label": "Alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+
+        { "type": "header", "content": "Description" },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>High-quality fabrics and prints that last.</p>"
+        },
+        {
+          "type": "range",
+          "id": "description_font_size_desktop",
+          "label": "Font size — desktop (px)",
+          "min": 10,
+          "max": 20,
+          "step": 1,
+          "default": 13
+        },
+        {
+          "type": "range",
+          "id": "description_font_size_tablet",
+          "label": "Font size — tablet (px)",
+          "min": 10,
+          "max": 18,
+          "step": 1,
+          "default": 12
+        },
+        {
+          "type": "range",
+          "id": "description_font_size_mobile",
+          "label": "Font size — mobile (px)",
+          "min": 10,
+          "max": 18,
+          "step": 1,
+          "default": 12
+        },
+        {
+          "type": "range",
+          "id": "description_font_weight",
+          "label": "Font weight",
+          "min": 300,
+          "max": 700,
+          "step": 100,
+          "default": 400
+        },
+        { "type": "color", "id": "description_color", "label": "Color", "default": "#000000" },
+        {
+          "type": "select",
+          "id": "description_alignment",
+          "label": "Alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+
+        { "type": "header", "content": "Layout & link" },
+        {
+          "type": "select",
+          "id": "content_alignment",
+          "label": "Content alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+        { "type": "checkbox", "id": "enable_link", "label": "Enable link", "default": false },
+        { "type": "url", "id": "link_url", "label": "Link URL" },
+        { "type": "checkbox", "id": "link_new_tab", "label": "Open in new tab", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "VIAPLUSH – Trust Badge",
+      "blocks": [
+        {
+          "type": "trust_badge",
+          "settings": {
+            "default_icon": "shield",
+            "title": "PREMIUM QUALITY",
+            "description": "<p>High-quality fabrics and<br>prints that last.</p>"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "default_icon": "truck",
+            "title": "FAST DELIVERY",
+            "description": "<p>Orders ship within 1–2 business days<br>and arrive in 3–5 business days.</p>"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "default_icon": "padlock",
+            "title": "SECURE CHECKOUT",
+            "description": "<p>Your payment is 100% secure<br>with trusted protection.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

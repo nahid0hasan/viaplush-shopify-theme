@@ -1,0 +1,1856 @@
+{%- comment -%}
+  VIAPLUSH – Minimal Archive Sale Header
+  Shopify Online Store 2.0 section for Atelier theme.
+  Logo + cart icon only — no navigation, search, or account.
+  Scoped to #viaplush-minimal-header-{{ section.id }} — no global styles.
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign s = section.settings
+
+  assign container_type = s.container_type | default: 'full'
+  assign logo_align = s.logo_alignment | default: 'left'
+  assign content_valign = s.content_vertical_align | default: 'center'
+  assign icon_style = s.cart_icon_style | default: 'cart-filled'
+  if icon_style == 'filled'
+    assign icon_style = 'cart-filled'
+  elsif icon_style == 'outline'
+    assign icon_style = 'cart-outline'
+  endif
+  assign hide_zero_count = s.hide_zero_count | default: true
+
+  assign logo_image = null
+  if s.logo_override != blank
+    assign logo_image = s.logo_override
+  elsif settings.logo != blank
+    assign logo_image = settings.logo
+  endif
+
+  assign logo_alt = s.logo_alt | default: shop.name
+  assign logo_text = s.logo_text_fallback | default: 'Viaplush'
+  assign cart_count = cart.item_count
+
+  assign count_hidden = false
+  unless hide_zero_count
+    assign count_hidden = false
+  else
+    if cart_count == 0
+      assign count_hidden = true
+    endif
+  endunless
+
+  assign cart_label = 'Open cart'
+  if cart_count == 1
+    assign cart_label = 'Open cart, 1 item'
+  elsif cart_count > 1
+    assign cart_label = 'Open cart, ' | append: cart_count | append: ' items'
+  endif
+
+  assign drawer_title = s.drawer_title | default: 'Your Bag'
+  assign drawer_checkout_text = s.drawer_checkout_text | default: 'CHECKOUT'
+  assign drawer_empty_text = s.drawer_empty_text | default: 'Your bag is empty.'
+  assign drawer_remove_label = s.drawer_remove_label | default: 'Remove'
+
+  assign bg_transparent = s.background_transparent | default: false
+  assign show_border = s.show_bottom_border | default: true
+
+  assign hide_theme_header = s.hide_theme_header
+  if hide_theme_header == null
+    assign hide_theme_header = true
+  endif
+
+  assign hide_theme_footer = s.hide_theme_footer
+  if hide_theme_footer == null
+    assign hide_theme_footer = true
+  endif
+
+  assign sticky_header = s.sticky_header
+  if sticky_header == null
+    assign sticky_header = true
+  endif
+
+  assign container_pad_d = s.container_padding_desktop | default: s.header_padding_horizontal_desktop | default: 40
+  assign container_pad_t = s.container_padding_tablet | default: s.header_padding_horizontal_tablet | default: 28
+  assign container_pad_m = s.container_padding_mobile | default: s.header_padding_horizontal_mobile | default: 16
+-%}
+
+<div
+  id="viaplush-minimal-header-wrap-{{ sid }}"
+  class="viaplush-minimal-header-wrap viaplush-minimal-header-wrap--container-{{ container_type }}{% if sticky_header %} viaplush-minimal-header-wrap--sticky{% endif %}"
+  style="
+    --vmh-sec-pt-d: {{ s.section_padding_top_desktop | default: 0 }}px;
+    --vmh-sec-pb-d: {{ s.section_padding_bottom_desktop | default: 0 }}px;
+    --vmh-sec-pt-t: {{ s.section_padding_top_tablet | default: 0 }}px;
+    --vmh-sec-pb-t: {{ s.section_padding_bottom_tablet | default: 0 }}px;
+    --vmh-sec-pt-m: {{ s.section_padding_top_mobile | default: 0 }}px;
+    --vmh-sec-pb-m: {{ s.section_padding_bottom_mobile | default: 0 }}px;
+    --vmh-pad-x-d: {{ container_pad_d }}px;
+    --vmh-pad-x-t: {{ container_pad_t }}px;
+    --vmh-pad-x-m: {{ container_pad_m }}px;
+  "
+>
+
+{%- if hide_theme_header or hide_theme_footer -%}
+  <script>
+    (function () {
+      var root = document.documentElement;
+      {%- if hide_theme_header -%}
+      root.classList.add('viaplush-landing-hide-theme-header');
+      {%- endif -%}
+      {%- if hide_theme_footer -%}
+      root.classList.add('viaplush-landing-hide-theme-footer');
+      {%- endif -%}
+    })();
+  </script>
+  <style id="viaplush-landing-chrome-hide-{{ sid }}">
+    {%- if hide_theme_header -%}
+    html.viaplush-landing-hide-theme-header #shopify-section-header,
+    html.viaplush-landing-hide-theme-header .section-header,
+    html.viaplush-landing-hide-theme-header .header-wrapper,
+    html.viaplush-landing-hide-theme-header #HeaderWrapper,
+    html.viaplush-landing-hide-theme-header sticky-header,
+    html.viaplush-landing-hide-theme-header header-component,
+    html.viaplush-landing-hide-theme-header .shopify-section-header,
+    html.viaplush-landing-hide-theme-header .shopify-section-announcement-bar,
+    html.viaplush-landing-hide-theme-header [class*="announcement-bar"],
+    html.viaplush-landing-hide-theme-header [id*="shopify-section"][id*="announcement"]:not([id*="cart"]) {
+      display: none !important;
+    }
+    html.viaplush-landing-hide-theme-header cart-drawer,
+    html.viaplush-landing-hide-theme-header cart-drawer-component,
+    html.viaplush-landing-hide-theme-header #CartDrawer,
+    html.viaplush-landing-hide-theme-header [id*="cart-drawer"]:not([id*="viaplush"]),
+    html.viaplush-landing-hide-theme-header .cart-drawer:not(.viaplush-cart-drawer),
+    html.viaplush-landing-hide-theme-header .drawer--cart,
+    html.viaplush-landing-hide-theme-header #cart-drawer {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+    }
+    {%- endif -%}
+    {%- if hide_theme_footer -%}
+    html.viaplush-landing-hide-theme-footer .shopify-section-group-footer-group,
+    html.viaplush-landing-hide-theme-footer #shopify-section-footer,
+    html.viaplush-landing-hide-theme-footer .footer,
+    html.viaplush-landing-hide-theme-footer .site-footer,
+    html.viaplush-landing-hide-theme-footer footer.footer {
+      display: none !important;
+    }
+    {%- endif -%}
+  </style>
+{%- endif -%}
+
+<header
+  id="viaplush-minimal-header-{{ sid }}"
+  class="viaplush-minimal-header viaplush-minimal-header--container-{{ container_type }}{% if bg_transparent %} viaplush-minimal-header--bg-transparent{% endif %}{% if show_border %} viaplush-minimal-header--bordered{% endif %}{% if sticky_header %} viaplush-minimal-header--sticky{% endif %}{% if s.sticky_shadow_on_scroll %} viaplush-minimal-header--sticky-shadow{% endif %}"
+  role="banner"
+  data-viaplush-minimal-header
+  data-hide-zero-count="{{ hide_zero_count }}"
+  style="
+    --vmh-bg: {{ s.background_color | default: '#F9F7F2' }};
+    --vmh-bg-scroll: {{ s.sticky_scroll_background | default: '#F9F7F2' }};
+    --vmh-border-color: {{ s.border_color | default: '#E8E4DE' }};
+    --vmh-border-width: {{ s.border_thickness | default: 1 }}px;
+    --vmh-custom-max: {{ s.custom_max_width | default: 1200 }}px;
+    --vmh-pad-y-d: {{ s.header_padding_vertical_desktop | default: 22 }}px;
+    --vmh-pad-y-t: {{ s.header_padding_vertical_tablet | default: 20 }}px;
+    --vmh-pad-y-m: {{ s.header_padding_vertical_mobile | default: 16 }}px;
+    --vmh-logo-max-h-d: {{ s.logo_max_height_desktop | default: 42 }}px;
+    --vmh-logo-max-h-t: {{ s.logo_max_height_tablet | default: 38 }}px;
+    --vmh-logo-max-h-m: {{ s.logo_max_height_mobile | default: 32 }}px;
+    --vmh-logo-align: {% if logo_align == 'center' %}center{% else %}flex-start{% endif %};
+    --vmh-content-align: {{ content_valign }};
+    --vmh-icon-size-d: {{ s.cart_icon_size_desktop | default: 24 }}px;
+    --vmh-icon-size-t: {{ s.cart_icon_size_tablet | default: 22 }}px;
+    --vmh-icon-size-m: {{ s.cart_icon_size_mobile | default: 20 }}px;
+    --vmh-icon-color: {{ s.cart_icon_color | default: '#000000' }};
+    --vmh-bubble-bg: {{ s.count_bubble_bg_color | default: '#000000' }};
+    --vmh-bubble-text: {{ s.count_bubble_text_color | default: '#ffffff' }};
+    --vmh-bubble-top: {{ s.count_bubble_offset_top | default: -6 }}px;
+    --vmh-bubble-right: {{ s.count_bubble_offset_right | default: -8 }}px;
+    --vmh-dot-color: {{ s.logo_dot_color | default: '#C41E3A' }};
+    --vmh-logo-text-color: {{ s.logo_text_color | default: '#000000' }};
+    --vmh-logo-text-size-d: {{ s.logo_text_size_desktop | default: 36 }}px;
+    --vmh-logo-text-size-t: {{ s.logo_text_size_tablet | default: 32 }}px;
+    --vmh-logo-text-size-m: {{ s.logo_text_size_mobile | default: 28 }}px;
+    --vmh-focus-color: {{ s.cart_focus_color | default: '#000000' }};
+    {%- if s.tagline_color != blank %}
+    --vmh-tagline-color: {{ s.tagline_color }};
+    {%- endif %}
+    {%- if s.tagline_accent_color != blank %}
+    --vmh-tagline-accent: {{ s.tagline_accent_color }};
+    {%- endif %}
+  "
+>
+  <div class="viaplush-minimal-header__container{% if container_type == 'theme' %} page-width{% endif %}">
+    <div class="viaplush-minimal-header__inner{% if logo_align == 'center' %} viaplush-minimal-header__inner--center{% endif %}">
+      <div class="viaplush-minimal-header__logo" aria-hidden="false">
+        {%- if logo_image != blank -%}
+          {{
+            logo_image
+            | image_url: width: 600
+            | image_tag:
+              loading: 'eager',
+              fetchpriority: 'high',
+              alt: logo_alt,
+              class: 'viaplush-minimal-header__logo-image',
+              widths: '120, 180, 240, 360, 480, 600'
+          }}
+        {%- else -%}
+          <span class="viaplush-minimal-header__logo-text" aria-label="{{ logo_alt }}">
+            <span class="viaplush-minimal-header__logo-word">{{ logo_text }}</span
+            ><span class="viaplush-minimal-header__logo-dot" aria-hidden="true">.</span>
+          </span>
+        {%- endif -%}
+        {%- if s.tagline != blank -%}
+          <span class="viaplush-minimal-header__tagline">{{ s.tagline | escape }}</span>
+        {%- endif -%}
+      </div>
+
+      <div class="viaplush-minimal-header__cart-wrap">
+        <button
+          type="button"
+          class="viaplush-minimal-header__cart"
+          data-viaplush-cart-trigger
+          aria-label="{{ cart_label }}"
+          aria-haspopup="dialog"
+          aria-controls="viaplush-cart-drawer-{{ sid }}"
+        >
+          <span class="viaplush-minimal-header__cart-icon" aria-hidden="true">
+            {%- case icon_style -%}
+              {%- when 'bag-filled' -%}
+                <svg
+                  class="viaplush-minimal-header__cart-svg viaplush-minimal-header__cart-svg--fa-bag"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 448 512"
+                  focusable="false"
+                  aria-hidden="true"
+                >
+                  <path fill="currentColor" d="M160 112c0-35.3 28.7-64 64-64s64 28.7 64 64v48H160V112zm-48 48H48c-26.5 0-48 21.5-48 48V416c0 53 43 96 96 96H352c53 0 96-43 96-96V208c0-26.5-21.5-48-48-48H336 112 48zm0 48H336V416c0 26.5-21.5 48-48 48H160c-26.5 0-48-21.5-48-48V208z"/>
+                </svg>
+              {%- when 'cart-outline' -%}
+                <svg
+                  class="viaplush-minimal-header__cart-svg viaplush-minimal-header__cart-svg--fa-cart-outline"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 576 512"
+                  focusable="false"
+                  aria-hidden="true"
+                >
+                  <path fill="currentColor" d="M24 48C10.7 48 0 58.7 0 72v0c0 13.3 10.7 24 24 24H69.5c3.9 0 7.2 2.7 7.9 6.5l51.6 271.6c5.7 29.8 32.1 51.4 62.4 51.4H488c13.3 0 24-10.7 24-24s-10.7-24-24-24H191.4L184 192H492.8l-32.9-121.6C454.4 45.1 426.3 0 388.5 0H106.8C87.6 0 70.6 12.5 64.8 30.7L45.3 88H24zm96 368a48 48 0 1 1 0 96 48 48 0 1 1 0-96zm336 0a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"/>
+                </svg>
+              {%- else -%}
+                <svg
+                  class="viaplush-minimal-header__cart-svg viaplush-minimal-header__cart-svg--fa-cart-filled"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 576 512"
+                  focusable="false"
+                  aria-hidden="true"
+                >
+                  <path fill="currentColor" d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336 0a48 48 0 1 1 96 0 48 48 0 1 1 -96 0z"/>
+                </svg>
+            {%- endcase -%}
+          </span>
+          <span
+            class="viaplush-minimal-header__cart-count{% if count_hidden %} viaplush-minimal-header__cart-count--hidden{% endif %}"
+            data-viaplush-cart-count
+            aria-hidden="true"
+          >
+            {{- cart_count -}}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+{%- if sticky_header -%}
+  <div class="viaplush-minimal-header__sticky-spacer" id="viaplush-header-spacer-{{ sid }}" aria-hidden="true"></div>
+{%- endif -%}
+</div>
+
+<div
+  id="viaplush-cart-drawer-{{ sid }}"
+  class="viaplush-cart-drawer"
+  data-viaplush-cart-drawer
+  aria-hidden="true"
+  style="
+    --vcd-bg: {{ s.drawer_background_color | default: '#F9F7F2' }};
+    --vcd-text: {{ s.drawer_text_color | default: '#000000' }};
+    --vcd-muted: {{ s.drawer_muted_color | default: '#666666' }};
+    --vcd-border: {{ s.drawer_border_color | default: '#E8E4DE' }};
+    --vcd-overlay: {{ s.drawer_overlay_color | default: 'rgba(0, 0, 0, 0.45)' }};
+    --vcd-btn-bg: {{ s.drawer_checkout_bg | default: '#000000' }};
+    --vcd-btn-text: {{ s.drawer_checkout_text_color | default: '#ffffff' }};
+    --vcd-btn-hover: {{ s.drawer_checkout_hover_bg | default: '#1a1a1a' }};
+    --vcd-width-d: {{ s.drawer_width_desktop | default: 420 }}px;
+    --vcd-width-m: {{ s.drawer_width_mobile | default: 100 }}%;
+    --vcd-pad: {{ s.drawer_padding | default: 24 }}px;
+  "
+>
+  <div class="viaplush-cart-drawer__overlay" data-viaplush-cart-close tabindex="-1" aria-hidden="true"></div>
+  <aside
+    class="viaplush-cart-drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ drawer_title }}"
+    data-viaplush-cart-panel
+  >
+    <header class="viaplush-cart-drawer__header">
+      <span class="viaplush-cart-drawer__title">{{ drawer_title }}</span>
+      <button
+        type="button"
+        class="viaplush-cart-drawer__close"
+        data-viaplush-cart-close
+        aria-label="Close cart"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="viaplush-cart-drawer__body" data-viaplush-cart-body>
+      <div class="viaplush-cart-drawer__loading" data-viaplush-cart-loading hidden>
+        <span class="viaplush-cart-drawer__spinner" aria-hidden="true"></span>
+      </div>
+      <div class="viaplush-cart-drawer__empty" data-viaplush-cart-empty hidden>
+        <p>{{ drawer_empty_text }}</p>
+      </div>
+      <ul class="viaplush-cart-drawer__items" data-viaplush-cart-items role="list"></ul>
+    </div>
+
+    <footer class="viaplush-cart-drawer__footer" data-viaplush-cart-footer hidden>
+      <div class="viaplush-cart-drawer__subtotal">
+        <span class="viaplush-cart-drawer__subtotal-label">Subtotal</span>
+        <span class="viaplush-cart-drawer__subtotal-value" data-viaplush-cart-subtotal></span>
+      </div>
+      <a
+        href="{{ routes.root_url }}checkout"
+        class="viaplush-cart-drawer__checkout"
+        data-viaplush-cart-checkout
+      >
+        {{ drawer_checkout_text }}
+      </a>
+    </footer>
+  </aside>
+</div>
+
+<script type="application/json" data-viaplush-cart-drawer-config>
+  {
+    "moneyFormat": {{ shop.money_format | json }},
+    "removeLabel": {{ drawer_remove_label | json }},
+    "emptyText": {{ drawer_empty_text | json }},
+    "checkoutUrl": {{ routes.root_url | append: 'checkout' | json }}
+  }
+</script>
+
+<style>
+  @font-face {
+    font-family: 'Coastal';
+    src: url('{{ 'Coastal.otf' | asset_url }}') format('opentype');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #shopify-section-{{ sid }} {
+    overflow: visible !important;
+  }
+
+  #viaplush-minimal-header-wrap-{{ sid }} {
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: var(--vmh-sec-pt-d);
+    padding-bottom: var(--vmh-sec-pb-d);
+  }
+
+  #viaplush-minimal-header-wrap-{{ sid }}.viaplush-minimal-header-wrap--sticky {
+    position: relative;
+    z-index: 10040;
+  }
+
+  #viaplush-minimal-header-wrap-{{ sid }} .viaplush-minimal-header__sticky-spacer {
+    display: block;
+    width: 100%;
+    height: 0;
+    pointer-events: none;
+  }
+
+  #viaplush-minimal-header-{{ sid }} {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--vmh-bg);
+    position: relative;
+    z-index: 10040;
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--bg-transparent {
+    background-color: transparent;
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--bordered {
+    border-bottom: var(--vmh-border-width) solid var(--vmh-border-color);
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10040;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--sticky.is-scrolled {
+    background-color: var(--vmh-bg-scroll);
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--sticky-shadow.is-scrolled {
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__container {
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-theme .viaplush-minimal-header__container {
+    max-width: var(--page-width, 1200px);
+    padding-left: var(--vmh-pad-x-d);
+    padding-right: var(--vmh-pad-x-d);
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-full .viaplush-minimal-header__container {
+    max-width: 100%;
+    padding-left: var(--vmh-pad-x-d);
+    padding-right: var(--vmh-pad-x-d);
+  }
+
+  #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-custom .viaplush-minimal-header__container {
+    max-width: var(--vmh-custom-max);
+    padding-left: var(--vmh-pad-x-d);
+    padding-right: var(--vmh-pad-x-d);
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__inner {
+    display: flex;
+    align-items: var(--vmh-content-align);
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 0;
+    padding-top: var(--vmh-pad-y-d);
+    padding-bottom: var(--vmh-pad-y-d);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo {
+    display: flex;
+    align-items: center;
+    justify-content: var(--vmh-logo-align);
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 56px);
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-image {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: var(--vmh-logo-max-h-d);
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-text {
+    display: inline-flex;
+    align-items: baseline;
+    max-width: 100%;
+    color: var(--vmh-logo-text-color);
+    font-family: 'Coastal', serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: var(--vmh-logo-text-size-d);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-word {
+    display: inline-block;
+    font-family: inherit;
+    font-weight: inherit;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-dot {
+    color: var(--vmh-dot-color);
+    font-style: normal;
+    font-weight: 700;
+    margin-left: 1px;
+  }
+
+  /* Optional tagline under the logo (used by landing pages; blank by default). */
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo:has(.viaplush-minimal-header__tagline) {
+    flex-direction: column;
+    align-items: var(--vmh-logo-align);
+    justify-content: center;
+    gap: 6px;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__tagline {
+    display: block;
+    color: var(--vmh-tagline-color, var(--vmh-logo-text-color));
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__tagline::after {
+    content: '';
+    display: block;
+    inline-size: 70%;
+    block-size: 3px;
+    margin: 8px auto 0;
+    border-radius: 50%;
+    background: linear-gradient(90deg, transparent, var(--vmh-tagline-accent, transparent) 25%, var(--vmh-tagline-accent, transparent) 75%, transparent);
+  }
+
+  /* Centered logo: balance the cart column so the logo sits on the true page center. */
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__inner--center::before {
+    content: '';
+    flex: 0 0 56px;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__inner--center .viaplush-minimal-header__logo-image {
+    object-position: center;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-wrap {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--vmh-icon-size-d) + 16px);
+    height: calc(var(--vmh-icon-size-d) + 16px);
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: var(--vmh-icon-color);
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 2px;
+    font: inherit;
+    transition: opacity 0.2s ease;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart:hover {
+    opacity: 0.72;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart:focus {
+    outline: none;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart:focus-visible {
+    outline: 2px solid var(--vmh-focus-color);
+    outline-offset: 3px;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vmh-icon-size-d);
+    height: var(--vmh-icon-size-d);
+    pointer-events: none;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-count {
+    position: absolute;
+    top: var(--vmh-bubble-top);
+    right: var(--vmh-bubble-right);
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--vmh-bubble-bg);
+    color: var(--vmh-bubble-text);
+    font-family: var(--font-body-family, inherit);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-count--hidden {
+    display: none;
+  }
+
+  #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-count--pulse {
+    animation: viaplush-cart-count-pulse-{{ sid }} 0.55s ease;
+  }
+
+  @keyframes viaplush-cart-count-pulse-{{ sid }} {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.28); }
+    100% { transform: scale(1); }
+  }
+
+  #viaplush-cart-drawer-{{ sid }} {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    pointer-events: none;
+  }
+
+  #viaplush-cart-drawer-{{ sid }}.is-open {
+    pointer-events: auto;
+  }
+
+  #viaplush-cart-drawer-{{ sid }}:not(.is-open) .viaplush-cart-drawer__overlay,
+  #viaplush-cart-drawer-{{ sid }}:not(.is-open) .viaplush-cart-drawer__panel {
+    pointer-events: none;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--vcd-overlay);
+    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #viaplush-cart-drawer-{{ sid }}.is-open .viaplush-cart-drawer__overlay {
+    opacity: 1;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    width: min(var(--vcd-width-d), 100vw);
+    max-width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--vcd-bg);
+    color: var(--vcd-text);
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  }
+
+  #viaplush-cart-drawer-{{ sid }}.is-open .viaplush-cart-drawer__panel {
+    transform: translateX(0);
+  }
+
+  #viaplush-cart-drawer-{{ sid }}.is-closing .viaplush-cart-drawer__panel {
+    transition-duration: 0.32s;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: var(--vcd-pad);
+    padding-bottom: calc(var(--vcd-pad) - 4px);
+    border-bottom: 1px solid var(--vcd-border);
+    flex-shrink: 0;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--vcd-text);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: opacity 0.2s ease;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__close:hover {
+    opacity: 0.65;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__close:focus-visible {
+    outline: 2px solid var(--vcd-text);
+    outline-offset: 2px;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__body {
+    position: relative;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 var(--vcd-pad);
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--vcd-bg) 88%, transparent);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__loading[hidden] {
+    display: none;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--vcd-border);
+    border-top-color: var(--vcd-text);
+    border-radius: 50%;
+    animation: viaplush-cart-spin-{{ sid }} 0.7s linear infinite;
+  }
+
+  @keyframes viaplush-cart-spin-{{ sid }} {
+    to { transform: rotate(360deg); }
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__empty {
+    padding: 48px 0;
+    text-align: center;
+    color: var(--vcd-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__empty[hidden],
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__items[hidden],
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__footer[hidden] {
+    display: none;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__empty p {
+    margin: 0;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__items {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 16px;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--vcd-border);
+    animation: viaplush-cart-item-in-{{ sid }} 0.35s ease both;
+  }
+
+  @keyframes viaplush-cart-item-in-{{ sid }} {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-image {
+    display: block;
+    width: 72px;
+    height: 88px;
+    object-fit: cover;
+    background: #eee;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--vcd-text);
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-variant {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--vcd-muted);
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--vcd-text);
+    white-space: nowrap;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-remove {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--vcd-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-remove:hover {
+    color: var(--vcd-text);
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item-remove:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__footer {
+    flex-shrink: 0;
+    padding: var(--vcd-pad);
+    border-top: 1px solid var(--vcd-border);
+    background: var(--vcd-bg);
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__subtotal {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__subtotal-label {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__subtotal-value {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__checkout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 0;
+    background: var(--vcd-btn-bg);
+    color: var(--vcd-btn-text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__checkout:hover {
+    background: var(--vcd-btn-hover);
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item.is-removing {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__item.is-removing .viaplush-cart-drawer__item-remove {
+    cursor: wait;
+  }
+
+  html.viaplush-cart-drawer-open cart-drawer,
+  html.viaplush-cart-drawer-open cart-drawer-component,
+  html.viaplush-cart-drawer-open #CartDrawer,
+  html.viaplush-cart-drawer-open [id*="cart-drawer"]:not([id*="viaplush"]),
+  html.viaplush-cart-drawer-open .cart-drawer:not(.viaplush-cart-drawer),
+  html.viaplush-cart-drawer-open .drawer--cart,
+  html.viaplush-cart-drawer-open #cart-drawer {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
+
+  html.viaplush-cart-drawer-open {
+    overflow: hidden;
+  }
+
+  @media screen and (max-width: 749px) {
+    #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__panel {
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 70vh;
+      max-height: 70%;
+      border-radius: 16px 16px 0 0;
+      transform: translateY(100%);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.14);
+    }
+
+    #viaplush-cart-drawer-{{ sid }}.is-open .viaplush-cart-drawer__panel {
+      transform: translateY(0);
+    }
+
+    #viaplush-cart-drawer-{{ sid }} .viaplush-cart-drawer__title {
+      font-size: 20px;
+    }
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #viaplush-minimal-header-wrap-{{ sid }} {
+      padding-top: var(--vmh-sec-pt-t);
+      padding-bottom: var(--vmh-sec-pb-t);
+    }
+
+    #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-theme .viaplush-minimal-header__container,
+    #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-full .viaplush-minimal-header__container,
+    #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-custom .viaplush-minimal-header__container {
+      padding-left: var(--vmh-pad-x-t);
+      padding-right: var(--vmh-pad-x-t);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__inner {
+      padding-top: var(--vmh-pad-y-t);
+      padding-bottom: var(--vmh-pad-y-t);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-image {
+      max-height: var(--vmh-logo-max-h-t);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-text {
+      font-size: var(--vmh-logo-text-size-t);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart {
+      width: calc(var(--vmh-icon-size-t) + 16px);
+      height: calc(var(--vmh-icon-size-t) + 16px);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-icon {
+      width: var(--vmh-icon-size-t);
+      height: var(--vmh-icon-size-t);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #viaplush-minimal-header-wrap-{{ sid }} {
+      padding-top: var(--vmh-sec-pt-m);
+      padding-bottom: var(--vmh-sec-pb-m);
+    }
+
+    #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-theme .viaplush-minimal-header__container,
+    #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-full .viaplush-minimal-header__container,
+    #viaplush-minimal-header-{{ sid }}.viaplush-minimal-header--container-custom .viaplush-minimal-header__container {
+      padding-left: var(--vmh-pad-x-m);
+      padding-right: var(--vmh-pad-x-m);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__inner {
+      padding-top: var(--vmh-pad-y-m);
+      padding-bottom: var(--vmh-pad-y-m);
+      gap: 12px;
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo {
+      max-width: calc(100% - 48px);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-image {
+      max-height: var(--vmh-logo-max-h-m);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__logo-text {
+      font-size: var(--vmh-logo-text-size-m);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart {
+      width: calc(var(--vmh-icon-size-m) + 12px);
+      height: calc(var(--vmh-icon-size-m) + 12px);
+    }
+
+    #viaplush-minimal-header-{{ sid }} .viaplush-minimal-header__cart-icon {
+      width: var(--vmh-icon-size-m);
+      height: var(--vmh-icon-size-m);
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var root = document.getElementById('viaplush-minimal-header-{{ sid }}');
+    var drawerEl = document.getElementById('viaplush-cart-drawer-{{ sid }}');
+    if (!root || !drawerEl) return;
+
+    var cartTrigger = root.querySelector('[data-viaplush-cart-trigger]');
+    var countEl = root.querySelector('[data-viaplush-cart-count]');
+    var hideZero = root.getAttribute('data-hide-zero-count') === 'true';
+    var shopRoot = (window.Shopify && Shopify.routes && Shopify.routes.root) ? Shopify.routes.root : '/';
+    var cartUrl = shopRoot + 'cart.js';
+    var cartChangeUrl = shopRoot + 'cart/change.js';
+    var stickyEnabled = {{ sticky_header | json }};
+    var scrollThreshold = 4;
+
+    var configEl = drawerEl.parentElement
+      ? drawerEl.parentElement.querySelector('[data-viaplush-cart-drawer-config]')
+      : document.querySelector('[data-viaplush-cart-drawer-config]');
+    if (!configEl && drawerEl.nextElementSibling && drawerEl.nextElementSibling.matches('[data-viaplush-cart-drawer-config]')) {
+      configEl = drawerEl.nextElementSibling;
+    }
+    var drawerConfig = {};
+    if (configEl) {
+      try { drawerConfig = JSON.parse(configEl.textContent); } catch (e) { drawerConfig = {}; }
+    }
+
+    var panelEl = drawerEl.querySelector('[data-viaplush-cart-panel]');
+    var itemsEl = drawerEl.querySelector('[data-viaplush-cart-items]');
+    var emptyEl = drawerEl.querySelector('[data-viaplush-cart-empty]');
+    var footerEl = drawerEl.querySelector('[data-viaplush-cart-footer]');
+    var loadingEl = drawerEl.querySelector('[data-viaplush-cart-loading]');
+    var subtotalEl = drawerEl.querySelector('[data-viaplush-cart-subtotal]');
+    var checkoutEl = drawerEl.querySelector('[data-viaplush-cart-checkout]');
+    var overlayEl = drawerEl.querySelector('.viaplush-cart-drawer__overlay');
+    var closeEls = drawerEl.querySelectorAll('[data-viaplush-cart-close]');
+    var moneyFormat = drawerConfig.moneyFormat || (window.Shopify && Shopify.money_format) || '';
+    var removeLabel = drawerConfig.removeLabel || 'Remove';
+    var isOpen = false;
+    var isUpdating = false;
+    var lastFocus = null;
+    var currentCart = null;
+
+    function cartAriaLabel(count) {
+      if (count === 1) return 'Open cart, 1 item';
+      if (count > 1) return 'Open cart, ' + count + ' items';
+      return 'Open cart';
+    }
+
+    function formatMoney(cents) {
+      if (typeof cents !== 'number') return '';
+      if (window.Shopify && typeof Shopify.formatMoney === 'function') {
+        return Shopify.formatMoney(cents, moneyFormat);
+      }
+      return '$' + (cents / 100).toFixed(2);
+    }
+
+    function updateCountDisplay(count) {
+      if (!countEl || !cartTrigger) return;
+      var safeCount = typeof count === 'number' && count >= 0 ? count : 0;
+      countEl.textContent = String(safeCount);
+      countEl.classList.toggle('viaplush-minimal-header__cart-count--hidden', hideZero && safeCount === 0);
+      cartTrigger.setAttribute('aria-label', cartAriaLabel(safeCount));
+    }
+
+    function suppressThemeCartDrawer() {
+      var selectors = [
+        'cart-drawer',
+        'cart-drawer-component',
+        '#CartDrawer',
+        '.drawer--cart',
+        '#cart-drawer'
+      ];
+      selectors.forEach(function (selector) {
+        document.querySelectorAll(selector).forEach(function (el) {
+          if (el.closest('[data-viaplush-cart-drawer]')) return;
+          el.setAttribute('aria-hidden', 'true');
+          el.removeAttribute('open');
+          if (typeof el.close === 'function') {
+            try { el.close(); } catch (e) {}
+          }
+          el.classList.remove('active', 'is-open', 'animate', 'visible');
+        });
+      });
+      document.documentElement.classList.remove('overflow-hidden', 'cart-open', 'js-drawer-open');
+      document.body.classList.remove('overflow-hidden', 'cart-open', 'js-drawer-open');
+    }
+
+    function setLoading(loading) {
+      if (!loadingEl) return;
+      loadingEl.hidden = !loading;
+      loadingEl.setAttribute('aria-hidden', loading ? 'false' : 'true');
+    }
+
+    function clearLoading() {
+      setLoading(false);
+      isUpdating = false;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderCart(cart) {
+      currentCart = cart;
+      if (!itemsEl || !emptyEl || !footerEl) return;
+
+      clearLoading();
+
+      var items = (cart && cart.items) ? cart.items : [];
+      updateCountDisplay(cart ? cart.item_count : 0);
+
+      if (!items.length) {
+        itemsEl.innerHTML = '';
+        itemsEl.hidden = true;
+        emptyEl.hidden = false;
+        footerEl.hidden = true;
+        return;
+      }
+
+      emptyEl.hidden = true;
+      itemsEl.hidden = false;
+      footerEl.hidden = false;
+
+      itemsEl.innerHTML = items.map(function (item, index) {
+        var variantTitle = item.variant_title && item.variant_title !== 'Default Title'
+          ? '<p class="viaplush-cart-drawer__item-variant">' + escapeHtml(item.variant_title) + '</p>'
+          : '';
+        var imageSrc = item.image ? item.image : '';
+        var imageAlt = escapeHtml(item.product_title || item.title || '');
+
+        return (
+          '<li class="viaplush-cart-drawer__item" data-line-key="' + escapeHtml(item.key) + '" style="animation-delay:' + (index * 40) + 'ms">' +
+            (imageSrc
+              ? '<img class="viaplush-cart-drawer__item-image" src="' + escapeHtml(imageSrc) + '" alt="' + imageAlt + '" width="72" height="88" loading="lazy">'
+              : '<span class="viaplush-cart-drawer__item-image" aria-hidden="true"></span>') +
+            '<div class="viaplush-cart-drawer__item-details">' +
+              '<p class="viaplush-cart-drawer__item-title">' + escapeHtml(item.product_title || item.title) + '</p>' +
+              variantTitle +
+              '<div class="viaplush-cart-drawer__item-meta">' +
+                '<span class="viaplush-cart-drawer__item-price">' + escapeHtml(formatMoney(item.final_line_price)) + '</span>' +
+                '<button type="button" class="viaplush-cart-drawer__item-remove" data-viaplush-cart-remove data-line-key="' + escapeHtml(item.key) + '">' + escapeHtml(removeLabel) + '</button>' +
+              '</div>' +
+            '</div>' +
+          '</li>'
+        );
+      }).join('');
+
+      if (subtotalEl) subtotalEl.textContent = formatMoney(cart.total_price || 0);
+    }
+
+    function fetchCart() {
+      return fetch(cartUrl, { credentials: 'same-origin' })
+        .then(function (res) { return res.json(); })
+        .then(function (cart) {
+          renderCart(cart);
+          return cart;
+        });
+    }
+
+    function pulseCartCount() {
+      if (!countEl) return;
+      countEl.classList.remove('viaplush-minimal-header__cart-count--hidden');
+      countEl.classList.remove('viaplush-minimal-header__cart-count--pulse');
+      void countEl.offsetWidth;
+      countEl.classList.add('viaplush-minimal-header__cart-count--pulse');
+    }
+
+    function removeLineItem(lineKey, button) {
+      if (!lineKey || isUpdating) return Promise.resolve(null);
+
+      var itemEl = button ? button.closest('.viaplush-cart-drawer__item') : null;
+      isUpdating = true;
+      if (button) button.disabled = true;
+      if (itemEl) itemEl.classList.add('is-removing');
+
+      var safetyTimer = window.setTimeout(clearLoading, 8000);
+
+      return fetch(cartChangeUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ id: lineKey, quantity: 0 })
+      })
+        .then(function (res) {
+          if (!res.ok) return res.json().then(function (e) { throw e; });
+          return res.json();
+        })
+        .then(function (cart) {
+          renderCart(cart);
+          suppressThemeCartDrawer();
+          return cart;
+        })
+        .catch(function () {
+          if (button) button.disabled = false;
+          if (itemEl) itemEl.classList.remove('is-removing');
+          clearLoading();
+          return fetchCart();
+        })
+        .finally(function () {
+          window.clearTimeout(safetyTimer);
+          clearLoading();
+        });
+    }
+
+    function openDrawer(cart, options) {
+      options = options || {};
+      lastFocus = document.activeElement;
+      suppressThemeCartDrawer();
+
+      if (cart) {
+        renderCart(cart);
+      } else {
+        setLoading(true);
+        fetchCart()
+          .catch(function () {})
+          .finally(function () {
+            clearLoading();
+          });
+      }
+
+      drawerEl.classList.add('is-open');
+      drawerEl.setAttribute('aria-hidden', 'false');
+      document.documentElement.classList.add('viaplush-cart-drawer-open');
+      isOpen = true;
+      suppressThemeCartDrawer();
+
+      window.requestAnimationFrame(function () {
+        suppressThemeCartDrawer();
+        if (panelEl) panelEl.focus();
+      });
+
+      if (options.autoOpened) {
+        drawerEl.setAttribute('data-auto-opened', 'true');
+        window.setTimeout(function () {
+          drawerEl.removeAttribute('data-auto-opened');
+        }, 500);
+      }
+    }
+
+    function closeDrawer() {
+      if (!isOpen) return;
+      clearLoading();
+      drawerEl.classList.remove('is-open');
+      drawerEl.setAttribute('aria-hidden', 'true');
+      document.documentElement.classList.remove('viaplush-cart-drawer-open');
+      isOpen = false;
+      suppressThemeCartDrawer();
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        lastFocus.focus();
+      }
+    }
+
+    function handleViaplushCartUpdated(event) {
+      var detail = event && event.detail ? event.detail : {};
+      var cart = detail.cart || null;
+      if (!cart || typeof cart.item_count !== 'number') return;
+      currentCart = cart;
+      if (isOpen) renderCart(cart);
+      else updateCountDisplay(cart.item_count);
+    }
+
+    function handleCartUpdate(event) {
+      var detail = event && event.detail ? event.detail : {};
+      if (detail.source === 'viaplush-featured-collection' || detail.source === 'viaplush-cart-drawer') return;
+      if (isUpdating) return;
+
+      var cart = detail.cart || detail.cartData || null;
+      if (cart && typeof cart.item_count === 'number') {
+        if (isOpen) renderCart(cart);
+        else updateCountDisplay(cart.item_count);
+        return;
+      }
+      if (isOpen) {
+        fetchCart().finally(clearLoading);
+      } else {
+        fetch(cartUrl, { credentials: 'same-origin' })
+          .then(function (res) { return res.json(); })
+          .then(function (freshCart) { updateCountDisplay(freshCart.item_count || 0); })
+          .catch(function () {});
+      }
+    }
+
+    function onDrawerClick(event) {
+      if (event.target === overlayEl || event.target.closest('[data-viaplush-cart-close]')) {
+        event.preventDefault();
+        closeDrawer();
+        return;
+      }
+
+      var removeBtn = event.target.closest('[data-viaplush-cart-remove]');
+      if (!removeBtn || removeBtn.disabled || isUpdating) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      removeLineItem(removeBtn.getAttribute('data-line-key'), removeBtn);
+    }
+
+    if (cartTrigger) {
+      cartTrigger.addEventListener('click', function () {
+        openDrawer(null);
+      });
+    }
+
+    drawerEl.addEventListener('click', onDrawerClick);
+
+    document.addEventListener('keydown', function (event) {
+      if (!isOpen) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDrawer();
+      }
+    });
+
+    document.documentElement.addEventListener('viaplush:cart:updated', handleViaplushCartUpdated);
+    document.documentElement.addEventListener('cart:update', handleCartUpdate);
+    document.documentElement.addEventListener('cart:refresh', handleCartUpdate);
+    document.documentElement.addEventListener('cart:change', handleCartUpdate);
+    document.addEventListener('shopify:section:load', function () {
+      if (isOpen) fetchCart();
+      else fetch(cartUrl, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (c) { updateCountDisplay(c.item_count || 0); });
+    });
+
+    if (typeof window.subscribe === 'function' && window.PUB_SUB_EVENTS && window.PUB_SUB_EVENTS.cartUpdate) {
+      window.subscribe(window.PUB_SUB_EVENTS.cartUpdate, function (payload) {
+        if (payload && (payload.source === 'viaplush-cart-drawer' || payload.source === 'viaplush-featured-collection')) return;
+        if (isUpdating) return;
+        if (payload && payload.cartData && typeof payload.cartData.item_count === 'number') {
+          handleCartUpdate({ detail: { cart: payload.cartData } });
+        } else if (isOpen) {
+          fetchCart().finally(clearLoading);
+        } else {
+          fetch(cartUrl, { credentials: 'same-origin' })
+            .then(function (res) { return res.json(); })
+            .then(function (cart) { updateCountDisplay(cart.item_count || 0); });
+        }
+      });
+    }
+
+    if (panelEl) {
+      panelEl.setAttribute('tabindex', '-1');
+    }
+
+    window.ViaplushCartDrawer = {
+      open: function (cart) { openDrawer(cart); },
+      close: closeDrawer,
+      refresh: fetchCart,
+      updateCount: function (cart) {
+        if (!cart || typeof cart.item_count !== 'number') return;
+        currentCart = cart;
+        if (isOpen) renderCart(cart);
+        else updateCountDisplay(cart.item_count);
+      },
+      pulseCount: pulseCartCount,
+      scrollToHeader: function () {
+        if (root) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      isOpen: function () { return isOpen; },
+      getCart: function () { return currentCart; }
+    };
+
+    if (stickyEnabled) {
+      var spacerEl = document.getElementById('viaplush-header-spacer-{{ sid }}');
+
+      function syncStickySpacer() {
+        if (!spacerEl || !root) return;
+        spacerEl.style.height = root.getBoundingClientRect().height + 'px';
+      }
+
+      var onScroll = function () {
+        root.classList.toggle('is-scrolled', window.scrollY > scrollThreshold);
+      };
+
+      syncStickySpacer();
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', syncStickySpacer);
+      window.addEventListener('load', syncStickySpacer);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(syncStickySpacer);
+      }
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "VIAPLUSH Sale Header",
+  "tag": "section",
+  "class": "viaplush-minimal-header-section",
+  "settings": [
+    { "type": "header", "content": "Landing page — theme header & footer" },
+    {
+      "type": "paragraph",
+      "content": "Enable these when using this section on a sales/landing page so the default Atelier header and footer are hidden automatically."
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_theme_header",
+      "label": "Hide default theme header",
+      "default": true,
+      "info": "Hides the global header and announcement bar. Place this section at the top of your landing page."
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_theme_footer",
+      "label": "Hide default theme footer",
+      "default": true,
+      "info": "Hides the global footer on this page."
+    },
+
+    { "type": "header", "content": "Logo" },
+    {
+      "type": "paragraph",
+      "content": "Uses your theme logo by default (Theme settings → Logo). Upload an override below for this landing page only."
+    },
+    { "type": "image_picker", "id": "logo_override", "label": "Logo image override (optional)" },
+    { "type": "text", "id": "logo_alt", "label": "Logo alt text", "default": "VIAPLUSH" },
+    { "type": "text", "id": "tagline", "label": "Tagline under logo (optional)" },
+    { "type": "color", "id": "tagline_color", "label": "Tagline color" },
+    { "type": "color", "id": "tagline_accent_color", "label": "Tagline underline color" },
+    {
+      "type": "text",
+      "id": "logo_text_fallback",
+      "label": "Text logo fallback",
+      "default": "Viaplush",
+      "info": "Shown only when no theme logo or override image is set."
+    },
+    { "type": "color", "id": "logo_text_color", "label": "Text logo color", "default": "#000000" },
+    { "type": "color", "id": "logo_dot_color", "label": "Text logo dot color", "default": "#C41E3A" },
+    {
+      "type": "range",
+      "id": "logo_text_size_desktop",
+      "label": "Text logo size — desktop (px)",
+      "min": 18,
+      "max": 64,
+      "step": 1,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "logo_text_size_tablet",
+      "label": "Text logo size — tablet (px)",
+      "min": 16,
+      "max": 56,
+      "step": 1,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "logo_text_size_mobile",
+      "label": "Text logo size — mobile (px)",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "logo_max_height_desktop",
+      "label": "Logo max height — desktop (px)",
+      "min": 20,
+      "max": 120,
+      "step": 2,
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "logo_max_height_tablet",
+      "label": "Logo max height — tablet (px)",
+      "min": 18,
+      "max": 100,
+      "step": 2,
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "logo_max_height_mobile",
+      "label": "Logo max height — mobile (px)",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "default": 32
+    },
+    {
+      "type": "select",
+      "id": "logo_alignment",
+      "label": "Logo alignment within column",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+
+    { "type": "header", "content": "Cart icon" },
+    {
+      "type": "select",
+      "id": "cart_icon_style",
+      "label": "Icon style",
+      "info": "Font Awesome cart icons (inline SVG, no external library needed).",
+      "options": [
+        { "value": "cart-filled", "label": "Cart — filled (recommended)" },
+        { "value": "cart-outline", "label": "Cart — outline" },
+        { "value": "bag-filled", "label": "Shopping bag — filled" }
+      ],
+      "default": "cart-filled"
+    },
+    {
+      "type": "range",
+      "id": "cart_icon_size_desktop",
+      "label": "Icon size — desktop (px)",
+      "min": 16,
+      "max": 40,
+      "step": 1,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "cart_icon_size_tablet",
+      "label": "Icon size — tablet (px)",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "cart_icon_size_mobile",
+      "label": "Icon size — mobile (px)",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "default": 20
+    },
+    { "type": "color", "id": "cart_icon_color", "label": "Icon color", "default": "#000000" },
+    { "type": "color", "id": "count_bubble_bg_color", "label": "Count bubble background", "default": "#000000" },
+    { "type": "color", "id": "count_bubble_text_color", "label": "Count bubble text", "default": "#ffffff" },
+    {
+      "type": "range",
+      "id": "count_bubble_offset_top",
+      "label": "Count bubble offset top (px)",
+      "min": -16,
+      "max": 8,
+      "step": 1,
+      "default": -6
+    },
+    {
+      "type": "range",
+      "id": "count_bubble_offset_right",
+      "label": "Count bubble offset right (px)",
+      "min": -16,
+      "max": 8,
+      "step": 1,
+      "default": -8
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_zero_count",
+      "label": "Hide count bubble when cart is empty",
+      "default": true
+    },
+    { "type": "color", "id": "cart_focus_color", "label": "Cart focus outline color", "default": "#000000" },
+
+    { "type": "header", "content": "Cart drawer" },
+    { "type": "text", "id": "drawer_title", "label": "Drawer title", "default": "Your Bag" },
+    { "type": "text", "id": "drawer_checkout_text", "label": "Checkout button text", "default": "CHECKOUT" },
+    { "type": "text", "id": "drawer_empty_text", "label": "Empty cart message", "default": "Your bag is empty." },
+    { "type": "text", "id": "drawer_remove_label", "label": "Remove item label", "default": "Remove" },
+    { "type": "color", "id": "drawer_background_color", "label": "Drawer background", "default": "#F9F7F2" },
+    { "type": "color", "id": "drawer_text_color", "label": "Drawer text color", "default": "#000000" },
+    { "type": "color", "id": "drawer_muted_color", "label": "Drawer muted text", "default": "#666666" },
+    { "type": "color", "id": "drawer_border_color", "label": "Drawer border color", "default": "#E8E4DE" },
+    { "type": "text", "id": "drawer_overlay_color", "label": "Overlay color", "default": "rgba(0, 0, 0, 0.45)" },
+    { "type": "color", "id": "drawer_checkout_bg", "label": "Checkout button background", "default": "#000000" },
+    { "type": "color", "id": "drawer_checkout_text_color", "label": "Checkout button text", "default": "#ffffff" },
+    { "type": "color", "id": "drawer_checkout_hover_bg", "label": "Checkout button hover", "default": "#1a1a1a" },
+    {
+      "type": "range",
+      "id": "drawer_width_desktop",
+      "label": "Drawer width — desktop (px)",
+      "min": 320,
+      "max": 520,
+      "step": 10,
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "drawer_padding",
+      "label": "Drawer padding (px)",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "default": 24
+    },
+
+    { "type": "header", "content": "Section container" },
+    {
+      "type": "select",
+      "id": "container_type",
+      "label": "Container width",
+      "options": [
+        { "value": "theme", "label": "Theme / Page width" },
+        { "value": "full", "label": "Full width" },
+        { "value": "custom", "label": "Custom width" }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "range",
+      "id": "custom_max_width",
+      "label": "Custom max width (px)",
+      "min": 900,
+      "max": 1800,
+      "step": 10,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding_desktop",
+      "label": "Desktop horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "container_padding_tablet",
+      "label": "Tablet horizontal padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "container_padding_mobile",
+      "label": "Mobile horizontal padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "label": "Section padding top — desktop (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "label": "Section padding bottom — desktop (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_tablet",
+      "label": "Section padding top — tablet (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_tablet",
+      "label": "Section padding bottom — tablet (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Section padding top — mobile (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Section padding bottom — mobile (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 0
+    },
+
+    { "type": "header", "content": "Header layout" },
+    {
+      "type": "range",
+      "id": "header_padding_horizontal_desktop",
+      "label": "Horizontal padding — desktop (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 40,
+      "info": "Legacy setting. Use Section container padding above when possible."
+    },
+    {
+      "type": "range",
+      "id": "header_padding_horizontal_tablet",
+      "label": "Horizontal padding — tablet (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "header_padding_horizontal_mobile",
+      "label": "Horizontal padding — mobile (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "header_padding_vertical_desktop",
+      "label": "Vertical padding — desktop (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "header_padding_vertical_tablet",
+      "label": "Vertical padding — tablet (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "header_padding_vertical_mobile",
+      "label": "Vertical padding — mobile (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "content_vertical_align",
+      "label": "Content vertical alignment",
+      "options": [
+        { "value": "center", "label": "Center" },
+        { "value": "flex-start", "label": "Top" },
+        { "value": "flex-end", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+
+    { "type": "header", "content": "Background" },
+    { "type": "checkbox", "id": "background_transparent", "label": "Transparent background", "default": false },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F9F7F2" },
+    { "type": "checkbox", "id": "show_bottom_border", "label": "Show bottom border", "default": true },
+    { "type": "color", "id": "border_color", "label": "Border color", "default": "#E8E4DE" },
+    {
+      "type": "range",
+      "id": "border_thickness",
+      "label": "Border thickness (px)",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "default": 1
+    },
+
+    { "type": "header", "content": "Sticky behavior" },
+    { "type": "checkbox", "id": "sticky_header", "label": "Sticky header", "default": true },
+    {
+      "type": "color",
+      "id": "sticky_scroll_background",
+      "label": "Background on scroll (sticky)",
+      "default": "#F9F7F2"
+    },
+    { "type": "checkbox", "id": "sticky_shadow_on_scroll", "label": "Shadow on scroll", "default": false }
+  ],
+  "presets": [
+    {
+      "name": "VIAPLUSH Sale Header"
+    }
+  ]
+}
+{% endschema %}

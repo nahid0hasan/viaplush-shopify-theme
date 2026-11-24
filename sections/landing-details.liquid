@@ -1,0 +1,154 @@
+{% comment %}
+  Section contract.
+  "Close-up details" strip for landing templates: a heading followed by merchant-ordered
+  `_landing-detail` blocks (image, title, caption). Scrolls horizontally on small screens.
+  @example
+  <!-- templates/page.winter-sets.json, last content section -->
+{% endcomment %}
+
+{%- render 'landing-styles' -%}
+
+<section
+  class="lp lp-details{% if section.settings.snow %} lp-winter{% endif %}"
+  style="{% render 'landing-section-vars', settings: section.settings %}"
+>
+  {%- if section.settings.snow -%}
+    {% render 'landing-snow-branch', position: 'top-start' %}
+    {% render 'landing-snow-branch', position: 'top-end' %}
+  {%- endif -%}
+  <div class="lp-container">
+    {%- if section.settings.heading != blank -%}
+      <div class="lp-section-head">
+        <h2 class="lp-heading lp-heading--banner">{{ section.settings.heading | escape }}</h2>
+      </div>
+    {%- endif -%}
+
+    <ul class="lp-details__list" role="list">
+      {% content_for 'blocks' %}
+    </ul>
+  </div>
+</section>
+
+{% stylesheet %}
+  .lp-details {
+    padding-block: clamp(36px, 5vw, 64px);
+    overflow: hidden;
+  }
+
+  .lp-details__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(180px, 62%);
+    gap: 16px;
+    margin: 0;
+    padding: 0 0 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    list-style: none;
+  }
+
+  @media (min-width: 750px) {
+    .lp-details__list {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      overflow: visible;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:landing.names.landing_details",
+  "blocks": [
+    {
+      "type": "_landing-detail"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:landing.settings.heading",
+      "default": "Close-up details"
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.brand_colors"
+    },
+    {
+      "type": "checkbox",
+      "id": "snow",
+      "label": "t:landing.settings.snow",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:landing.settings.background",
+      "default": "#FCEFE2"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:landing.settings.text",
+      "default": "#1E2A3A"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:landing.settings.accent",
+      "default": "#C94A0C"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "t:landing.settings.secondary",
+      "default": "#1D4F91"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:landing.names.landing_details",
+      "blocks": {
+        "artwork": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Iconic artwork",
+            "caption": "Bold. Cultural. Timeless."
+          }
+        },
+        "back": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Back detail",
+            "caption": "Subtle touches. Big meaning."
+          }
+        },
+        "slit": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Side slit pants",
+            "caption": "Movement. Style. Comfort."
+          }
+        },
+        "signature": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Signature detail",
+            "caption": "Authentic. Original."
+          }
+        },
+        "fabric": {
+          "type": "_landing-detail",
+          "settings": {
+            "title": "Premium fabric",
+            "caption": "Soft. Durable. All season."
+          }
+        }
+      },
+      "block_order": ["artwork", "back", "slit", "signature", "fabric"]
+    }
+  ]
+}
+{% endschema %}

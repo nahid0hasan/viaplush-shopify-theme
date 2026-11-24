@@ -1,0 +1,300 @@
+{%- doc -%}
+  Renders one purchasable product card for `sections/landing-products.liquid`: variant image,
+  title (plus the colorway when locked to one color), live price, option pickers, and Add to cart /
+  Checkout buttons wired through `<landing-purchase>`.
+
+  @param {product} product - The product to sell.
+  @param {string} section_id - Owning section ID, used for unique element IDs.
+  @param {string} card_sizes - `sizes` attribute for the card image.
+  @param {number} [color_index] - Index of the color option when `fixed_value` is set.
+  @param {string} [fixed_value] - Color value this card is locked to (one card per colorway).
+  @param {string} [swatch_map] - Swatch overrides passed through to the variant picker.
+
+  @example
+  {% render 'landing-product-card', product: product, section_id: section.id, card_sizes: '25vw', color_index: 0, fixed_value: 'Peach / Orange' %}
+{%- enddoc -%}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  if fixed_value != blank
+    assign variant = null
+    for candidate in product.variants
+      if candidate.options[color_index] == fixed_value
+        if variant == null
+          assign variant = candidate
+        endif
+        if candidate.available
+          assign variant = candidate
+          break
+        endif
+      endif
+    endfor
+  endif
+
+  assign card_image = variant.featured_image | default: product.featured_image
+  assign card_key = product.id
+  if fixed_value != blank
+    assign card_key = product.id | append: '-' | append: fixed_value | handleize
+  endif
+  assign title_id = 'LandingProduct-' | append: section_id | append: '-' | append: card_key
+  assign slot_id = section_id | append: '-' | append: card_key
+
+  assign on_sale = false
+  if variant.compare_at_price > variant.price
+    assign on_sale = true
+  endif
+
+  assign card_available = false
+  if fixed_value != blank
+    for candidate in product.variants
+      if candidate.options[color_index] == fixed_value and candidate.available
+        assign card_available = true
+        break
+      endif
+    endfor
+  else
+    assign card_available = product.available
+  endif
+-%}
+
+<li class="lp-products__item">
+  <landing-purchase
+    class="lp-product"
+    role="group"
+    aria-labelledby="{{ title_id }}"
+    data-kind="single"
+    data-currency="{{ cart.currency.iso_code }}"
+    data-locale="{{ request.locale.iso_code }}"
+    data-label-add="{{ 'landing.actions.add_to_cart' | t | escape }}"
+    data-label-sold-out="{{ 'landing.actions.sold_out' | t | escape }}"
+    data-label-adding="{{ 'landing.actions.adding' | t | escape }}"
+    data-label-view-cart="{{ 'landing.actions.view_cart' | t | escape }}"
+    data-msg-added="{{ 'landing.status.added' | t | escape }}"
+    data-msg-error="{{ 'landing.status.error' | t | escape }}"
+    data-msg-unavailable="{{ 'landing.status.unavailable' | t | escape }}"
+  >
+    <a
+      class="lp-product__media"
+      href="{{ variant.url | default: product.url }}"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      {%- if card_image -%}
+        {{
+          card_image
+          | image_url: width: 900
+          | image_tag:
+            widths: '360, 540, 720, 900',
+            sizes: card_sizes,
+            loading: 'lazy',
+            alt: product.title,
+            data-lp-image: ''
+        }}
+      {%- else -%}
+        {{ 'product-apparel-1' | placeholder_svg_tag: 'lp-product__placeholder' }}
+      {%- endif -%}
+    </a>
+
+    <div class="lp-product__body">
+      <h3 class="lp-product__title" id="{{ title_id }}">
+        <a href="{{ variant.url | default: product.url }}">
+          {{- product.title | escape -}}
+          {%- if fixed_value != blank -%}
+            <span class="lp-product__colorway">({{ fixed_value | escape }})</span>
+          {%- endif -%}
+        </a>
+      </h3>
+
+      <div class="lp-price lp-product__price">
+        <s
+          class="lp-price__compare"
+          data-lp-compare
+          {% unless on_sale %}
+            hidden
+          {% endunless %}
+        >
+          <span class="lp-visually-hidden">{{ 'landing.product.regular_price' | t }}</span>
+          <span data-lp-amount>{{ variant.compare_at_price | money_without_trailing_zeros }}</span>
+        </s>
+        <span class="lp-price__current" data-lp-current>
+          <span class="lp-visually-hidden">{{ 'landing.product.sale_price' | t }}</span>
+          <span data-lp-amount>{{ variant.price | money_without_trailing_zeros }}</span>
+        </span>
+      </div>
+
+      {% render 'landing-variant-picker',
+        slot_id: slot_id,
+        product: product,
+        show_thumb: false,
+        fixed_value: fixed_value,
+        swatch_map: swatch_map
+      %}
+
+      <div class="lp-actions">
+        <button
+          type="button"
+          class="lp-btn lp-btn--accent"
+          data-lp-action="add"
+          {% unless card_available %}
+            disabled
+          {% endunless %}
+        >
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 4h2.2l2.1 10.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.2L20 8H6.2"/>
+            <circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>
+          </svg>
+          <span data-lp-button-label data-lp-add-label>
+            {%- if card_available -%}
+              {{- 'landing.actions.add_to_cart' | t -}}
+            {%- else -%}
+              {{- 'landing.actions.sold_out' | t -}}
+            {%- endif -%}
+          </span>
+        </button>
+        <button
+          type="button"
+          class="lp-btn lp-btn--secondary"
+          data-lp-action="checkout"
+          {% unless card_available %}
+            disabled
+          {% endunless %}
+        >
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1Zm2 0h6V7a3 3 0 0 0-6 0v3Z"/>
+          </svg>
+          <span data-lp-button-label>{{ 'landing.actions.checkout' | t }}</span>
+        </button>
+      </div>
+
+      <p class="lp-status" data-lp-status role="status"></p>
+    </div>
+  </landing-purchase>
+</li>
+
+{% stylesheet %}
+  .lp-products__item {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  .lp-product {
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    overflow: hidden;
+    border: 1px solid rgb(var(--lp-text-rgb) / 0.1);
+    border-radius: var(--lp-radius);
+    background-color: rgb(255 255 255 / 0.9);
+    box-shadow: var(--lp-shadow);
+  }
+
+  .lp-product__media {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    padding: 12px 12px 0;
+    background-color: #fff;
+  }
+
+  .lp-product__media img,
+  .lp-product__placeholder {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+    transition: transform 0.4s var(--lp-ease);
+  }
+
+  @media (hover: hover) {
+    .lp-product:hover .lp-product__media img {
+      transform: scale(1.03);
+    }
+  }
+
+  .lp-product__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px 18px;
+    text-align: center;
+  }
+
+  .lp-product__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .lp-product__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .lp-product__title a:hover {
+    text-decoration: underline;
+  }
+
+  .lp-product__title a:focus-visible {
+    outline: 3px solid var(--lp-accent);
+    outline-offset: 2px;
+  }
+
+  .lp-product__colorway {
+    display: block;
+    text-transform: capitalize;
+    font-weight: 500;
+  }
+
+  .lp-product__price {
+    justify-content: center;
+  }
+
+  .lp-product__price .lp-price__current {
+    font-size: 2.125rem;
+  }
+
+  .lp-product .lp-option__legend {
+    inline-size: 100%;
+    text-align: center;
+  }
+
+  .lp-product .lp-option__values {
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .lp-product .lp-option__value:not(.lp-option__value--swatch) {
+    min-inline-size: 34px;
+    min-block-size: 34px;
+    padding-inline: 5px;
+    font-size: 0.75rem;
+  }
+
+  .lp-product .lp-actions {
+    margin-block-start: auto;
+    gap: 8px;
+  }
+
+  .lp-product .lp-btn {
+    min-block-size: 44px;
+    font-size: 0.9375rem;
+  }
+{% endstylesheet %}

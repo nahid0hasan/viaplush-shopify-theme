@@ -1,0 +1,746 @@
+{% comment %}
+  Section contract.
+  Winter campaign hero in three columns: script headline and tagline, the model photo, and an
+  offer panel (limited-stock badge, set price, free-shipping ribbon, and the two set options that
+  scroll to the bundle offers). The photo is the LCP image, so it loads eagerly with high
+  priority; keep this section directly below the landing header.
+  @example
+  <!-- templates/page.winter-sets.json, after viaplush-minimal-archive-sale-header -->
+{% endcomment %}
+
+{%- render 'landing-styles' -%}
+
+{%- liquid
+  assign script_font = section.settings.script_font
+  assign image = section.settings.image
+  assign image_mobile = section.settings.image_mobile | default: image
+
+  assign primary_href = section.settings.primary_link | default: '#sets'
+
+  # Each set option jumps straight to its own bundle card (anchor IDs set on the bundle blocks).
+  assign option_1_href = primary_href
+  assign option_1_anchor = section.settings.option_1_anchor | handleize
+  if option_1_anchor != blank
+    assign option_1_href = '#' | append: option_1_anchor
+  endif
+  assign option_2_href = primary_href
+  assign option_2_anchor = section.settings.option_2_anchor | handleize
+  if option_2_anchor != blank
+    assign option_2_href = '#' | append: option_2_anchor
+  endif
+  assign secondary_href = section.settings.secondary_link | default: '#collection'
+-%}
+
+{% style %}
+  {{ script_font | font_face: font_display: 'swap' }}
+  #shopify-section-{{ section.id }} .lp-hero {
+    --lp-hero-script: {{ script_font.family }}, {{ script_font.fallback_families }};
+  }
+{% endstyle %}
+
+<section
+  class="lp lp-hero lp-winter"
+  style="{% render 'landing-section-vars', settings: section.settings %}"
+>
+  {%- if section.settings.show_branches -%}
+    {% render 'landing-snow-branch', position: 'top-start' %}
+    {% render 'landing-snow-branch', position: 'bottom-start' %}
+  {%- endif -%}
+
+  <div class="lp-container lp-hero__grid">
+    <div class="lp-hero__intro">
+      <h1 class="lp-hero__title">
+        {%- if section.settings.heading_line_1 != blank -%}
+          <span class="lp-hero__line lp-hero__line--1">{{ section.settings.heading_line_1 | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading_line_2 != blank -%}
+          <span class="lp-hero__line lp-hero__line--2">{{ section.settings.heading_line_2 | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading_line_3 != blank -%}
+          <span class="lp-hero__line lp-hero__line--3">{{ section.settings.heading_line_3 | escape }}</span>
+        {%- endif -%}
+      </h1>
+      <span class="lp-hero__swoosh" aria-hidden="true"></span>
+
+      {%- if section.settings.tagline != blank -%}
+        <p class="lp-hero__tagline">{{ section.settings.tagline | escape | newline_to_br }}</p>
+        <span class="lp-hero__swoosh lp-hero__swoosh--short" aria-hidden="true"></span>
+      {%- endif -%}
+    </div>
+
+    <div class="lp-hero__media">
+      {%- if image -%}
+        <picture>
+          {%- if section.settings.image_mobile -%}
+            <source
+              media="(max-width: 749px)"
+              srcset="{{ image_mobile | image_url: width: 500 }} 500w, {{ image_mobile | image_url: width: 750 }} 750w, {{ image_mobile | image_url: width: 1100 }} 1100w"
+              sizes="calc(100vw - 32px)"
+              width="{{ image_mobile.width }}"
+              height="{{ image_mobile.height }}"
+            >
+          {%- endif -%}
+          {{
+            image
+            | image_url: width: 1600
+            | image_tag:
+              class: 'lp-hero__image',
+              widths: '500, 750, 1000, 1300, 1600',
+              sizes: '(min-width: 990px) min(42vw, 560px), (min-width: 750px) 70vw, calc(100vw - 32px)',
+              loading: 'eager',
+              fetchpriority: 'high',
+              alt: image.alt
+          }}
+        </picture>
+      {%- elsif section.settings.image_asset != blank -%}
+        {%- comment -%} Campaign photo bundled with the theme (1118×1407) until a store photo is picked. {%- endcomment -%}
+        <img
+          class="lp-hero__image"
+          src="{{ section.settings.image_asset | asset_url }}"
+          alt="{{ section.settings.image_alt | escape }}"
+          width="1118"
+          height="1407"
+          loading="eager"
+          fetchpriority="high"
+        >
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'lp-hero__image lp-hero__placeholder' }}
+      {%- endif -%}
+    </div>
+
+    <div class="lp-hero__offer">
+      {%- if section.settings.badge != blank -%}
+        <p class="lp-badge lp-brush">
+          <span>{{ section.settings.badge | escape | newline_to_br }}</span>
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          >
+            <path d="M12 2.5 3.5 6.8v10.4L12 21.5l8.5-4.3V6.8L12 2.5Z"/><path d="m3.5 6.8 8.5 4.3 8.5-4.3M12 11.1v10.4M7.8 4.6l8.4 4.3"/>
+          </svg>
+        </p>
+      {%- endif -%}
+
+      {%- if section.settings.offer_title != blank -%}
+        <h2 class="lp-hero__offer-title">{{ section.settings.offer_title | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.offer_subtitle != blank -%}
+        <p class="lp-hero__offer-subtitle">{{ section.settings.offer_subtitle | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.offer_price != blank -%}
+        <p class="lp-price lp-hero__price">
+          {%- if section.settings.offer_compare != blank -%}
+            <s class="lp-price__compare">
+              <span class="lp-visually-hidden">{{ 'landing.bundle.regular_price' | t }}</span>
+              {{- section.settings.offer_compare | escape -}}
+            </s>
+          {%- endif -%}
+          <span class="lp-price__current">
+            <span class="lp-visually-hidden">{{ 'landing.bundle.set_price' | t }}</span>
+            {{- section.settings.offer_price | escape -}}
+          </span>
+        </p>
+      {%- endif -%}
+
+      {%- if section.settings.shipping_text != blank -%}
+        <p class="lp-ribbon lp-brush lp-hero__ribbon">
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            viewBox="0 0 32 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M1 5h4M0 9h5M2 13h3"/><path d="M8 4h13v12H8zM21 8h5l4 4v4h-9z"/><circle cx="12" cy="18.5" r="2.2"/><circle cx="25" cy="18.5" r="2.2"/>
+          </svg>
+          {{ section.settings.shipping_text | escape }}
+        </p>
+      {%- endif -%}
+
+      <div class="lp-hero__box">
+        {%- if section.settings.option_1_title != blank -%}
+          <a class="lp-hero__option" href="{{ option_1_href }}">
+            <span class="lp-hero__option-text">
+              <span class="lp-hero__option-title">{{ section.settings.option_1_title | escape }}</span>
+              {%- if section.settings.option_1_note != blank -%}
+                <span class="lp-hero__option-note">{{ section.settings.option_1_note | escape }}</span>
+              {%- endif -%}
+            </span>
+            <span class="lp-hero__option-price">{{ section.settings.option_1_price | escape }}</span>
+          </a>
+        {%- endif -%}
+        {%- if section.settings.option_2_title != blank -%}
+          <a class="lp-hero__option lp-hero__option--best" href="{{ option_2_href }}">
+            {%- if section.settings.option_2_tag != blank -%}
+              <span class="lp-hero__option-tag">{{ section.settings.option_2_tag | escape }}</span>
+            {%- endif -%}
+            <span class="lp-hero__option-text">
+              <span class="lp-hero__option-title">{{ section.settings.option_2_title | escape }}</span>
+              {%- if section.settings.option_2_note != blank -%}
+                <span class="lp-hero__option-note">{{ section.settings.option_2_note | escape }}</span>
+              {%- endif -%}
+            </span>
+            <span class="lp-hero__option-price">{{ section.settings.option_2_price | escape }}</span>
+          </a>
+        {%- endif -%}
+
+        {%- if section.settings.primary_label != blank -%}
+          <a class="lp-btn lp-btn--accent" href="{{ primary_href }}">
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 4h2.2l2.1 10.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.2L20 8H6.2"/>
+              <circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>
+            </svg>
+            {{ section.settings.primary_label | escape }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.secondary_label != blank -%}
+          <a class="lp-btn lp-btn--secondary" href="{{ secondary_href }}">
+            {{- section.settings.secondary_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+  <span class="lp-hero__edge" aria-hidden="true"></span>
+</section>
+
+{% stylesheet %}
+  .lp-hero {
+    --lp-tear-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 20' preserveAspectRatio='none'%3E%3Cpath d='M0 9 12 6l9 5 14-6 11 7 16-5 10 4 15-6 12 6 13-3 9 5 17-7 10 6 14-4 11 5 15-6 12 7 10-4 16 3 11-6 14 6 9-3 15 5 13-7 10 5 16-3 12 4 9-5 15 6 11-4 13 5 10-3 V20 H0Z'/%3E%3C/svg%3E");
+
+    padding-block: clamp(20px, 4vw, 48px) clamp(32px, 5vw, 64px);
+    overflow: hidden;
+  }
+
+  .lp-hero__grid {
+    display: grid;
+    gap: clamp(20px, 3vw, 36px);
+    align-items: center;
+  }
+
+  @media (min-width: 990px) {
+    .lp-hero__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 0.95fr);
+    }
+  }
+
+  .lp-hero__intro {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    min-inline-size: 0;
+  }
+
+  .lp-hero__title {
+    display: grid;
+    margin: 0;
+    font-family: var(--lp-hero-script, var(--font-accent--family, cursive));
+    font-weight: 400;
+    line-height: 0.88;
+    transform: rotate(-6deg);
+    transform-origin: left center;
+  }
+
+  .lp-hero__line {
+    display: block;
+    -webkit-text-stroke: 0.035em currentColor;
+    paint-order: stroke fill;
+    text-shadow: 0 3px 0 rgb(255 255 255 / 0.7);
+  }
+
+  .lp-hero__line--1 {
+    color: var(--lp-navy);
+    font-size: clamp(2.75rem, 2rem + 3vw, 4.75rem);
+  }
+
+  .lp-hero__line--2 {
+    color: var(--lp-accent-light);
+    font-size: clamp(3.5rem, 2.4rem + 4.4vw, 6.5rem);
+    padding-inline-start: 0.2em;
+  }
+
+  .lp-hero__line--3 {
+    color: var(--lp-secondary);
+    font-size: clamp(3.25rem, 2.2rem + 4vw, 6rem);
+  }
+
+  .lp-hero__swoosh {
+    display: block;
+    inline-size: min(260px, 80%);
+    block-size: 7px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, var(--lp-accent), var(--lp-accent-light) 60%, transparent);
+    transform: rotate(-4deg);
+  }
+
+  .lp-hero__swoosh--short {
+    inline-size: min(180px, 60%);
+    block-size: 5px;
+  }
+
+  .lp-hero__tagline {
+    margin: 6px 0 0;
+    font-family: var(--lp-font-display);
+    font-size: clamp(1.125rem, 0.95rem + 0.7vw, 1.375rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .lp-hero__media {
+    position: relative;
+    min-inline-size: 0;
+  }
+
+  /* Soft halo in the photo backdrop tone so the faded photo edges dissolve into the page. */
+  .lp-hero__media::before {
+    content: '';
+    position: absolute;
+    inset: 2% -10% -6%;
+    background: radial-gradient(closest-side, var(--lp-hero-photo-tone, #e6d8cb) 55%, transparent);
+    opacity: 0.85;
+  }
+
+  .lp-hero__media {
+    align-self: end;
+    margin-block-end: calc(clamp(32px, 5vw, 64px) * -1);
+  }
+
+  /* Frameless photo that melts into the backdrop, as in the campaign artwork.
+     Layers: top fade ∩ end-side fade ∩ narrow start-side fade ∩ (wide start-side fade ∪ a
+     vertical ramp solid from 42% down). The wide fade only covers the backdrop above the
+     model's arm; along the arm a narrow fade softens just the photo edge so it blends in. */
+  .lp-hero__image {
+    position: relative;
+    inline-size: 100%;
+    block-size: auto;
+    margin-inline: auto;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9%),
+      linear-gradient(to left, transparent, #000 8%),
+      linear-gradient(to right, transparent, rgb(0 0 0 / 0.6) 2.5%, #000 6%),
+      linear-gradient(to right, transparent, #000 12%),
+      linear-gradient(to bottom, transparent 28%, #000 42%);
+    -webkit-mask-composite: source-in, source-in, source-in, source-over, source-over;
+    mask-image: linear-gradient(to bottom, transparent, #000 9%),
+      linear-gradient(to left, transparent, #000 8%),
+      linear-gradient(to right, transparent, rgb(0 0 0 / 0.6) 2.5%, #000 6%),
+      linear-gradient(to right, transparent, #000 12%),
+      linear-gradient(to bottom, transparent 28%, #000 42%);
+    mask-composite: intersect, intersect, intersect, add, add;
+  }
+
+  .lp-hero__edge {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -1px;
+    z-index: 2;
+    block-size: 18px;
+    background-color: var(--lp-edge-color, #fff6ec);
+    -webkit-mask: var(--lp-tear-mask) bottom / 100% 100% no-repeat;
+    mask: var(--lp-tear-mask) bottom / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  .lp-hero__placeholder {
+    aspect-ratio: 4 / 5;
+    border-radius: var(--lp-radius);
+    background-color: var(--lp-peach);
+  }
+
+  .lp-hero__offer {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    min-inline-size: 0;
+    text-align: center;
+  }
+
+  .lp-hero__offer .lp-badge {
+    margin-block-end: 8px;
+  }
+
+  .lp-hero__offer-title {
+    margin: 0;
+    color: var(--lp-navy);
+    font-family: var(--lp-font-display);
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .lp-hero__offer-subtitle {
+    margin: -6px 0 0;
+    color: var(--lp-secondary);
+    font-family: var(--lp-font-display);
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+    font-style: italic;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .lp-hero__price {
+    justify-content: center;
+    margin: 0;
+  }
+
+  .lp-hero__price .lp-price__compare {
+    font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
+  }
+
+  .lp-hero__price .lp-price__current {
+    font-size: clamp(3rem, 2.2rem + 3vw, 4.5rem);
+  }
+
+  .lp-hero__ribbon {
+    margin-block: 4px 8px;
+  }
+
+  .lp-hero__box {
+    display: grid;
+    gap: 10px;
+    inline-size: 100%;
+    max-inline-size: 420px;
+    padding: 18px;
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius);
+    background-color: rgb(255 255 255 / 0.82);
+    box-shadow: var(--lp-shadow);
+  }
+
+  .lp-hero__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--lp-border);
+    border-radius: 12px;
+    background-color: #fff;
+    color: inherit;
+    text-align: start;
+    text-decoration: none;
+    transition: border-color 0.15s var(--lp-ease), transform 0.15s var(--lp-ease);
+  }
+
+  .lp-hero__option--best {
+    border: 2px solid var(--lp-accent);
+    margin-block-start: 6px;
+  }
+
+  @media (hover: hover) {
+    .lp-hero__option:hover {
+      border-color: var(--lp-navy);
+      transform: translateY(-1px);
+    }
+  }
+
+  .lp-hero__option:focus-visible {
+    outline: 3px solid var(--lp-secondary);
+    outline-offset: 2px;
+  }
+
+  .lp-hero__option-text {
+    display: grid;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+
+  .lp-hero__option-title {
+    color: var(--lp-navy);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .lp-hero__option-note {
+    color: var(--lp-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .lp-hero__option-price {
+    flex: none;
+    color: var(--lp-accent);
+    font-family: var(--lp-font-display);
+    font-size: 1.625rem;
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  .lp-hero__option-tag {
+    position: absolute;
+    inset-block-start: -11px;
+    inset-inline-end: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background-color: var(--lp-accent);
+    color: var(--lp-on-accent);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 989px) {
+    .lp-hero__intro {
+      justify-items: center;
+      text-align: center;
+    }
+
+    .lp-hero__title {
+      transform-origin: center;
+      justify-items: center;
+    }
+
+    .lp-hero__media {
+      max-inline-size: 560px;
+      margin-inline: auto;
+      margin-block-end: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:landing.names.landing_hero",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:landing.settings.image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:landing.settings.image_mobile"
+    },
+    {
+      "type": "text",
+      "id": "image_asset",
+      "label": "t:landing.settings.image_asset",
+      "info": "t:landing.content.image_asset_info"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "t:landing.settings.image_alt",
+      "default": "Models wearing the Jazz Ain't Blue matching sets"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_branches",
+      "label": "t:landing.settings.show_branches",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.headline"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "t:landing.settings.heading_line_1",
+      "default": "The"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2",
+      "label": "t:landing.settings.heading_line_2",
+      "default": "Winter"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_3",
+      "label": "t:landing.settings.heading_line_3",
+      "default": "Set Edit"
+    },
+    {
+      "type": "font_picker",
+      "id": "script_font",
+      "label": "t:landing.settings.script_font",
+      "default": "covered_by_your_grace_n4"
+    },
+    {
+      "type": "textarea",
+      "id": "tagline",
+      "label": "t:landing.settings.tagline",
+      "default": "Culture.\nComfort.\nArt. Expression."
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.offer"
+    },
+    {
+      "type": "textarea",
+      "id": "badge",
+      "label": "t:landing.settings.badge",
+      "default": "Limited\nstock"
+    },
+    {
+      "type": "text",
+      "id": "offer_title",
+      "label": "t:landing.settings.offer_title",
+      "default": "The Matching Set"
+    },
+    {
+      "type": "text",
+      "id": "offer_subtitle",
+      "label": "t:landing.settings.offer_subtitle",
+      "default": "Sweatshirt + Sweatpants"
+    },
+    {
+      "type": "text",
+      "id": "offer_compare",
+      "label": "t:landing.settings.offer_compare",
+      "info": "t:landing.content.compare_info"
+    },
+    {
+      "type": "text",
+      "id": "offer_price",
+      "label": "t:landing.settings.offer_price",
+      "default": "$159"
+    },
+    {
+      "type": "text",
+      "id": "shipping_text",
+      "label": "t:landing.settings.shipping_text",
+      "default": "Free shipping"
+    },
+    {
+      "type": "text",
+      "id": "option_1_title",
+      "label": "t:landing.settings.option_1_title",
+      "default": "1 Matching Set"
+    },
+    {
+      "type": "text",
+      "id": "option_1_note",
+      "label": "t:landing.settings.option_1_note",
+      "default": "Save 32% + 4 free accessories"
+    },
+    {
+      "type": "text",
+      "id": "option_1_price",
+      "label": "t:landing.settings.option_1_price",
+      "default": "$159"
+    },
+    {
+      "type": "text",
+      "id": "option_1_anchor",
+      "label": "t:landing.settings.option_1_anchor",
+      "info": "t:landing.content.option_anchor_info",
+      "default": "one-set"
+    },
+    {
+      "type": "text",
+      "id": "option_2_title",
+      "label": "t:landing.settings.option_2_title",
+      "default": "2 Matching Sets"
+    },
+    {
+      "type": "text",
+      "id": "option_2_note",
+      "label": "t:landing.settings.option_2_note",
+      "default": "Save 45% + 6 free accessories"
+    },
+    {
+      "type": "text",
+      "id": "option_2_price",
+      "label": "t:landing.settings.option_2_price",
+      "default": "$259"
+    },
+    {
+      "type": "text",
+      "id": "option_2_tag",
+      "label": "t:landing.settings.option_2_tag",
+      "default": "Best value"
+    },
+    {
+      "type": "text",
+      "id": "option_2_anchor",
+      "label": "t:landing.settings.option_2_anchor",
+      "info": "t:landing.content.option_anchor_info",
+      "default": "two-sets"
+    },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "t:landing.settings.primary_label",
+      "default": "Choose colors & sizes"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "t:landing.settings.primary_link",
+      "info": "t:landing.content.primary_link_info"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "t:landing.settings.secondary_label",
+      "default": "Shop single pieces"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "t:landing.settings.secondary_link",
+      "info": "t:landing.content.secondary_link_info"
+    },
+    {
+      "type": "header",
+      "content": "t:landing.content.brand_colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:landing.settings.background",
+      "default": "#FCEFE2"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:landing.settings.text",
+      "default": "#1E2A3A"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:landing.settings.accent",
+      "default": "#C94A0C"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "t:landing.settings.secondary",
+      "default": "#1D4F91"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:landing.names.landing_hero"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,41 @@
+{%- doc -%}
+  Outputs the landing palette custom properties for a section's inline `style` attribute.
+  Every landing section exposes the same four color settings, so palette overrides stay
+  scoped to that section. Button text color is chosen from the accent brightness.
+
+  @param {object} settings - The section settings containing `background_color`, `text_color`,
+    `accent_color`, and `secondary_color`.
+
+  @example
+  <div class="lp" style="{% render 'landing-section-vars', settings: section.settings %}">
+{%- enddoc -%}
+
+{%- liquid
+  assign on_accent = '#ffffff'
+  if settings.accent_color != blank
+    assign accent_brightness = settings.accent_color | color_brightness
+    if accent_brightness > 165
+      assign on_accent = '#1e2a3a'
+    endif
+  endif
+
+  assign on_secondary = '#ffffff'
+  if settings.secondary_color != blank
+    assign secondary_brightness = settings.secondary_color | color_brightness
+    if secondary_brightness > 165
+      assign on_secondary = '#1e2a3a'
+    endif
+  endif
+-%}
+{%- if settings.background_color != blank -%}
+  --lp-bg: {{ settings.background_color }};
+{%- endif -%}
+{%- if settings.text_color != blank -%}
+  --lp-text: {{ settings.text_color }}; --lp-text-rgb: {{ settings.text_color.red }} {{ settings.text_color.green }} {{ settings.text_color.blue }};
+{%- endif -%}
+{%- if settings.accent_color != blank -%}
+  --lp-accent: {{ settings.accent_color }}; --lp-on-accent: {{ on_accent }};
+{%- endif -%}
+{%- if settings.secondary_color != blank -%}
+  --lp-secondary: {{ settings.secondary_color }}; --lp-on-secondary: {{ on_secondary }};
+{%- endif -%}
